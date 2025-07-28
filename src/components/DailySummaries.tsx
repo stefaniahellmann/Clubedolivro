@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Calendar, Lock, Star } from 'lucide-react';
+import { Calendar, Lock, Star, BookOpen } from 'lucide-react';
 import { Modal } from './ui/Modal';
 
 interface Summary {
@@ -11,17 +11,29 @@ interface Summary {
   content: string;
 }
 
-const summaries: Summary[] = Array.from({ length: 30 }, (_, i) => ({
-  id: i + 1,
-  day: i + 1,
-  title: `Livro Inspirador ${i + 1}`,
-  author: `Autor Exemplo ${i + 1}`,
-  rating: Math.floor(Math.random() * 2) + 4.0, // de 4.0 a 5.0
-  content: `Este é o resumo do livro ${i + 1}. Ele traz reflexões práticas e profundas... `.repeat(20).slice(0, 1200),
-}));
+const summaries: Summary[] = [
+  {
+    id: 1,
+    day: 1,
+    title: 'O Poder do Hábito',
+    author: 'Charles Duhigg',
+    rating: 4.5,
+    content:
+      'Este livro explora como os hábitos moldam nossa vida pessoal e profissional. Charles Duhigg revela a ciência por trás da formação de hábitos e como podemos mudá-los de forma consciente. Ele introduz o conceito do "loop do hábito" – uma rotina composta por deixa, rotina e recompensa – e mostra como identificar e transformar hábitos prejudiciais. Com exemplos reais e histórias envolventes, a leitura é uma jornada para quem deseja assumir o controle da própria rotina e alcançar mudanças duradouras.',
+  },
+  {
+    id: 2,
+    day: 2,
+    title: 'Mindset: A Nova Psicologia do Sucesso',
+    author: 'Carol S. Dweck',
+    rating: 4.8,
+    content:
+      'Carol Dweck apresenta os conceitos de mindset fixo e mindset de crescimento. O primeiro acredita que habilidades são inatas; o segundo que elas podem ser desenvolvidas com esforço e aprendizado. O livro mostra como adotar um mindset de crescimento pode transformar sua abordagem nos estudos, no trabalho e nos relacionamentos. Com insights valiosos, é uma leitura fundamental para quem quer destravar seu potencial.',
+  },
+  // ... Adicione os outros 29 resumos aqui ou use JSON externo depois
+];
 
 export function DailySummaries() {
-  const today = new Date().getDate();
   const [selected, setSelected] = useState<Summary | null>(null);
   const [read, setRead] = useState<{ [key: number]: boolean }>({});
   const [userRating, setUserRating] = useState<{ [key: number]: number }>({});
@@ -35,41 +47,56 @@ export function DailySummaries() {
     setUserRating((prev) => ({ ...prev, [id]: rating }));
   };
 
+  // Novo: separação entre lidos e não lidos
+  const unreadSummaries = summaries.filter((s) => !read[s.id]);
+  const readSummaries = summaries.filter((s) => read[s.id]);
+
   return (
     <div className="p-6">
-      <h1 className="text-3xl font-bold text-white text-center mb-4">Resumos Diários</h1>
-      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-        {summaries.map((summary) => {
-          const isUnlocked = summary.day <= today;
-          const isRead = read[summary.id];
+      <h1 className="text-3xl font-bold text-white text-center mb-6">Leitura Diária</h1>
 
-          return (
-            <div
-              key={summary.id}
-              className={`rounded-lg p-4 text-center border ${
-                isUnlocked
-                  ? 'border-gray-500 bg-gray-800 cursor-pointer hover:border-amber-400'
-                  : 'border-gray-700 bg-gray-900 opacity-60'
-              }`}
-              onClick={() => isUnlocked && setSelected(summary)}
-            >
-              <div className="flex justify-center mb-2">
-                {isUnlocked ? (
-                  <Calendar className="text-amber-400" />
-                ) : (
-                  <Lock className="text-gray-500" />
-                )}
-              </div>
-              <h3 className="text-white font-semibold">Dia {summary.day}</h3>
-              <p className="text-sm text-gray-400">
-                {isUnlocked ? (isRead ? '✔️ Lido' : 'Clique para ler') : 'Bloqueado'}
-              </p>
+      {/* Não lidos (um por vez) */}
+      <div className="mb-8">
+        <h2 className="text-xl text-white font-semibold mb-4">📘 Próximo resumo disponível</h2>
+        {unreadSummaries.length > 0 ? (
+          <div
+            className="rounded-lg p-4 border border-amber-500 bg-gray-800 cursor-pointer hover:border-amber-400 transition"
+            onClick={() => setSelected(unreadSummaries[0])}
+          >
+            <div className="flex items-center gap-2 text-amber-400 mb-2">
+              <BookOpen />
+              <h3 className="text-white font-semibold">Dia {unreadSummaries[0].day} — {unreadSummaries[0].title}</h3>
             </div>
-          );
-        })}
+            <p className="text-gray-400 text-sm">Clique para abrir o resumo do dia.</p>
+          </div>
+        ) : (
+          <p className="text-gray-400">Parabéns! Você já leu todos os resumos disponíveis 🎉</p>
+        )}
       </div>
 
-      {/* Modal com layout otimizado */}
+      {/* Já lidos */}
+      {readSummaries.length > 0 && (
+        <div>
+          <h2 className="text-xl text-white font-semibold mb-4">✅ Resumos já lidos</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+            {readSummaries.map((summary) => (
+              <div
+                key={summary.id}
+                className="rounded-lg p-4 text-center border border-gray-700 bg-gray-900 opacity-80 hover:opacity-100 transition cursor-pointer"
+                onClick={() => setSelected(summary)}
+              >
+                <div className="flex justify-center mb-2">
+                  <Calendar className="text-green-400" />
+                </div>
+                <h3 className="text-white font-semibold text-sm">Dia {summary.day}</h3>
+                <p className="text-xs text-gray-400">✔️ Já lido</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Modal com o conteúdo do resumo */}
       <Modal
         isOpen={!!selected}
         onClose={() => setSelected(null)}
