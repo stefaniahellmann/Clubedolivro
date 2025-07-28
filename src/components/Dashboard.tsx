@@ -62,6 +62,34 @@ export function Dashboard() {
 
   return (
     <div className="space-y-8">
+      {/* Bloco de Boas-Vindas */}
+      <Card className="bg-gradient-to-r from-amber-600 to-green-600 text-white border-amber-500 relative overflow-hidden">
+        <div className="absolute inset-0 bg-black/10"></div>
+        <div className="relative z-10">
+          <div className="flex items-center justify-between">
+            <div>
+              <h2 className="text-3xl font-bold mb-2 flex items-center">
+                {getGreeting()}, {user?.firstName}! 
+                <Sparkles className="ml-2 h-8 w-8 text-amber-200 animate-pulse" />
+              </h2>
+              <p className="text-amber-100 text-lg mb-4 leading-relaxed">
+                {todaysMessage.message}
+              </p>
+              <div className="flex items-center space-x-2 text-amber-100">
+                <Calendar size={16} />
+                <span className="text-sm">
+                  Membro desde {new Date(user?.createdAt || '').toLocaleDateString('pt-BR')}
+                </span>
+                <Star className="ml-2 h-4 w-4 text-amber-200" />
+              </div>
+            </div>
+            <div className="hidden md:block">
+              <BookOpen size={100} className="text-amber-200/50" />
+            </div>
+          </div>
+        </div>
+      </Card>
+
       {/* Quick Links - 4 em uma fileira */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {quickLinks.map((link, index) => (
@@ -124,34 +152,6 @@ export function Dashboard() {
           <p className="text-blue-300">Materiais Gratuitos</p>
         </Card>
       </div>
-
-      {/* Welcome Section */}
-      <Card className="bg-gradient-to-r from-amber-600 to-green-600 text-white border-amber-500 relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/10"></div>
-        <div className="relative z-10">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-bold mb-2 flex items-center">
-                {getGreeting()}, {user?.firstName}! 
-                <Sparkles className="ml-2 h-8 w-8 text-amber-200 animate-pulse" />
-              </h2>
-              <p className="text-amber-100 text-lg mb-4 leading-relaxed">
-                {todaysMessage.message}
-              </p>
-              <div className="flex items-center space-x-2 text-amber-100">
-                <Calendar size={16} />
-                <span className="text-sm">
-                  Membro desde {new Date(user?.createdAt || '').toLocaleDateString('pt-BR')}
-                </span>
-                <Star className="ml-2 h-4 w-4 text-amber-200" />
-              </div>
-            </div>
-            <div className="hidden md:block">
-              <BookOpen size={100} className="text-amber-200/50" />
-            </div>
-          </div>
-        </div>
-      </Card>
     </div>
   );
 }
