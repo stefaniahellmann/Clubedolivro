@@ -45,7 +45,7 @@ export function Dashboard() {
       color: 'from-purple-600 to-purple-700',
     },
     {
-      title: 'Regras do Clube',
+      title: 'Podcast do Clube',
       description: 'Ouça com atenção e siga as regras combinadas abaixo:',
       icon: AlertCircle,
       color: 'from-amber-600 to-amber-700',
@@ -140,7 +140,7 @@ export function Dashboard() {
                 </div>
               </a>
             ) : link.showModal ? (
-              <div className="text-center space-y-3 px-4 py-6">
+              <div className="text-center space-y-3 p-4">
                 <div
                   className={`bg-gradient-to-br ${link.color} p-4 rounded-xl shadow-lg mx-auto w-fit`}
                 >
