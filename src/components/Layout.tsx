@@ -21,8 +21,13 @@ export function Layout({ children }: LayoutProps) {
                 Clube do Livro
               </h1>
             </div>
-
+            
             <div className="flex items-center space-x-4">
+              {user && (
+                <span className="text-sm text-gray-300">
+                  Olá, <span className="text-amber-400 font-medium">{user.firstName}</span>!
+                </span>
+              )}
               {isAdmin && (
                 <div className="flex items-center space-x-1 text-sm text-amber-400">
                   <Settings size={16} />
@@ -42,18 +47,10 @@ export function Layout({ children }: LayoutProps) {
           </div>
         </div>
       </header>
-
+      
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {user && (
-          <div className="mb-6">
-            <h2 className="text-2xl font-semibold text-amber-300">
-              Olá, {user.firstName}! 👋
-            </h2>
-          </div>
-        )}
         {children}
       </main>
     </div>
   );
 }
-a
