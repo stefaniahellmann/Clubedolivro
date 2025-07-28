@@ -1,0 +1,233 @@
+import React, { useState } from 'react';
+import { Card } from './ui/Card';
+import { Button } from './ui/Button';
+import { Modal } from './ui/Modal';
+import { BookOpen, ShoppingCart, Download, Quote, Star, Sparkles, Calendar, Lock } from 'lucide-react';
+import { books } from '../data/mockData';
+
+export function Books() {
+  const [selectedBook, setSelectedBook] = useState<typeof books[0] | null>(null);
+
+  const getCurrentWeek = () => {
+    const now = new Date();
+    const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
+    const firstDayOfWeek = firstDay.getDay(); // 0 = domingo, 1 = segunda, etc.
+    const currentDay = now.getDate();
+    
+    // Calcular a semana considerando que domingo inicia uma nova semana
+    const adjustedDay = currentDay + firstDayOfWeek;
+    return Math.ceil(adjustedDay / 7);
+  };
+
+  const isBookUnlocked = (bookIndex: number) => {
+    const currentWeek = getCurrentWeek();
+    const bookWeek = bookIndex + 1;
+    
+    // Verificar se já passou o domingo da semana do livro
+    const now = new Date();
+    const firstSundayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    
+    // Encontrar o primeiro domingo do mês
+    while (firstSundayOfMonth.getDay() !== 0) {
+      firstSundayOfMonth.setDate(firstSundayOfMonth.getDate() + 1);
+    }
+    
+    // Calcular o domingo da semana do livro
+    const bookSunday = new Date(firstSundayOfMonth);
+    bookSunday.setDate(firstSundayOfMonth.getDate() + (bookWeek - 1) * 7);
+    
+    return now >= bookSunday;
+  };
+
+  const getWeekLabel = (bookIndex: number) => {
+    return `Semana ${bookIndex + 1}`;
+  };
+
+  const currentWeek = getCurrentWeek();
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center">
+        <h2 className="text-4xl font-bold text-white mb-4 flex items-center justify-center">
+          <Sparkles className="mr-3 text-amber-400" />
+          Livros Indicados
+          <Sparkles className="ml-3 text-amber-400" />
+        </h2>
+        <p className="text-gray-300 max-w-3xl mx-auto text-lg leading-relaxed">
+          Descobra nossa seleção cuidadosa de livros que podem transformar sua perspectiva e enriquecer sua jornada de conhecimento.
+          Uma nova indicação é liberada a cada domingo.
+        </p>
+        <div className="mt-4 text-amber-400 font-medium flex items-center justify-center space-x-2">
+          <Calendar size={20} />
+          <span>Estamos na Semana {currentWeek} do mês</span>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {books.slice(0, 4).map((book, index) => {
+          const isUnlocked = isBookUnlocked(index);
+          
+          return (
+            <Card 
+              key={book.id} 
+              hover={isUnlocked} 
+              className={`group cursor-pointer transition-all duration-300 ${
+                isUnlocked
+                  ? 'bg-gray-800/50 backdrop-blur-sm border-gray-600 hover:border-amber-500'
+                  : 'bg-gray-900/50 border-gray-700 opacity-60'
+              }`}
+            >
+              <div className="space-y-4">
+                <div className="relative">
+                  <div className="aspect-w-3 aspect-h-4 relative overflow-hidden rounded-lg">
+                    <img
+                      src={book.cover}
+                      alt={book.title}
+                      className={`w-full h-64 object-cover rounded-lg shadow-lg transition-transform duration-300 ${
+                        isUnlocked ? 'group-hover:scale-105' : 'grayscale'
+                      }`}
+                    />
+                    {!isUnlocked && (
+                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
+                        <Lock className="text-gray-400" size={48} />
+                      </div>
+                    )}
+                    <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium ${
+                      isUnlocked 
+                        ? 'bg-green-600 text-white' 
+                        : 'bg-gray-600 text-gray-300'
+                    }`}>
+                      {getWeekLabel(index)}
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="space-y-3">
+                  <h3 className={`font-bold text-xl line-clamp-2 transition-colors ${
+                    isUnlocked 
+                      ? 'text-white group-hover:text-amber-300' 
+                      : 'text-gray-500'
+                  }`}>
+                    {book.title}
+                  </h3>
+                  <p className={`font-medium flex items-center ${
+                    isUnlocked ? 'text-amber-400' : 'text-gray-600'
+                  }`}>
+                    <Star className="w-4 h-4 mr-1" />
+                    {book.author}
+                  </p>
+                  <p className={`text-sm line-clamp-3 leading-relaxed ${
+                    isUnlocked ? 'text-gray-300' : 'text-gray-600'
+                  }`}>
+                    {isUnlocked ? book.miniSummary : 'Este livro será liberado em breve...'}
+                  </p>
+                </div>
+
+                <Button
+                  onClick={() => isUnlocked && setSelectedBook(book)}
+                  variant="outline"
+                  fullWidth
+                  disabled={!isUnlocked}
+                  className={`mt-4 transition-all duration-300 ${
+                    isUnlocked
+                      ? 'group-hover:bg-amber-600 group-hover:border-amber-500 group-hover:text-white'
+                      : 'opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  {isUnlocked ? 'Ver Detalhes' : 'Bloqueado'}
+                </Button>
+              </div>
+            </Card>
+          );
+        })}
+      </div>
+
+      {/* Book Details Modal */}
+      <Modal
+        isOpen={!!selectedBook}
+        onClose={() => setSelectedBook(null)}
+        title=""
+        size="xl"
+      >
+        {selectedBook && (
+          <div className="space-y-6">
+            <div className="flex space-x-6">
+              <img
+                src={selectedBook.cover}
+                alt={selectedBook.title}
+                className="w-32 h-44 object-cover rounded-lg shadow-lg"
+              />
+              <div className="flex-1">
+                <h3 className="text-2xl font-bold text-white mb-2">
+                  {selectedBook.title}
+                </h3>
+                <p className="text-amber-400 font-medium mb-4 flex items-center text-lg">
+                  <Star className="w-5 h-5 mr-2" />
+                  {selectedBook.author}
+                </p>
+              </div>
+            </div>
+
+            <div className="prose prose-invert max-w-none">
+              <h4 className="text-xl font-semibold text-white mb-3 flex items-center">
+                <BookOpen className="mr-2" size={24} />
+                Resumo
+              </h4>
+              <p className="text-gray-300 leading-relaxed text-lg">
+                {selectedBook.fullSummary}
+              </p>
+            </div>
+
+            {selectedBook.quotes.length > 0 && (
+              <div>
+                <h4 className="text-xl font-semibold text-white mb-4 flex items-center">
+                  <Quote className="mr-2" size={24} />
+                  Frases Marcantes
+                </h4>
+                <div className="space-y-4">
+                  {selectedBook.quotes.map((quote, index) => (
+                    <blockquote
+                      key={index}
+                      className="border-l-4 border-amber-500 pl-6 py-3 bg-amber-900/20 rounded-r-lg backdrop-blur-sm"
+                    >
+                      <p className="text-gray-300 italic text-lg">"{quote}"</p>
+                    </blockquote>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-700">
+              {selectedBook.purchaseLink && (
+                <Button
+                  as="a"
+                  href={selectedBook.purchaseLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center justify-center space-x-2 bg-gradient-to-r from-amber-600 to-green-600 hover:from-amber-700 hover:to-green-700"
+                >
+                  <ShoppingCart size={18} />
+                  <span>Comprar</span>
+                </Button>
+              )}
+              
+              {selectedBook.downloadLink && (
+                <Button
+                  as="a"
+                  href={selectedBook.downloadLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  variant="secondary"
+                  className="flex items-center justify-center space-x-2"
+                >
+                  <Download size={18} />
+                  <span>Download</span>
+                </Button>
+              )}
+            </div>
+          </div>
+        )}
+      </Modal>
+    </div>
+  );
+}
