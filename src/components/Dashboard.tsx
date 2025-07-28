@@ -45,7 +45,7 @@ export function Dashboard() {
       color: 'from-purple-600 to-purple-700',
     },
     {
-      title: 'Podcast do Clube',
+      title: 'Regras do Clube',
       description: 'Ouça com atenção e siga as regras combinadas abaixo:',
       icon: AlertCircle,
       color: 'from-amber-600 to-amber-700',
