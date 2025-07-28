@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Card } from './ui/Card';
-import { Calendar, Sparkles, Star, Lock, BookOpen, X } from 'lucide-react';
+import { Modal } from './ui/Modal';
+import { Calendar, Check, Sparkles, Star, Lock, BookOpen } from 'lucide-react';
 
 interface DailySummary {
   id: string;
@@ -18,7 +19,7 @@ const generateDailySummaries = (): DailySummary[] => {
     id: (i + 1).toString(),
     day: i + 1,
     title: `Reflexão do Dia ${i + 1}`,
-    content: `Este é o resumo e reflexão do dia ${i + 1}. Aqui exploramos conceitos importantes sobre leitura, desenvolvimento pessoal e como os livros podem transformar nossa perspectiva de vida. Cada dia traz uma nova oportunidade de aprendizado e crescimento através da literatura.`,
+    content: `Este é o resumo e reflexão do dia ${i + 1}. Aqui exploramos conceitos importantes sobre leitura, desenvolvimento pessoal e como os livros podem transformar nossa perspectiva de vida.`,
     image: `https://images.pexels.com/photos/159711/books-bookstore-book-reading-159711.jpeg`,
   }));
 };
@@ -27,13 +28,10 @@ export function DailySummaries() {
   const dailySummaries = generateDailySummaries();
   const [selectedSummary, setSelectedSummary] = useState<DailySummary | null>(null);
   const [ratings, setRatings] = useState<{ [key: string]: number }>({});
+  const [readDays, setReadDays] = useState<{ [key: string]: boolean }>({});
 
   const getCurrentDay = () => new Date().getDate();
-  const getDaysInMonth = () => {
-    const now = new Date();
-    return new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-  };
-
+  const getDaysInMonth = () => new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
   const isDayUnlocked = (day: number) => day <= getCurrentDay();
 
   const handleRating = (summaryId: string, rating: number) => {
@@ -41,6 +39,14 @@ export function DailySummaries() {
       ...prev,
       [summaryId]: rating,
     }));
+  };
+
+  const handleMarkAsRead = (summaryId: string) => {
+    setReadDays((prev) => ({
+      ...prev,
+      [summaryId]: true,
+    }));
+    setSelectedSummary(null); // fecha modal
   };
 
   const renderStars = (summaryId: string, currentRating: number = 0) => (
@@ -55,9 +61,7 @@ export function DailySummaries() {
           <Star
             size={20}
             className={`${
-              star <= (ratings[summaryId] || currentRating)
-                ? 'text-amber-400 fill-amber-400'
-                : 'text-gray-400'
+              star <= (ratings[summaryId] || currentRating) ? 'text-amber-400 fill-amber-400' : 'text-gray-400'
             } transition-all`}
           />
         </button>
@@ -72,7 +76,7 @@ export function DailySummaries() {
   const currentDay = getCurrentDay();
 
   return (
-    <div className="space-y-6 relative">
+    <div className="space-y-6">
       <div className="text-center">
         <h2 className="text-4xl font-bold text-white mb-4 flex items-center justify-center">
           <Sparkles className="mr-3 text-amber-400" />
@@ -81,7 +85,6 @@ export function DailySummaries() {
         </h2>
         <p className="text-gray-300 max-w-3xl mx-auto text-lg leading-relaxed">
           Acompanhe sua jornada de leitura com reflexões e insights preparados especialmente para você.
-          Um novo resumo é liberado a cada dia do mês.
         </p>
         <div className="mt-4 text-amber-400 font-medium">
           Hoje é dia {currentDay} - {daysInMonth - currentDay} resumos restantes este mês
@@ -91,6 +94,7 @@ export function DailySummaries() {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4">
         {dailySummaries.map((summary) => {
           const isUnlocked = isDayUnlocked(summary.day);
+          const isRead = readDays[summary.id];
 
           return (
             <Card
@@ -101,7 +105,11 @@ export function DailySummaries() {
                   ? 'bg-gray-800/50 backdrop-blur-sm border-gray-600 hover:border-amber-500'
                   : 'bg-gray-900/50 border-gray-700 opacity-60'
               }`}
-              onClick={() => isUnlocked && setSelectedSummary(summary)}
+              onClick={() => {
+                if (isUnlocked) {
+                  setSelectedSummary(summary);
+                }
+              }}
             >
               <div
                 className={`w-14 h-14 rounded-full flex items-center justify-center mx-auto mb-3 transition-transform shadow-lg ${
@@ -111,7 +119,11 @@ export function DailySummaries() {
                 }`}
               >
                 {isUnlocked ? (
-                  <Calendar className="text-white" size={22} />
+                  isRead ? (
+                    <Check className="text-white" size={22} />
+                  ) : (
+                    <Calendar className="text-white" size={22} />
+                  )
                 ) : (
                   <Lock className="text-gray-400" size={22} />
                 )}
@@ -126,47 +138,40 @@ export function DailySummaries() {
               >
                 {isUnlocked ? 'Clique para ler' : 'Bloqueado'}
               </p>
-              {isUnlocked && ratings[summary.id] && (
-                <div className="flex justify-center mt-2">
-                  {[...Array(ratings[summary.id])].map((_, i) => (
-                    <Star key={i} size={12} className="text-amber-400 fill-amber-400" />
-                  ))}
-                </div>
-              )}
             </Card>
           );
         })}
       </div>
 
-      {/* Modal manual como nos livros indicados */}
-      {selectedSummary && (
-        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center px-4">
-          <div className="bg-[#1c1c1c] border border-gray-600 rounded-xl p-6 w-full max-w-2xl relative shadow-xl space-y-5">
-            <button
-              className="absolute top-3 right-3 text-gray-400 hover:text-white"
-              onClick={() => setSelectedSummary(null)}
-            >
-              <X size={22} />
-            </button>
-
+      {/* Modal do Resumo */}
+      <Modal
+        isOpen={!!selectedSummary}
+        onClose={() => setSelectedSummary(null)}
+        title={selectedSummary?.title || ''}
+        size="lg"
+      >
+        {selectedSummary && (
+          <div className="space-y-6">
             <img
               src={selectedSummary.image}
-              alt="Resumo"
-              className="w-full h-56 object-cover rounded-md border border-gray-700"
+              alt={selectedSummary.title}
+              className="w-full h-64 object-cover rounded-lg shadow-lg"
             />
-
-            <h2 className="text-xl font-bold text-white">{selectedSummary.title}</h2>
-            <p className="text-gray-300 leading-relaxed">{selectedSummary.content}</p>
-
+            <p className="text-gray-300 leading-relaxed text-lg">{selectedSummary.content}</p>
             {renderStars(selectedSummary.id)}
-
-            <div className="flex items-center gap-2 text-gray-500 text-sm pt-2 border-t border-gray-700">
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded transition"
+              onClick={() => handleMarkAsRead(selectedSummary.id)}
+            >
+              ✅ Marcar como lido
+            </button>
+            <div className="flex items-center space-x-2 text-sm text-gray-400 pt-4 border-t border-gray-700">
               <BookOpen size={16} />
               <span>Resumo do Dia {selectedSummary.day}</span>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </Modal>
     </div>
   );
 }
