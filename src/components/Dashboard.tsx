@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Card } from './ui/Card';
+import { Modal } from './ui/Modal';
 import {
   MessageCircle,
   Users,
@@ -8,15 +9,16 @@ import {
   Calendar,
   BookOpen,
   UserPlus,
-  Headphones,
+  AlertCircle,
   Sparkles,
   Star,
   FileText,
 } from 'lucide-react';
-import { dailyMessages, extraLinks, freeMaterials } from '../data/mockData';
+import { dailyMessages, freeMaterials } from '../data/mockData';
 
 export function Dashboard() {
   const { user } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const todaysMessage = dailyMessages[Math.floor(Math.random() * dailyMessages.length)];
 
@@ -45,8 +47,9 @@ export function Dashboard() {
     {
       title: 'Podcast do Clube',
       description: 'Ouça com atenção e siga as regras combinadas abaixo:',
-      icon: Headphones,
+      icon: AlertCircle,
       color: 'from-amber-600 to-amber-700',
+      showModal: true,
     },
   ];
 
@@ -59,7 +62,22 @@ export function Dashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Boas-vindas */}
+      {/* Modal com regras do podcast */}
+      <Modal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        title="Regras do Podcast do Clube"
+        size="md"
+      >
+        <ul className="list-disc pl-5 text-gray-200 space-y-2">
+          <li>Escute os episódios com atenção e sem interrupções.</li>
+          <li>Evite pausar no meio do conteúdo.</li>
+          <li>Reflita sobre os temas abordados antes de comentar.</li>
+          <li>Compartilhe seus insights no grupo com respeito e clareza.</li>
+        </ul>
+      </Modal>
+
+      {/* Saudação personalizada */}
       <Card className="bg-gradient-to-r from-amber-600 to-green-600 text-white border-amber-500 relative overflow-hidden">
         <div className="absolute inset-0 bg-black/10"></div>
         <div className="relative z-10">
@@ -87,7 +105,7 @@ export function Dashboard() {
         </div>
       </Card>
 
-      {/* Links rápidos */}
+      {/* Blocos de links rápidos */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         {quickLinks.map((link, index) => (
           <Card
@@ -121,7 +139,7 @@ export function Dashboard() {
                   </div>
                 </div>
               </a>
-            ) : (
+            ) : link.showModal ? (
               <div className="text-center space-y-3 px-4 py-6">
                 <div
                   className={`bg-gradient-to-br ${link.color} p-4 rounded-xl shadow-lg mx-auto w-fit`}
@@ -131,9 +149,15 @@ export function Dashboard() {
                 <div>
                   <h3 className="font-semibold text-white mb-2 text-lg">{link.title}</h3>
                   <p className="text-gray-300 text-sm leading-relaxed">{link.description}</p>
+                  <button
+                    onClick={() => setIsModalOpen(true)}
+                    className="mt-3 text-amber-300 text-sm underline hover:text-amber-100 transition"
+                  >
+                    Ver Mais
+                  </button>
                 </div>
               </div>
-            )}
+            ) : null}
           </Card>
         ))}
       </div>
