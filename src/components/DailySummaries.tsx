@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Card } from './ui/Card';
-import { Modal } from './ui/Modal';
-import { Calendar, BookOpen, Sparkles, Star, Lock } from 'lucide-react';
+import { Calendar, Sparkles, Star, Lock, BookOpen, X } from 'lucide-react';
 
 interface DailySummary {
   id: string;
@@ -11,7 +10,6 @@ interface DailySummary {
   image: string;
 }
 
-// Gerar resumos dinamicamente
 const generateDailySummaries = (): DailySummary[] => {
   const today = new Date();
   const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
@@ -39,7 +37,10 @@ export function DailySummaries() {
   const isDayUnlocked = (day: number) => day <= getCurrentDay();
 
   const handleRating = (summaryId: string, rating: number) => {
-    setRatings(prev => ({ ...prev, [summaryId]: rating }));
+    setRatings((prev) => ({
+      ...prev,
+      [summaryId]: rating,
+    }));
   };
 
   const renderStars = (summaryId: string, currentRating: number = 0) => (
@@ -62,9 +63,7 @@ export function DailySummaries() {
         </button>
       ))}
       {ratings[summaryId] && (
-        <span className="text-sm text-amber-400 ml-2">
-          {ratings[summaryId]}/5
-        </span>
+        <span className="text-sm text-amber-400 ml-2">{ratings[summaryId]}/5</span>
       )}
     </div>
   );
@@ -73,7 +72,7 @@ export function DailySummaries() {
   const currentDay = getCurrentDay();
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
       <div className="text-center">
         <h2 className="text-4xl font-bold text-white mb-4 flex items-center justify-center">
           <Sparkles className="mr-3 text-amber-400" />
@@ -92,9 +91,10 @@ export function DailySummaries() {
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 gap-4">
         {dailySummaries.map((summary) => {
           const isUnlocked = isDayUnlocked(summary.day);
+
           return (
             <Card
-              key={summary.id}
+              key={summary.day}
               hover={isUnlocked}
               className={`cursor-pointer text-center p-4 group transition-all duration-300 ${
                 isUnlocked
@@ -121,9 +121,7 @@ export function DailySummaries() {
               </h3>
               <p
                 className={`text-xs transition-colors ${
-                  isUnlocked
-                    ? 'text-gray-400 group-hover:text-amber-300'
-                    : 'text-gray-600'
+                  isUnlocked ? 'text-gray-400 group-hover:text-amber-300' : 'text-gray-600'
                 }`}
               >
                 {isUnlocked ? 'Clique para ler' : 'Bloqueado'}
@@ -140,35 +138,35 @@ export function DailySummaries() {
         })}
       </div>
 
-      {/* Modal */}
-      <Modal
-        isOpen={!!selectedSummary}
-        onClose={() => setSelectedSummary(null)}
-        title={selectedSummary?.title || ''}
-        size="lg"
-      >
-        {selectedSummary && (
-          <div className="space-y-6">
-            {selectedSummary.image && (
-              <img
-                src={selectedSummary.image}
-                alt={selectedSummary.title}
-                className="w-full h-64 object-cover rounded-lg shadow-lg"
-              />
-            )}
-            <div className="prose prose-invert max-w-none">
-              <p className="text-gray-300 leading-relaxed text-lg">
-                {selectedSummary.content}
-              </p>
-            </div>
+      {/* Modal manual como nos livros indicados */}
+      {selectedSummary && (
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center px-4">
+          <div className="bg-[#1c1c1c] border border-gray-600 rounded-xl p-6 w-full max-w-2xl relative shadow-xl space-y-5">
+            <button
+              className="absolute top-3 right-3 text-gray-400 hover:text-white"
+              onClick={() => setSelectedSummary(null)}
+            >
+              <X size={22} />
+            </button>
+
+            <img
+              src={selectedSummary.image}
+              alt="Resumo"
+              className="w-full h-56 object-cover rounded-md border border-gray-700"
+            />
+
+            <h2 className="text-xl font-bold text-white">{selectedSummary.title}</h2>
+            <p className="text-gray-300 leading-relaxed">{selectedSummary.content}</p>
+
             {renderStars(selectedSummary.id)}
-            <div className="flex items-center space-x-2 text-sm text-gray-400 pt-4 border-t border-gray-700">
+
+            <div className="flex items-center gap-2 text-gray-500 text-sm pt-2 border-t border-gray-700">
               <BookOpen size={16} />
               <span>Resumo do Dia {selectedSummary.day}</span>
             </div>
           </div>
-        )}
-      </Modal>
+        </div>
+      )}
     </div>
   );
 }
