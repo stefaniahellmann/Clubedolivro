@@ -34,7 +34,7 @@ export function DailySummaries() {
 
   const now = new Date();
   const now = new Date();
-const brtNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+  const brtNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
   const releaseHour = 4;
