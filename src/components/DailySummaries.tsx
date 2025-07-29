@@ -121,11 +121,12 @@ const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
             <p className="text-xs text-gray-500 mt-2 italic">Clique para ler o resumo completo</p>
           </div>
 
-          <div className="flex items-center justify-center px-6">
-            <span className="text-sm text-gray-300">
-              📘 Resumos lidos: <strong>{readIds.length}</strong> de 31
-            </span>
-          </div>
+          <p className="text-center text-sm text-gray-300 mb-4">
+  {readIds.length === 0 && '🚀 Comece sua jornada de leitura hoje!'}
+  {readIds.length > 0 && readIds.length < allSummaries.length && `📘 Você já leu ${readIds.length} de ${allSummaries.length} resumos. Continue firme! 💪`}
+  {readIds.length === allSummaries.length && '🏆 Parabéns! Você completou todos os 31 resumos!'}
+</p>
+
         </div>
       )}
 
