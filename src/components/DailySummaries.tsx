@@ -134,37 +134,41 @@ const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
       
       <hr className="border-gray-700 my-4" />
 
-      <div className="space-y-3">
-        <h2 className="text-xl font-semibold text-center">Próximos Resumos Diários</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
-          {lockedSummaries.slice(0, 4).map((summary) => (
-            <div key={summary.id} className="bg-gray-900 border border-gray-700 rounded-lg p-5 text-center opacity-60">
-              <Lock className="text-gray-500 mx-auto mb-2" size={24} />
-              <h3 className="text-sm font-medium text-center">{summary.title}</h3>
-              <p className="text-xs italic text-gray-500 mt-1">Aguarde</p>
-            </div>
-          ))}
-        </div>
+      {favorites.length > 0 && (
+  <div className="space-y-4">
+    <h2 className="text-xl font-semibold text-center">Favoritos 💛</h2>
+
+    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      {favoriteSummaries
+        .slice((page - 1) * 15, page * 15)
+        .map((summary) => (
+          <div
+            key={summary.id}
+            className="bg-gray-800 border border-yellow-400 rounded-lg p-3 cursor-pointer hover:border-white"
+            onClick={() => setSelected(summary)}
+          >
+            <h3 className="font-semibold text-sm text-left">{summary.title}</h3>
+          </div>
+        ))}
+    </div>
+
+    {Math.ceil(favoriteSummaries.length / 15) > 1 && (
+      <div className="flex justify-center mt-4 space-x-2">
+        {Array.from({ length: Math.ceil(favoriteSummaries.length / 15) }, (_, i) => (
+          <button
+            key={i}
+            onClick={() => setPage(i + 1)}
+            className={`px-3 py-1 rounded text-sm ${
+              page === i + 1 ? 'bg-yellow-500 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+            }`}
+          >
+            {i + 1}
+          </button>
+        ))}
       </div>
-
-      <hr className="border-gray-700 my-4" />
-
-      <h2 className="text-xl font-semibold mb-4 text-center">Favoritos 💛</h2>
-      {favorites.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-          {favoriteSummaries.slice(0, 15).map((summary) => (
-            <div
-              key={summary.id}
-              className="bg-gray-800 border border-yellow-400 rounded-lg p-3 cursor-pointer hover:border-white"
-              onClick={() => setSelected(summary)}
-            >
-              <h3 className="font-semibold text-sm text-left">{summary.title}</h3>
-            </div>
-          ))}
-        </div>
-      ) : (
-        <p className="text-center text-sm italic text-gray-500">Você ainda não tem favoritos.</p>
-      )}
+    )}
+  </div>
+)}
 
       <hr className="border-gray-700 my-4" />
 
