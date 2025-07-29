@@ -33,7 +33,6 @@ export function DailySummaries() {
   const allSummaries = summaries;
 
   const now = new Date();
-  const now = new Date();
   const brtNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
