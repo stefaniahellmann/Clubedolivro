@@ -111,22 +111,25 @@ const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
       <hr className="border-gray-700 my-4" />
 
       {currentSummary && (
-        <div className="flex items-start justify-between flex-wrap gap-4">
-          <div
-            className="flex-1 bg-gray-800 border border-amber-400 rounded-lg p-6 text-center cursor-pointer hover:border-white min-w-[300px]"
-            onClick={() => setSelected(currentSummary)}
-          >
-            <h2 className="text-xl font-semibold">{currentSummary.title}</h2>
-            <p className="text-sm text-gray-400">{currentSummary.author}</p>
-            <p className="text-xs text-gray-500 mt-2 italic">Clique para ler o resumo completo</p>
-          </div>
+       <div className="flex flex-col md:flex-row justify-center items-stretch gap-6">
+  {/* Resumo Liberado */}
+  <div
+    className="flex-1 bg-gray-800 border border-amber-400 rounded-lg p-6 text-center cursor-pointer hover:border-white"
+    onClick={() => setSelected(currentSummary)}
+  >
+    <h2 className="text-xl font-semibold">{currentSummary.title}</h2>
+    <p className="text-sm text-gray-400">{currentSummary.author}</p>
+    <p className="text-xs text-gray-500 mt-2 italic">Clique para ler o resumo completo</p>
+  </div>
 
-          <div className="flex items-center justify-center px-6">
-            <span className="text-sm text-gray-300">
-              📘 Resumos lidos: <strong>{readIds.length}</strong> de 31
-            </span>
-          </div>
-        </div>
+  {/* Resumos Lidos - Estilo quadrado */}
+  <div className="w-full md:w-1/3 bg-gray-900 border border-green-500 rounded-lg p-5 text-center">
+    <div className="text-3xl mb-2">🏆</div>
+    <h3 className="text-md font-semibold text-white mb-1">Resumos Lidos</h3>
+    <p className="text-sm text-amber-400 font-medium">{readIds.length} de {allSummaries.length}</p>
+  </div>
+</div>
+
       )}
       
       <hr className="border-gray-700 my-4" />
