@@ -18,9 +18,15 @@ export function Books() {
   };
 
   const isBookUnlocked = (bookIndex: number) => {
-    const currentWeek = getCurrentWeek();
-    return bookIndex === currentWeek - 1;
+    return bookIndex === getCurrentWeek() - 1;
   };
+
+  const unlockedIndex = getCurrentWeek() - 1;
+
+  const sortedBooks = [
+    ...(books[unlockedIndex] ? [books[unlockedIndex]] : []),
+    ...books.filter((_, i) => i !== unlockedIndex)
+  ];
 
   return (
     <div className="space-y-6">
@@ -31,20 +37,20 @@ export function Books() {
           <Sparkles className="ml-3 text-amber-400" />
         </h2>
         <p className="text-gray-300 max-w-3xl mx-auto text-lg leading-relaxed">
-          Descobra nossa seleção cuidadosa de livros que podem transformar sua perspectiva e enriquecer sua jornada de conhecimento.
+          Descubra nossa seleção cuidadosa de livros que podem transformar sua perspectiva e enriquecer sua jornada de conhecimento.
           Uma nova indicação é liberada a cada domingo.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {books.slice(0, 5).map((book, index) => {
-          const isUnlocked = isBookUnlocked(index);
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        {sortedBooks.slice(0, 5).map((book, index) => {
+          const isUnlocked = books.indexOf(book) === unlockedIndex;
 
           return (
             <Card 
               key={book.id} 
               hover={isUnlocked} 
-              className={`group cursor-pointer transition-all duration-300 aspect-[3/4] flex flex-col justify-between ${
+              className={`group cursor-pointer transition-all duration-300 ${
                 isUnlocked
                   ? 'bg-gray-800/50 backdrop-blur-sm border-gray-600 hover:border-amber-500'
                   : 'bg-gray-900/50 border-gray-700 opacity-60'
@@ -52,7 +58,7 @@ export function Books() {
             >
               <div className="space-y-4">
                 <div className="relative">
-                  <div className="relative overflow-hidden rounded-lg h-full">
+                  <div className="aspect-w-3 aspect-h-4 relative overflow-hidden rounded-lg">
                     <img
                       src={book.cover}
                       alt={book.title}
@@ -69,38 +75,34 @@ export function Books() {
                 </div>
 
                 <div className="space-y-3">
-                  <h3 className={`font-bold text-xl line-clamp-2 transition-colors ${
-                    isUnlocked ? 'text-white group-hover:text-amber-300' : 'text-gray-500'
+                  <h3 className={`font-bold text-xl line-clamp-2 text-center transition-colors ${
+                    isUnlocked 
+                      ? 'text-white group-hover:text-amber-300' 
+                      : 'text-gray-500'
                   }`}>
                     {book.title}
                   </h3>
-                  <p className={`font-medium flex items-center ${
-                    isUnlocked ? 'text-amber-400' : 'text-gray-600'
+                  <p className={`text-sm line-clamp-3 leading-relaxed text-center ${
+                    isUnlocked ? 'text-gray-300' : 'text-gray-600 italic'
                   }`}>
-                    <Star className="w-4 h-4 mr-1" />
-                    {book.author}
-                  </p>
-                  <p className={`text-sm line-clamp-3 leading-relaxed ${
-                    isUnlocked ? 'text-gray-300' : 'text-gray-600'
-                  }`}>
-                    {isUnlocked ? book.miniSummary : 'Este livro será liberado em breve...'}
+                    {isUnlocked ? book.miniSummary : 'Aguarde...'}
                   </p>
                 </div>
-              </div>
 
-              <Button
-                onClick={() => isUnlocked && setSelectedBook(book)}
-                variant="outline"
-                fullWidth
-                disabled={!isUnlocked}
-                className={`mt-4 transition-all duration-300 ${
-                  isUnlocked
-                    ? 'group-hover:bg-amber-600 group-hover:border-amber-500 group-hover:text-white'
-                    : 'opacity-50 cursor-not-allowed'
-                }`}
-              >
-                {isUnlocked ? 'Ver Sinopse' : 'Aguarde...'}
-              </Button>
+                <Button
+                  onClick={() => isUnlocked && setSelectedBook(book)}
+                  variant="outline"
+                  fullWidth
+                  disabled={!isUnlocked}
+                  className={`mt-4 transition-all duration-300 ${
+                    isUnlocked
+                      ? 'group-hover:bg-amber-600 group-hover:border-amber-500 group-hover:text-white'
+                      : 'opacity-50 cursor-not-allowed'
+                  }`}
+                >
+                  {isUnlocked ? 'Ver Sinopse' : 'Aguarde...'}
+                </Button>
+              </div>
             </Card>
           );
         })}
@@ -173,7 +175,7 @@ export function Books() {
                   <span>Comprar</span>
                 </Button>
               )}
-              
+
               {selectedBook.downloadLink && (
                 <Button
                   as="a"
