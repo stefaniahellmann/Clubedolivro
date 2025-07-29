@@ -33,10 +33,10 @@ export function DailySummaries() {
   const allSummaries = summaries;
 
   const now = new Date();
-  const brtNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
-  const currentHour = now.getHours();
-  const currentMinute = now.getMinutes();
-  const releaseHour = 4;
+  const brtNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
+const currentHour = brtNow.getHours();
+const currentMinute = brtNow.getMinutes();
+const releaseHour = 4;
 
   const nextRelease = new Date(now);
   nextRelease.setHours(releaseHour, 0, 0, 0);
