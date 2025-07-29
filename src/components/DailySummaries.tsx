@@ -14,7 +14,7 @@ const allSummaries: Summary[] = Array.from({ length: 31 }, (_, i) => ({
   id: i + 1,
   title: `Livro Transformador ${i + 1}`,
   author: `Autor Exemplar ${i + 1}`,
-  rating: (Math.random() * 1 + 4).toFixed(1) as unknown as number,
+  rating: parseFloat((Math.random() * 1 + 4).toFixed(1)),
   content: `Este é o resumo completo do livro ${i + 1}. `.repeat(20).trim(),
 }));
 
