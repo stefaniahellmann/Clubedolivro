@@ -18,26 +18,52 @@ const allSummaries: Summary[] = Array.from({ length: 31 }, (_, i) => ({
   content: `Este é o resumo completo do livro ${i + 1}. `.repeat(20).trim(),
 }));
 
+function getNextUnlockDate(lastDate: string | null): Date {
+  const now = new Date();
+  const nowUTC = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+  const nowMinus3 = new Date(nowUTC.getTime() - 3 * 60 * 60 * 1000);
+
+  if (!lastDate) return new Date(0);
+
+  const last = new Date(lastDate);
+  last.setUTCHours(7, 0, 0, 0); // 4h BRT = 7h UTC
+  last.setUTCDate(last.getUTCDate() + 1);
+
+  return last;
+}
+
 export function DailySummaries() {
   const [selected, setSelected] = useState<Summary | null>(null);
   const [readIds, setReadIds] = useState<number[]>([]);
   const [userRating, setUserRating] = useState<{ [key: number]: number }>({});
   const [page, setPage] = useState(1);
-
-  const currentUnlockedId = readIds.length + 1;
+  const [currentUnlockedId, setCurrentUnlockedId] = useState(1);
 
   useEffect(() => {
     const storedRead = localStorage.getItem('readSummaries');
     const storedRatings = localStorage.getItem('userRatings');
-    if (storedRead) setReadIds(JSON.parse(storedRead));
+    const lastRead = localStorage.getItem('lastReadAt');
+
+    const read = storedRead ? JSON.parse(storedRead) : [];
+    setReadIds(read);
     if (storedRatings) setUserRating(JSON.parse(storedRatings));
+
+    const now = new Date();
+    const nowUTC = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
+    const nowMinus3 = new Date(nowUTC.getTime() - 3 * 60 * 60 * 1000);
+
+    const nextUnlock = getNextUnlockDate(lastRead);
+    const unlockedCount = (lastRead && nowMinus3 >= nextUnlock) ? read.length + 1 : read.length;
+    setCurrentUnlockedId(unlockedCount + 1);
   }, []);
 
   const markAsRead = (id: number) => {
     const updated = [...readIds, id];
     setReadIds(updated);
     localStorage.setItem('readSummaries', JSON.stringify(updated));
+    localStorage.setItem('lastReadAt', new Date().toISOString());
     setSelected(null);
+    setCurrentUnlockedId(id + 1);
   };
 
   const handleRate = (id: number, rating: number) => {
@@ -57,7 +83,6 @@ export function DailySummaries() {
     <div className="p-6 space-y-10">
       <h1 className="text-3xl font-bold text-white text-center">Leitura Diária</h1>
 
-      {/* ✅ Resumo de hoje */}
       {currentSummary && (
         <div
           className="w-full max-w-lg mx-auto bg-gray-800 border border-amber-400 rounded-lg p-4 text-center cursor-pointer hover:border-white"
@@ -69,7 +94,6 @@ export function DailySummaries() {
         </div>
       )}
 
-      {/* 🔒 Próximos bloqueados */}
       <div className="space-y-2">
         <h2 className="text-xl text-gray-400 font-semibold text-center">Próximos Resumos Diários</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -85,7 +109,6 @@ export function DailySummaries() {
         </div>
       </div>
 
-      {/* ✅ Já lidos */}
       {readSummaries.length > 0 && (
         <div className="space-y-4">
           <h2 className="text-xl text-gray-300 font-semibold text-center">Resumos Lidos</h2>
@@ -122,7 +145,6 @@ export function DailySummaries() {
         </div>
       )}
 
-      {/* 📖 Modal de Leitura */}
       <Modal
         isOpen={!!selected}
         onClose={() => setSelected(null)}
