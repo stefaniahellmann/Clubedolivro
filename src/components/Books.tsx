@@ -42,66 +42,70 @@ export function Books() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
         {sortedBooks.slice(0, 4).map((book, index) => {
           const isUnlocked = books.indexOf(book) === unlockedIndex;
 
           return (
-            <Card 
-              key={book.id} 
-              hover={isUnlocked} 
-              className={`group cursor-pointer transition-all duration-300 ${
+            <Card
+              key={book.id}
+              hover={isUnlocked}
+              className={`group cursor-pointer transition-all duration-300 flex flex-col justify-between ${
                 isUnlocked
                   ? 'bg-gray-800/50 backdrop-blur-sm border-gray-600 hover:border-amber-500'
                   : 'bg-gray-900/50 border-gray-700 opacity-60'
               }`}
             >
-              <div className="space-y-4">
-                <div className="relative">
-                  <div className="aspect-[210/297] relative overflow-hidden rounded-lg">
-                    <img
-                      src={book.cover}
-                      alt={book.title}
-                      className={`w-full h-full object-cover rounded-lg shadow-lg transition-transform duration-300 ${
-                        isUnlocked ? 'group-hover:scale-105' : 'grayscale'
-                      }`}
-                    />
-                    {!isUnlocked && (
-                      <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
-                        <Lock className="text-gray-400" size={48} />
-                      </div>
-                    )}
+              <div className="flex flex-col h-full">
+                <div className="space-y-4 flex-grow">
+                  <div className="relative">
+                    <div className="aspect-w-3 aspect-h-4 relative overflow-hidden rounded-lg">
+                      <img
+                        src={book.cover}
+                        alt={book.title}
+                        className={`w-full h-64 object-cover rounded-lg shadow-lg transition-transform duration-300 ${
+                          isUnlocked ? 'group-hover:scale-105' : 'grayscale'
+                        }`}
+                      />
+                      {!isUnlocked && (
+                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
+                          <Lock className="text-gray-400" size={48} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="space-y-3">
+                    <h3 className={`font-bold text-xl line-clamp-2 text-center transition-colors ${
+                      isUnlocked 
+                        ? 'text-white group-hover:text-amber-300' 
+                        : 'text-gray-500'
+                    }`}>
+                      {book.title}
+                    </h3>
+                    <p className={`text-sm line-clamp-3 leading-relaxed text-center ${
+                      isUnlocked ? 'text-gray-300' : 'text-gray-600 italic'
+                    }`}>
+                      {isUnlocked ? book.miniSummary : 'Aguarde...'}
+                    </p>
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <h3 className={`font-bold text-xl line-clamp-2 text-center transition-colors ${
-                    isUnlocked 
-                      ? 'text-white group-hover:text-amber-300' 
-                      : 'text-gray-500'
-                  }`}>
-                    {book.title}
-                  </h3>
-                  <p className={`text-sm line-clamp-3 leading-relaxed text-center ${
-                    isUnlocked ? 'text-gray-300' : 'text-gray-600 italic'
-                  }`}>
-                    {isUnlocked ? book.miniSummary : 'Aguarde...'}
-                  </p>
+                <div className="mt-4">
+                  <Button
+                    onClick={() => isUnlocked && setSelectedBook(book)}
+                    variant="outline"
+                    fullWidth
+                    disabled={!isUnlocked}
+                    className={`transition-all duration-300 ${
+                      isUnlocked
+                        ? 'group-hover:bg-amber-600 group-hover:border-amber-500 group-hover:text-white'
+                        : 'opacity-50 cursor-not-allowed'
+                    }`}
+                  >
+                    {isUnlocked ? 'Ver Sinopse' : 'Aguarde...'}
+                  </Button>
                 </div>
-
-                <Button
-                  onClick={() => isUnlocked && setSelectedBook(book)}
-                  variant="outline"
-                  fullWidth
-                  disabled={!isUnlocked}
-                  className={`mt-4 transition-all duration-300 ${
-                    isUnlocked
-                      ? 'group-hover:bg-amber-600 group-hover:border-amber-500 group-hover:text-white'
-                      : 'opacity-50 cursor-not-allowed'
-                  }`}
-                >
-                  {isUnlocked ? 'Ver Sinopse' : 'Aguarde...'}
-                </Button>
               </div>
             </Card>
           );
