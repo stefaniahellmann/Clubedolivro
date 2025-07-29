@@ -91,42 +91,44 @@ export function DailySummaries() {
 
   return (
     <div className="p-6 space-y-10 text-white">
-      <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-center w-full">Leitura Diária</h1>
+      <div className="flex flex-col items-center space-y-1">
+        <h1 className="text-3xl font-bold">Leitura Diária</h1>
+        <p className="text-sm italic text-gray-400">Próximo resumo será liberado às 4h ⏰</p>
       </div>
 
-      <div className="text-center text-sm italic text-gray-400">
-        Próximo resumo será liberado às 4h ⏰
-      </div>
+      <hr className="border-gray-700 my-4" />
 
       {currentSummary && (
         <div
-          className="w-full max-w-lg mx-auto bg-gray-800 border border-amber-400 rounded-lg p-4 text-center cursor-pointer hover:border-white"
+          className="w-full max-w-md mx-auto bg-gray-800 border border-amber-400 rounded-lg p-6 text-center cursor-pointer hover:border-white"
           onClick={() => setSelected(currentSummary)}
         >
-          <h2 className="text-lg font-semibold">{currentSummary.title}</h2>
+          <h2 className="text-xl font-semibold">{currentSummary.title}</h2>
           <p className="text-sm text-gray-400">{currentSummary.author}</p>
-          <p className="text-xs text-gray-500 mt-1 italic">Clique para ler o resumo completo</p>
+          <p className="text-xs text-gray-500 mt-2 italic">Clique para ler o resumo completo</p>
         </div>
       )}
 
-      <div className="space-y-2">
+      <div className="space-y-3">
         <h2 className="text-xl font-semibold text-center">Próximos Resumos Diários</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {lockedSummaries.slice(0, 6).map((summary) => (
-            <div key={summary.id} className="bg-gray-900 border border-gray-700 rounded-lg p-3 opacity-60">
-              <Lock className="text-gray-500 mb-1" />
-              <h3 className="text-sm font-medium text-left">{summary.title}</h3>
+            <div key={summary.id} className="bg-gray-900 border border-gray-700 rounded-lg p-5 text-center opacity-60">
+              <Lock className="text-gray-500 mx-auto mb-2" size={24} />
+              <h3 className="text-sm font-medium text-center">{summary.title}</h3>
+              <p className="text-xs italic text-gray-500 mt-1">Aguarde</p>
             </div>
           ))}
         </div>
       </div>
 
+      <hr className="border-gray-700 my-4" />
+
       {favorites.length > 0 && (
         <div>
-          <h2 className="text-xl font-semibold mt-10 mb-4">Favoritos 💛</h2>
+          <h2 className="text-xl font-semibold mb-4 text-center">Favoritos 💛</h2>
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {favoriteSummaries.map((summary) => (
+            {favoriteSummaries.slice(0, 15).map((summary) => (
               <div
                 key={summary.id}
                 className="bg-gray-800 border border-yellow-400 rounded-lg p-3 cursor-pointer hover:border-white"
@@ -138,6 +140,8 @@ export function DailySummaries() {
           </div>
         </div>
       )}
+
+      <hr className="border-gray-700 my-4" />
 
       {readSummaries.length > 0 && (
         <div className="space-y-4">
