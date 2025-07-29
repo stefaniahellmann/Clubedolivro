@@ -90,7 +90,7 @@ export function DailySummaries() {
   const favoriteSummaries = allSummaries.filter((s) => favorites.includes(s.id));
 
   return (
-    <div className="p-6 space-y-10 bg-black text-white">
+    <div className="p-6 space-y-10 text-white">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-center w-full">Leitura Diária</h1>
       </div>
