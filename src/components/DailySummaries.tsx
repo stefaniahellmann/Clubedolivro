@@ -1,118 +1,84 @@
-import React, { useEffect, useState } from 'react';
-import { Lock, Star } from 'lucide-react';
+import React, { useState } from 'react';
+import { Calendar, Lock, Star } from 'lucide-react';
 import { Modal } from './ui/Modal';
 
 interface Summary {
   id: number;
+  day: number;
   title: string;
   author: string;
   rating: number;
   content: string;
 }
 
-const allSummaries: Summary[] = Array.from({ length: 31 }, (_, i) => ({
-  id: i + 1,
-  title: `Livro Transformador ${i + 1}`,
-  author: `Autor Exemplar ${i + 1}`,
-  rating: (Math.random() * 1 + 4).toFixed(1) as unknown as number, // de 4.0 a 5.0
-  content: `Este é o resumo do livro ${i + 1}. `.repeat(30).trim(),
-}));
+const summaries: Summary[] = [
+  {
+    id: 1,
+    day: 1,
+    title: 'O Poder do Hábito',
+    author: 'Charles Duhigg',
+    rating: 4.8,
+    content: `Este livro explora como os hábitos funcionam, como se formam e como podemos mudá-los. Duhigg explica a “regra do hábito”: deixa, rotina e recompensa. O livro mostra como empresas, atletas e pessoas comuns transformaram suas vidas ao entender e reprogramar hábitos. Uma leitura essencial para quem busca mudança de comportamento duradoura. `.repeat(6),
+  },
+  {
+    id: 2,
+    day: 2,
+    title: 'A Coragem de Ser Imperfeito',
+    author: 'Brené Brown',
+    rating: 4.7,
+    content: `Brené Brown nos convida a abraçar a vulnerabilidade como caminho para uma vida plena. Ela mostra como o medo de não sermos bons o suficiente nos impede de viver com autenticidade. O livro propõe aceitar nossa humanidade e imperfeição como força. Uma leitura acolhedora e poderosa. `.repeat(6),
+  },
+  // ... Adicione os outros 29 aqui
+];
 
 export function DailySummaries() {
   const [selected, setSelected] = useState<Summary | null>(null);
-  const [readIds, setReadIds] = useState<number[]>([]);
+  const [read, setRead] = useState<{ [key: number]: boolean }>({});
   const [userRating, setUserRating] = useState<{ [key: number]: number }>({});
 
-  const currentUnlockedId = readIds.length + 1;
-
-  useEffect(() => {
-    const storedRead = localStorage.getItem('readSummaries');
-    const storedRatings = localStorage.getItem('userRatings');
-    if (storedRead) setReadIds(JSON.parse(storedRead));
-    if (storedRatings) setUserRating(JSON.parse(storedRatings));
-  }, []);
-
-  const markAsRead = (id: number) => {
-    const updated = [...readIds, id];
-    setReadIds(updated);
-    localStorage.setItem('readSummaries', JSON.stringify(updated));
+  const handleMarkAsRead = (id: number) => {
+    setRead((prev) => ({ ...prev, [id]: true }));
     setSelected(null);
   };
 
   const handleRate = (id: number, rating: number) => {
-    const updated = { ...userRating, [id]: rating };
-    setUserRating(updated);
-    localStorage.setItem('userRatings', JSON.stringify(updated));
+    setUserRating((prev) => ({ ...prev, [id]: rating }));
   };
 
-  const readSummaries = allSummaries.filter((s) => readIds.includes(s.id)).slice(-7).reverse();
-  const currentSummary = allSummaries.find((s) => s.id === currentUnlockedId);
-  const lockedSummaries = allSummaries.filter((s) => s.id > currentUnlockedId);
-
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-bold text-white text-center">Leitura Diária</h1>
+    <div className="p-6">
+      <h1 className="text-3xl font-bold text-white text-center mb-4">Resumos Diários</h1>
+      <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+        {summaries.map((summary) => {
+          const isRead = read[summary.id];
 
-      {/* ✅ Já lidos */}
-      {readSummaries.length > 0 && (
-        <div>
-          <h2 className="text-xl text-gray-300 font-semibold mb-2">Últimas leituras</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-            {readSummaries.map((summary) => (
-              <div
-                key={summary.id}
-                className="bg-gray-800 border border-green-400 rounded-lg p-3 cursor-pointer hover:border-amber-400"
-                onClick={() => setSelected(summary)}
-              >
-                <h3 className="text-white font-semibold text-sm">{summary.title}</h3>
-                <p className="text-xs text-gray-400">✔️ Lido</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* ✅ Resumo atual liberado */}
-      {currentSummary && (
-        <div>
-          <h2 className="text-xl text-amber-400 font-semibold mb-2">Resumo disponível hoje</h2>
-          <div
-            className="bg-gray-800 border border-amber-400 rounded-lg p-4 cursor-pointer hover:border-white"
-            onClick={() => setSelected(currentSummary)}
-          >
-            <h3 className="text-white font-semibold">{currentSummary.title}</h3>
-            <p className="text-sm text-gray-400">Clique para ler</p>
-          </div>
-        </div>
-      )}
-
-      {/* 🔒 Bloqueados */}
-      <div>
-        <h2 className="text-xl text-gray-400 font-semibold mb-2">Aguardando liberação</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
-          {lockedSummaries.slice(0, 6).map((summary) => (
+          return (
             <div
               key={summary.id}
-              className="bg-gray-900 border border-gray-700 rounded-lg p-3 opacity-60 text-center"
+              className="rounded-lg p-4 text-center border border-gray-500 bg-gray-800 cursor-pointer hover:border-amber-400"
+              onClick={() => setSelected(summary)}
             >
-              <Lock className="text-gray-500 mx-auto mb-1" />
-              <h3 className="text-white text-sm font-medium">{summary.title}</h3>
-              <p className="text-xs text-gray-500">Bloqueado</p>
+              <div className="flex justify-center mb-2">
+                <Calendar className="text-amber-400" />
+              </div>
+              <h3 className="text-white font-semibold">Dia {summary.day}</h3>
+              <p className="text-sm text-gray-400">
+                {isRead ? '✔️ Lido' : 'Clique para ler'}
+              </p>
             </div>
-          ))}
-        </div>
+          );
+        })}
       </div>
 
-      {/* 📖 Modal de Leitura */}
       <Modal
         isOpen={!!selected}
         onClose={() => setSelected(null)}
-        title={selected?.title || ''}
+        title={`Dia ${selected?.day} | ${selected?.title || ''}`}
         size="xl"
       >
         {selected && (
           <div className="text-gray-300 space-y-4">
-            <div className="flex justify-between text-sm text-gray-400">
+            <div className="flex flex-wrap justify-between text-sm text-gray-400">
               <span><strong>Autor:</strong> {selected.author}</span>
               <span><strong>Média das Avaliações:</strong> {selected.rating.toFixed(1)} ⭐</span>
             </div>
@@ -137,14 +103,12 @@ export function DailySummaries() {
                 ))}
               </div>
 
-              {!readIds.includes(selected.id) && (
-                <button
-                  onClick={() => markAsRead(selected.id)}
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded"
-                >
-                  Marcar como lido
-                </button>
-              )}
+              <button
+                onClick={() => handleMarkAsRead(selected.id)}
+                className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded"
+              >
+                Marcar como lido
+              </button>
             </div>
           </div>
         )}
