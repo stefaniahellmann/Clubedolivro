@@ -31,10 +31,19 @@ export function DailySummaries() {
   const currentUnlockedId = readIds.length % 31 + 1;
   const summaries = allSummariesBase.map(s => ({ ...s, id: ((round - 1) * 31) + s.id }));
   const allSummaries = summaries;
+
   const now = new Date();
-  now.setHours(now.getHours() - 3); // Fuso horário -3
-  const hour = now.getHours();
+  now.setUTCHours(now.getUTCHours() + 21); // UTC-3 (4h BRT)
+  const currentHour = now.getHours();
+  const currentMinute = now.getMinutes();
   const releaseHour = 4;
+
+  const nextRelease = new Date(now);
+  nextRelease.setHours(releaseHour, 0, 0, 0);
+  if (now >= nextRelease) nextRelease.setDate(nextRelease.getDate() + 1);
+  const diffMs = nextRelease.getTime() - now.getTime();
+  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+  const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
   useEffect(() => {
     const storedRead = localStorage.getItem('readSummaries');
@@ -81,7 +90,7 @@ export function DailySummaries() {
   };
 
   const readSummaries = allSummaries.filter((s) => readIds.includes(s.id));
-  const currentSummary = hour >= releaseHour
+  const currentSummary = currentHour >= releaseHour
     ? allSummaries.find((s) => s.id === ((round - 1) * 31) + currentUnlockedId)
     : null;
   const lockedSummaries = allSummaries.filter((s) => s.id > ((round - 1) * 31) + currentUnlockedId);
@@ -93,26 +102,38 @@ export function DailySummaries() {
     <div className="p-6 space-y-10 text-white">
       <div className="flex flex-col items-center space-y-1">
         <h1 className="text-3xl font-bold">Leitura Diária</h1>
-        <p className="text-sm italic text-gray-400">Próximo resumo será liberado às 4h ⏰</p>
+        <p className="text-sm italic text-gray-400">
+          Falta apenas {diffHours} horas {diffMinutes} minutos para o próximo resumo.
+        </p>
       </div>
 
       <hr className="border-gray-700 my-4" />
 
       {currentSummary && (
-        <div
-          className="w-full max-w-md mx-auto bg-gray-800 border border-amber-400 rounded-lg p-6 text-center cursor-pointer hover:border-white"
-          onClick={() => setSelected(currentSummary)}
-        >
-          <h2 className="text-xl font-semibold">{currentSummary.title}</h2>
-          <p className="text-sm text-gray-400">{currentSummary.author}</p>
-          <p className="text-xs text-gray-500 mt-2 italic">Clique para ler o resumo completo</p>
+        <div className="flex items-start justify-between flex-wrap gap-4">
+          <div
+            className="flex-1 bg-gray-800 border border-amber-400 rounded-lg p-6 text-center cursor-pointer hover:border-white min-w-[300px]"
+            onClick={() => setSelected(currentSummary)}
+          >
+            <h2 className="text-xl font-semibold">{currentSummary.title}</h2>
+            <p className="text-sm text-gray-400">{currentSummary.author}</p>
+            <p className="text-xs text-gray-500 mt-2 italic">Clique para ler o resumo completo</p>
+          </div>
+
+          <div className="flex items-center justify-center px-6">
+            <span className="text-sm text-gray-300">
+              📘 Resumos lidos: <strong>{readIds.length}</strong> de 31
+            </span>
+          </div>
         </div>
       )}
 
+      <hr className="border-gray-700 my-4" />
+
       <div className="space-y-3">
         <h2 className="text-xl font-semibold text-center">Próximos Resumos Diários</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-          {lockedSummaries.slice(0, 6).map((summary) => (
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-4 gap-4">
+          {lockedSummaries.slice(0, 4).map((summary) => (
             <div key={summary.id} className="bg-gray-900 border border-gray-700 rounded-lg p-5 text-center opacity-60">
               <Lock className="text-gray-500 mx-auto mb-2" size={24} />
               <h3 className="text-sm font-medium text-center">{summary.title}</h3>
@@ -124,37 +145,28 @@ export function DailySummaries() {
 
       <hr className="border-gray-700 my-4" />
 
-      {favorites.length > 0 && (
-        <div>
-          <h2 className="text-xl font-semibold mb-4 text-center">Favoritos 💛</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-            {favoriteSummaries.slice(0, 15).map((summary) => (
-              <div
-                key={summary.id}
-                className="bg-gray-800 border border-yellow-400 rounded-lg p-3 cursor-pointer hover:border-white"
-                onClick={() => setSelected(summary)}
-              >
-                <h3 className="font-semibold text-sm text-left">{summary.title}</h3>
-              </div>
-            ))}
-          </div>
+      <h2 className="text-xl font-semibold mb-4 text-center">Favoritos 💛</h2>
+      {favorites.length > 0 ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+          {favoriteSummaries.slice(0, 15).map((summary) => (
+            <div
+              key={summary.id}
+              className="bg-gray-800 border border-yellow-400 rounded-lg p-3 cursor-pointer hover:border-white"
+              onClick={() => setSelected(summary)}
+            >
+              <h3 className="font-semibold text-sm text-left">{summary.title}</h3>
+            </div>
+          ))}
         </div>
+      ) : (
+        <p className="text-center text-sm italic text-gray-500">Você ainda não tem favoritos.</p>
       )}
 
       <hr className="border-gray-700 my-4" />
 
-      {readSummaries.length > 0 && (
+      <h2 className="text-xl font-semibold">Resumos Lidos</h2>
+      {readSummaries.length > 0 ? (
         <div className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-xl font-semibold">Resumos Lidos</h2>
-            <button
-              onClick={restartJourney}
-              className="flex items-center gap-2 text-sm text-amber-400 hover:text-amber-300"
-            >
-              <RefreshCcw size={16} /> Recomeçar Jornada
-            </button>
-          </div>
-
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {paginatedRead.map((summary) => (
               <div
@@ -184,6 +196,8 @@ export function DailySummaries() {
             </div>
           )}
         </div>
+      ) : (
+        <p className="text-center text-sm italic text-gray-500">Você ainda não leu nenhum resumo.</p>
       )}
 
       <Modal isOpen={!!selected} onClose={() => setSelected(null)} title={selected?.title || ''} size="xl">
