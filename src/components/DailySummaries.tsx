@@ -169,9 +169,7 @@ const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
     )}
   </div>
 )}
-
       <hr className="border-gray-700 my-4" />
-
       <h2 className="text-xl font-semibold">Resumos Lidos</h2>
       {readSummaries.length > 0 ? (
         <div className="space-y-4">
