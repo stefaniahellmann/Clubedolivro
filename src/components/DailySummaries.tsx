@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Lock, Star, Sun, Moon, Heart, RefreshCcw } from 'lucide-react';
+import { Lock, Star, Heart, RefreshCcw } from 'lucide-react';
 import { Modal } from './ui/Modal';
 
 interface Summary {
@@ -26,17 +26,15 @@ export function DailySummaries() {
   const [userRating, setUserRating] = useState<{ [key: number]: number }>({});
   const [favorites, setFavorites] = useState<number[]>([]);
   const [page, setPage] = useState(1);
-  const [darkMode, setDarkMode] = useState(true);
   const [round, setRound] = useState(1);
 
   const currentUnlockedId = readIds.length % 31 + 1;
   const summaries = allSummariesBase.map(s => ({ ...s, id: ((round - 1) * 31) + s.id }));
   const allSummaries = summaries;
-  const today = new Date();
-  const releaseHour = 4;
   const now = new Date();
   now.setHours(now.getHours() - 3); // Fuso horário -3
   const hour = now.getHours();
+  const releaseHour = 4;
 
   useEffect(() => {
     const storedRead = localStorage.getItem('readSummaries');
@@ -71,10 +69,6 @@ export function DailySummaries() {
     localStorage.setItem('favoriteSummaries', JSON.stringify(updated));
   };
 
-  const toggleMode = () => {
-    setDarkMode(!darkMode);
-  };
-
   const restartJourney = () => {
     setReadIds([]);
     setUserRating({});
@@ -93,12 +87,12 @@ export function DailySummaries() {
   const lockedSummaries = allSummaries.filter((s) => s.id > ((round - 1) * 31) + currentUnlockedId);
   const paginatedRead = readSummaries.slice((page - 1) * 10, page * 10);
   const totalPages = Math.ceil(readSummaries.length / 10);
+  const favoriteSummaries = allSummaries.filter((s) => favorites.includes(s.id));
 
   return (
-    <div className={`p-6 space-y-10 ${darkMode ? 'bg-black text-white' : 'bg-white text-black'}`}>
+    <div className="p-6 space-y-10 bg-black text-white">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold text-center w-full">Leitura Diária</h1>
-        <button onClick={toggleMode}>{darkMode ? <Sun /> : <Moon />}</button>
       </div>
 
       <div className="text-center text-sm italic text-gray-400">
@@ -127,6 +121,23 @@ export function DailySummaries() {
           ))}
         </div>
       </div>
+
+      {favorites.length > 0 && (
+        <div>
+          <h2 className="text-xl font-semibold mt-10 mb-4">Favoritos 💛</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+            {favoriteSummaries.map((summary) => (
+              <div
+                key={summary.id}
+                className="bg-gray-800 border border-yellow-400 rounded-lg p-3 cursor-pointer hover:border-white"
+                onClick={() => setSelected(summary)}
+              >
+                <h3 className="font-semibold text-sm text-left">{summary.title}</h3>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {readSummaries.length > 0 && (
         <div className="space-y-4">
