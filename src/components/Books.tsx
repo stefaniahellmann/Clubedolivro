@@ -42,7 +42,7 @@ export function Books() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {sortedBooks.slice(0, 4).map((book, index) => {
           const isUnlocked = books.indexOf(book) === unlockedIndex;
 
@@ -58,11 +58,11 @@ export function Books() {
             >
               <div className="space-y-4">
                 <div className="relative">
-                  <div className="aspect-w-3 aspect-h-4 relative overflow-hidden rounded-lg">
+                  <div className="aspect-[210/297] relative overflow-hidden rounded-lg">
                     <img
                       src={book.cover}
                       alt={book.title}
-                      className={`w-full h-64 object-cover rounded-lg shadow-lg transition-transform duration-300 ${
+                      className={`w-full h-full object-cover rounded-lg shadow-lg transition-transform duration-300 ${
                         isUnlocked ? 'group-hover:scale-105' : 'grayscale'
                       }`}
                     />
