@@ -56,18 +56,15 @@ export function DailySummaries() {
       <h1 className="text-3xl font-bold text-white text-center">Leitura Diária</h1>
 
      {currentSummary && (
-  <div className="max-w-lg mx-auto bg-gray-800 border border-amber-400 rounded-lg p-4 text-center">
-    <h2 className="text-lg text-white font-semibold">{currentSummary.title}</h2>
-    <p className="text-sm text-gray-400">{currentSummary.author}</p>
-    <button
-      onClick={() => setSelected(currentSummary)}
-      className="mt-3 text-amber-400 hover:underline"
-    >
-      Ler resumo completo
-    </button>
-  </div>
+ <div
+  className="max-w-lg mx-auto bg-gray-800 border border-amber-400 rounded-lg p-4 text-center cursor-pointer hover:border-white"
+  onClick={() => setSelected(currentSummary)}
+>
+  <h2 className="text-lg text-white font-semibold">{currentSummary.title}</h2>
+  <p className="text-sm text-gray-400">{currentSummary.author}</p>
+  <p className="text-xs text-gray-500 mt-1 italic">Clique para ler o resumo completo</p>
+</div>
 )}
-
 
       <div>
         <h2 className="text-xl font-semibold text-gray-300 mb-2">Próximos Resumos Diários</h2>
