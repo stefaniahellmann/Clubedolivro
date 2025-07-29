@@ -136,7 +136,7 @@ const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
       {favorites.length > 0 && (
   <div className="space-y-4">
-    <h2 className="text-xl font-semibold text-center">Favoritos 💛</h2>
+    <h2 className="text-xl font-semibold text-left">Favoritos 💛</h2>
 
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
       {favoriteSummaries
