@@ -10,12 +10,12 @@ interface Summary {
   content: string;
 }
 
-const summaries: Summary[] = Array.from({ length: 31 }, (_, i) => ({
+const allSummaries: Summary[] = Array.from({ length: 31 }, (_, i) => ({
   id: i + 1,
-  title: `Livro Exemplo ${i + 1}`,
-  author: `Autor ${i + 1}`,
+  title: `Livro Transformador ${i + 1}`,
+  author: `Autor Exemplar ${i + 1}`,
   rating: (Math.random() * 1 + 4).toFixed(1) as unknown as number,
-  content: `Este é o resumo completo do livro ${i + 1}. `.repeat(25).trim(),
+  content: `Este é o resumo completo do livro ${i + 1}. `.repeat(20).trim(),
 }));
 
 export function DailySummaries() {
@@ -27,9 +27,9 @@ export function DailySummaries() {
   const currentUnlockedId = readIds.length + 1;
 
   useEffect(() => {
-    const stored = localStorage.getItem('readSummaries');
+    const storedRead = localStorage.getItem('readSummaries');
     const storedRatings = localStorage.getItem('userRatings');
-    if (stored) setReadIds(JSON.parse(stored));
+    if (storedRead) setReadIds(JSON.parse(storedRead));
     if (storedRatings) setUserRating(JSON.parse(storedRatings));
   }, []);
 
@@ -46,75 +46,86 @@ export function DailySummaries() {
     localStorage.setItem('userRatings', JSON.stringify(updated));
   };
 
-  const currentSummary = summaries.find((s) => s.id === currentUnlockedId);
-  const lockedSummaries = summaries.filter((s) => s.id > currentUnlockedId).slice(0, 6);
-  const readSummaries = summaries.filter((s) => readIds.includes(s.id));
+  const readSummaries = allSummaries.filter((s) => readIds.includes(s.id));
+  const currentSummary = allSummaries.find((s) => s.id === currentUnlockedId);
+  const lockedSummaries = allSummaries.filter((s) => s.id > currentUnlockedId);
+
   const paginatedRead = readSummaries.slice((page - 1) * 10, page * 10);
+  const totalPages = Math.ceil(readSummaries.length / 10);
 
   return (
-    <div className="p-6 space-y-10">
+    <div className="p-6 space-y-6">
       <h1 className="text-3xl font-bold text-white text-center">Leitura Diária</h1>
 
-     {currentSummary && (
- <div
-  className="max-w-lg mx-auto bg-gray-800 border border-amber-400 rounded-lg p-4 text-center cursor-pointer hover:border-white"
-  onClick={() => setSelected(currentSummary)}
->
-  <h2 className="text-lg text-white font-semibold">{currentSummary.title}</h2>
-  <p className="text-sm text-gray-400">{currentSummary.author}</p>
-  <p className="text-xs text-gray-500 mt-1 italic">Clique para ler o resumo completo</p>
-</div>
-)}
+      {/* ✅ Resumo de hoje */}
+      {currentSummary && (
+        <div
+          className="max-w-md mx-auto bg-gray-800 border border-amber-400 rounded-lg p-4 text-center cursor-pointer hover:border-white"
+          onClick={() => setSelected(currentSummary)}
+        >
+          <h2 className="text-lg text-white font-semibold">{currentSummary.title}</h2>
+          <p className="text-sm text-gray-400">{currentSummary.author}</p>
+          <p className="text-xs text-gray-500 mt-1 italic">Clique para ler o resumo completo</p>
+        </div>
+      )}
 
+      {/* 🔒 Próximos bloqueados */}
       <div>
-        <h2 className="text-xl font-semibold text-gray-300 mb-2">Próximos Resumos Diários</h2>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          {lockedSummaries.map((s) => (
+        <h2 className="text-xl text-gray-400 font-semibold mt-8 mb-2 text-center">
+          Próximos Resumos Diários
+        </h2>
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+          {lockedSummaries.slice(0, 6).map((summary) => (
             <div
-              key={s.id}
-              className="bg-gray-900 border border-gray-700 rounded-lg p-3 text-left"
+              key={summary.id}
+              className="bg-gray-900 border border-gray-700 rounded-lg p-3 text-left opacity-60"
             >
-              <h3 className="text-white text-sm font-medium">{s.title}</h3>
-              <p className="text-xs text-gray-500"><Lock className="inline w-4 h-4 mr-1" /> Aguardando</p>
+              <Lock className="text-gray-500 mb-1" />
+              <h3 className="text-white text-sm font-medium">{summary.title}</h3>
             </div>
           ))}
         </div>
       </div>
 
-      <div>
-        <h2 className="text-xl font-semibold text-gray-300 mb-2">Resumos Lidos</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-          {paginatedRead.map((s) => (
-            <div
-              key={s.id}
-              className="bg-gray-800 border border-green-400 rounded-lg p-3 text-left cursor-pointer"
-              onClick={() => setSelected(s)}
-            >
-              <h3 className="text-white font-medium text-sm">{s.title}</h3>
-              <p className="text-xs text-gray-400">✔️ Lido</p>
-            </div>
-          ))}
-        </div>
-        {readSummaries.length > 10 && (
-          <div className="flex justify-center mt-4 gap-4">
-            <button
-              onClick={() => setPage((p) => Math.max(p - 1, 1))}
-              className="px-3 py-1 bg-gray-700 text-white rounded"
-              disabled={page === 1}
-            >
-              Anterior
-            </button>
-            <button
-              onClick={() => setPage((p) => p + 1)}
-              className="px-3 py-1 bg-gray-700 text-white rounded"
-              disabled={page * 10 >= readSummaries.length}
-            >
-              Próximo
-            </button>
+      {/* ✅ Já lidos */}
+      {readSummaries.length > 0 && (
+        <div>
+          <h2 className="text-xl text-gray-300 font-semibold mb-2 text-center">Resumos Lidos</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+            {paginatedRead.map((summary) => (
+              <div
+                key={summary.id}
+                className="bg-gray-800 border border-green-400 rounded-lg p-3 cursor-pointer hover:border-amber-400"
+                onClick={() => setSelected(summary)}
+              >
+                <h3 className="text-white font-semibold text-sm">{summary.title}</h3>
+                <p className="text-xs text-gray-400">✔️ Lido</p>
+              </div>
+            ))}
           </div>
-        )}
-      </div>
 
+          {/* 🔁 Paginação */}
+          {totalPages > 1 && (
+            <div className="flex justify-center mt-4 space-x-2">
+              {Array.from({ length: totalPages }, (_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setPage(i + 1)}
+                  className={`px-3 py-1 rounded text-sm ${
+                    page === i + 1
+                      ? 'bg-amber-500 text-white'
+                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                  }`}
+                >
+                  {i + 1}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* 📖 Modal de Leitura */}
       <Modal
         isOpen={!!selected}
         onClose={() => setSelected(null)}
@@ -127,12 +138,14 @@ export function DailySummaries() {
               <span><strong>Autor:</strong> {selected.author}</span>
               <span><strong>Média das Avaliações:</strong> {selected.rating.toFixed(1)} ⭐</span>
             </div>
+
             <div className="bg-gray-800 text-sm p-4 rounded-lg leading-relaxed max-h-[300px] overflow-y-auto">
               {selected.content}
             </div>
+
             <div className="flex flex-wrap justify-between items-center mt-4 gap-4">
               <div className="flex items-center text-sm">
-                <span className="mr-2">Avalie:</span>
+                <span className="mr-2">Avalie sua leitura:</span>
                 {[1, 2, 3, 4, 5].map((star) => (
                   <button key={star} onClick={() => handleRate(selected.id, star)}>
                     <Star
@@ -145,6 +158,7 @@ export function DailySummaries() {
                   </button>
                 ))}
               </div>
+
               {!readIds.includes(selected.id) && (
                 <button
                   onClick={() => markAsRead(selected.id)}
