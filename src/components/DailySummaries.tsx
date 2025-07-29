@@ -33,7 +33,8 @@ export function DailySummaries() {
   const allSummaries = summaries;
 
   const now = new Date();
-  now.setUTCHours(now.getUTCHours() + 21); // UTC-3 (4h BRT)
+  const now = new Date();
+const brtNow = new Date(now.toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
   const currentHour = now.getHours();
   const currentMinute = now.getMinutes();
   const releaseHour = 4;
