@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Lock, Star } from 'lucide-react';
+import { Lock, Star, Sun, Moon, Heart, RefreshCcw } from 'lucide-react';
 import { Modal } from './ui/Modal';
 
 interface Summary {
@@ -8,62 +8,53 @@ interface Summary {
   author: string;
   rating: number;
   content: string;
+  quote: string;
 }
 
-const allSummaries: Summary[] = Array.from({ length: 31 }, (_, i) => ({
+const allSummariesBase: Summary[] = Array.from({ length: 31 }, (_, i) => ({
   id: i + 1,
   title: `Livro Transformador ${i + 1}`,
   author: `Autor Exemplar ${i + 1}`,
   rating: parseFloat((Math.random() * 1 + 4).toFixed(1)),
   content: `Este é o resumo completo do livro ${i + 1}. `.repeat(20).trim(),
+  quote: `Frase impactante do livro ${i + 1} para compartilhar.`
 }));
-
-function getNextUnlockDate(lastDate: string | null): Date {
-  const now = new Date();
-  const nowUTC = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
-  const nowMinus3 = new Date(nowUTC.getTime() - 3 * 60 * 60 * 1000);
-
-  if (!lastDate) return new Date(0);
-
-  const last = new Date(lastDate);
-  last.setUTCHours(7, 0, 0, 0); // 4h BRT = 7h UTC
-  last.setUTCDate(last.getUTCDate() + 1);
-
-  return last;
-}
 
 export function DailySummaries() {
   const [selected, setSelected] = useState<Summary | null>(null);
   const [readIds, setReadIds] = useState<number[]>([]);
   const [userRating, setUserRating] = useState<{ [key: number]: number }>({});
+  const [favorites, setFavorites] = useState<number[]>([]);
   const [page, setPage] = useState(1);
-  const [currentUnlockedId, setCurrentUnlockedId] = useState(1);
+  const [darkMode, setDarkMode] = useState(true);
+  const [round, setRound] = useState(1);
+
+  const currentUnlockedId = readIds.length % 31 + 1;
+  const summaries = allSummariesBase.map(s => ({ ...s, id: ((round - 1) * 31) + s.id }));
+  const allSummaries = summaries;
+  const today = new Date();
+  const releaseHour = 4;
+  const now = new Date();
+  now.setHours(now.getHours() - 3); // Fuso horário -3
+  const hour = now.getHours();
 
   useEffect(() => {
     const storedRead = localStorage.getItem('readSummaries');
     const storedRatings = localStorage.getItem('userRatings');
-    const lastRead = localStorage.getItem('lastReadAt');
+    const storedFavorites = localStorage.getItem('favoriteSummaries');
+    const storedRound = localStorage.getItem('round');
 
-    const read = storedRead ? JSON.parse(storedRead) : [];
-    setReadIds(read);
+    if (storedRead) setReadIds(JSON.parse(storedRead));
     if (storedRatings) setUserRating(JSON.parse(storedRatings));
-
-    const now = new Date();
-    const nowUTC = new Date(now.getTime() + now.getTimezoneOffset() * 60000);
-    const nowMinus3 = new Date(nowUTC.getTime() - 3 * 60 * 60 * 1000);
-
-    const nextUnlock = getNextUnlockDate(lastRead);
-    const unlockedCount = (lastRead && nowMinus3 >= nextUnlock) ? read.length + 1 : read.length;
-    setCurrentUnlockedId(unlockedCount + 1);
+    if (storedFavorites) setFavorites(JSON.parse(storedFavorites));
+    if (storedRound) setRound(parseInt(storedRound));
   }, []);
 
   const markAsRead = (id: number) => {
     const updated = [...readIds, id];
     setReadIds(updated);
     localStorage.setItem('readSummaries', JSON.stringify(updated));
-    localStorage.setItem('lastReadAt', new Date().toISOString());
     setSelected(null);
-    setCurrentUnlockedId(id + 1);
   };
 
   const handleRate = (id: number, rating: number) => {
@@ -72,38 +63,66 @@ export function DailySummaries() {
     localStorage.setItem('userRatings', JSON.stringify(updated));
   };
 
-  const readSummaries = allSummaries.filter((s) => readIds.includes(s.id));
-  const currentSummary = allSummaries.find((s) => s.id === currentUnlockedId);
-  const lockedSummaries = allSummaries.filter((s) => s.id > currentUnlockedId);
+  const toggleFavorite = (id: number) => {
+    const updated = favorites.includes(id)
+      ? favorites.filter(f => f !== id)
+      : [...favorites, id];
+    setFavorites(updated);
+    localStorage.setItem('favoriteSummaries', JSON.stringify(updated));
+  };
 
+  const toggleMode = () => {
+    setDarkMode(!darkMode);
+  };
+
+  const restartJourney = () => {
+    setReadIds([]);
+    setUserRating({});
+    setFavorites([]);
+    setRound(round + 1);
+    localStorage.setItem('readSummaries', '[]');
+    localStorage.setItem('userRatings', '{}');
+    localStorage.setItem('favoriteSummaries', '[]');
+    localStorage.setItem('round', String(round + 1));
+  };
+
+  const readSummaries = allSummaries.filter((s) => readIds.includes(s.id));
+  const currentSummary = hour >= releaseHour
+    ? allSummaries.find((s) => s.id === ((round - 1) * 31) + currentUnlockedId)
+    : null;
+  const lockedSummaries = allSummaries.filter((s) => s.id > ((round - 1) * 31) + currentUnlockedId);
   const paginatedRead = readSummaries.slice((page - 1) * 10, page * 10);
   const totalPages = Math.ceil(readSummaries.length / 10);
 
   return (
-    <div className="p-6 space-y-10">
-      <h1 className="text-3xl font-bold text-white text-center">Leitura Diária</h1>
+    <div className={`p-6 space-y-10 ${darkMode ? 'bg-black text-white' : 'bg-white text-black'}`}>
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold text-center w-full">Leitura Diária</h1>
+        <button onClick={toggleMode}>{darkMode ? <Sun /> : <Moon />}</button>
+      </div>
+
+      <div className="text-center text-sm italic text-gray-400">
+        Próximo resumo será liberado às 4h ⏰
+      </div>
 
       {currentSummary && (
         <div
           className="w-full max-w-lg mx-auto bg-gray-800 border border-amber-400 rounded-lg p-4 text-center cursor-pointer hover:border-white"
           onClick={() => setSelected(currentSummary)}
         >
-          <h2 className="text-lg text-white font-semibold">{currentSummary.title}</h2>
+          <h2 className="text-lg font-semibold">{currentSummary.title}</h2>
           <p className="text-sm text-gray-400">{currentSummary.author}</p>
           <p className="text-xs text-gray-500 mt-1 italic">Clique para ler o resumo completo</p>
         </div>
       )}
 
       <div className="space-y-2">
-        <h2 className="text-xl text-gray-400 font-semibold text-center">Próximos Resumos Diários</h2>
+        <h2 className="text-xl font-semibold text-center">Próximos Resumos Diários</h2>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {lockedSummaries.slice(0, 6).map((summary) => (
-            <div
-              key={summary.id}
-              className="bg-gray-900 border border-gray-700 rounded-lg p-3 text-left opacity-60"
-            >
+            <div key={summary.id} className="bg-gray-900 border border-gray-700 rounded-lg p-3 opacity-60">
               <Lock className="text-gray-500 mb-1" />
-              <h3 className="text-white text-sm font-medium text-left">{summary.title}</h3>
+              <h3 className="text-sm font-medium text-left">{summary.title}</h3>
             </div>
           ))}
         </div>
@@ -111,7 +130,16 @@ export function DailySummaries() {
 
       {readSummaries.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl text-gray-300 font-semibold text-center">Resumos Lidos</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-xl font-semibold">Resumos Lidos</h2>
+            <button
+              onClick={restartJourney}
+              className="flex items-center gap-2 text-sm text-amber-400 hover:text-amber-300"
+            >
+              <RefreshCcw size={16} /> Recomeçar Jornada
+            </button>
+          </div>
+
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {paginatedRead.map((summary) => (
               <div
@@ -119,7 +147,7 @@ export function DailySummaries() {
                 className="bg-gray-800 border border-green-400 rounded-lg p-3 cursor-pointer hover:border-amber-400"
                 onClick={() => setSelected(summary)}
               >
-                <h3 className="text-white font-semibold text-sm text-left">{summary.title}</h3>
+                <h3 className="font-semibold text-sm text-left">{summary.title}</h3>
                 <p className="text-xs text-gray-400">✔️ Lido</p>
               </div>
             ))}
@@ -132,9 +160,7 @@ export function DailySummaries() {
                   key={i}
                   onClick={() => setPage(i + 1)}
                   className={`px-3 py-1 rounded text-sm ${
-                    page === i + 1
-                      ? 'bg-amber-500 text-white'
-                      : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
+                    page === i + 1 ? 'bg-amber-500 text-white' : 'bg-gray-700 text-gray-300 hover:bg-gray-600'
                   }`}
                 >
                   {i + 1}
@@ -145,12 +171,7 @@ export function DailySummaries() {
         </div>
       )}
 
-      <Modal
-        isOpen={!!selected}
-        onClose={() => setSelected(null)}
-        title={selected?.title || ''}
-        size="xl"
-      >
+      <Modal isOpen={!!selected} onClose={() => setSelected(null)} title={selected?.title || ''} size="xl">
         {selected && (
           <div className="text-gray-300 space-y-4">
             <div className="flex justify-between text-sm text-gray-400">
@@ -160,6 +181,16 @@ export function DailySummaries() {
 
             <div className="bg-gray-800 text-sm p-4 rounded-lg leading-relaxed max-h-[300px] overflow-y-auto">
               {selected.content}
+            </div>
+
+            <div className="bg-gray-900 p-3 text-sm rounded-md italic border-l-4 border-amber-400">
+              📌 Frase marcante: “{selected.quote}”
+              <button
+                onClick={() => navigator.clipboard.writeText(selected.quote)}
+                className="text-amber-400 ml-2 text-xs underline"
+              >
+                Copiar
+              </button>
             </div>
 
             <div className="flex flex-wrap justify-between items-center mt-4 gap-4">
@@ -177,6 +208,10 @@ export function DailySummaries() {
                   </button>
                 ))}
               </div>
+
+              <button onClick={() => toggleFavorite(selected.id)} className="text-amber-400 text-sm">
+                {favorites.includes(selected.id) ? '💛 Remover Favorito' : '🤍 Marcar como Favorito'}
+              </button>
 
               {!readIds.includes(selected.id) && (
                 <button
