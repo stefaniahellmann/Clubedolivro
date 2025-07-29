@@ -54,13 +54,13 @@ export function DailySummaries() {
   const totalPages = Math.ceil(readSummaries.length / 10);
 
   return (
-    <div className="p-6 space-y-6">
+    <div className="p-6 space-y-10">
       <h1 className="text-3xl font-bold text-white text-center">Leitura Diária</h1>
 
       {/* ✅ Resumo de hoje */}
       {currentSummary && (
         <div
-          className="max-w-md mx-auto bg-gray-800 border border-amber-400 rounded-lg p-4 text-center cursor-pointer hover:border-white"
+          className="w-full max-w-lg mx-auto bg-gray-800 border border-amber-400 rounded-lg p-4 text-center cursor-pointer hover:border-white"
           onClick={() => setSelected(currentSummary)}
         >
           <h2 className="text-lg text-white font-semibold">{currentSummary.title}</h2>
@@ -70,18 +70,16 @@ export function DailySummaries() {
       )}
 
       {/* 🔒 Próximos bloqueados */}
-      <div>
-        <h2 className="text-xl text-gray-400 font-semibold mt-8 mb-2 text-center">
-          Próximos Resumos Diários
-        </h2>
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-6 gap-4">
+      <div className="space-y-2">
+        <h2 className="text-xl text-gray-400 font-semibold text-center">Próximos Resumos Diários</h2>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
           {lockedSummaries.slice(0, 6).map((summary) => (
             <div
               key={summary.id}
               className="bg-gray-900 border border-gray-700 rounded-lg p-3 text-left opacity-60"
             >
               <Lock className="text-gray-500 mb-1" />
-              <h3 className="text-white text-sm font-medium">{summary.title}</h3>
+              <h3 className="text-white text-sm font-medium text-left">{summary.title}</h3>
             </div>
           ))}
         </div>
@@ -89,22 +87,21 @@ export function DailySummaries() {
 
       {/* ✅ Já lidos */}
       {readSummaries.length > 0 && (
-        <div>
-          <h2 className="text-xl text-gray-300 font-semibold mb-2 text-center">Resumos Lidos</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-4">
+        <div className="space-y-4">
+          <h2 className="text-xl text-gray-300 font-semibold text-center">Resumos Lidos</h2>
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
             {paginatedRead.map((summary) => (
               <div
                 key={summary.id}
                 className="bg-gray-800 border border-green-400 rounded-lg p-3 cursor-pointer hover:border-amber-400"
                 onClick={() => setSelected(summary)}
               >
-                <h3 className="text-white font-semibold text-sm">{summary.title}</h3>
+                <h3 className="text-white font-semibold text-sm text-left">{summary.title}</h3>
                 <p className="text-xs text-gray-400">✔️ Lido</p>
               </div>
             ))}
           </div>
 
-          {/* 🔁 Paginação */}
           {totalPages > 1 && (
             <div className="flex justify-center mt-4 space-x-2">
               {Array.from({ length: totalPages }, (_, i) => (
