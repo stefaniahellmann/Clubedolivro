@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Modal } from './ui/Modal';
-import { BookOpen, ShoppingCart, Download, Quote, Star, Sparkles, Calendar, Lock } from 'lucide-react';
+import { BookOpen, ShoppingCart, Download, Quote, Star, Sparkles, Lock } from 'lucide-react';
 import { books } from '../data/mockData';
 
 export function Books() {
@@ -11,39 +11,16 @@ export function Books() {
   const getCurrentWeek = () => {
     const now = new Date();
     const firstDay = new Date(now.getFullYear(), now.getMonth(), 1);
-    const firstDayOfWeek = firstDay.getDay(); // 0 = domingo, 1 = segunda, etc.
+    const firstDayOfWeek = firstDay.getDay();
     const currentDay = now.getDate();
-    
-    // Calcular a semana considerando que domingo inicia uma nova semana
     const adjustedDay = currentDay + firstDayOfWeek;
     return Math.ceil(adjustedDay / 7);
   };
 
   const isBookUnlocked = (bookIndex: number) => {
     const currentWeek = getCurrentWeek();
-    const bookWeek = bookIndex + 1;
-    
-    // Verificar se já passou o domingo da semana do livro
-    const now = new Date();
-    const firstSundayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    
-    // Encontrar o primeiro domingo do mês
-    while (firstSundayOfMonth.getDay() !== 0) {
-      firstSundayOfMonth.setDate(firstSundayOfMonth.getDate() + 1);
-    }
-    
-    // Calcular o domingo da semana do livro
-    const bookSunday = new Date(firstSundayOfMonth);
-    bookSunday.setDate(firstSundayOfMonth.getDate() + (bookWeek - 1) * 7);
-    
-    return now >= bookSunday;
+    return bookIndex === currentWeek - 1;
   };
-
-  const getWeekLabel = (bookIndex: number) => {
-    return `Semana ${bookIndex + 1}`;
-  };
-
-  const currentWeek = getCurrentWeek();
 
   return (
     <div className="space-y-6">
@@ -57,21 +34,17 @@ export function Books() {
           Descobra nossa seleção cuidadosa de livros que podem transformar sua perspectiva e enriquecer sua jornada de conhecimento.
           Uma nova indicação é liberada a cada domingo.
         </p>
-        <div className="mt-4 text-amber-400 font-medium flex items-center justify-center space-x-2">
-          <Calendar size={20} />
-          <span>Estamos na Semana {currentWeek} do mês</span>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {books.slice(0, 4).map((book, index) => {
+        {books.slice(0, 5).map((book, index) => {
           const isUnlocked = isBookUnlocked(index);
-          
+
           return (
             <Card 
               key={book.id} 
               hover={isUnlocked} 
-              className={`group cursor-pointer transition-all duration-300 ${
+              className={`group cursor-pointer transition-all duration-300 aspect-[3/4] flex flex-col justify-between ${
                 isUnlocked
                   ? 'bg-gray-800/50 backdrop-blur-sm border-gray-600 hover:border-amber-500'
                   : 'bg-gray-900/50 border-gray-700 opacity-60'
@@ -79,7 +52,7 @@ export function Books() {
             >
               <div className="space-y-4">
                 <div className="relative">
-                  <div className="aspect-w-3 aspect-h-4 relative overflow-hidden rounded-lg">
+                  <div className="relative overflow-hidden rounded-lg h-full">
                     <img
                       src={book.cover}
                       alt={book.title}
@@ -92,21 +65,12 @@ export function Books() {
                         <Lock className="text-gray-400" size={48} />
                       </div>
                     )}
-                    <div className={`absolute top-2 right-2 px-2 py-1 rounded-full text-xs font-medium ${
-                      isUnlocked 
-                        ? 'bg-green-600 text-white' 
-                        : 'bg-gray-600 text-gray-300'
-                    }`}>
-                      {getWeekLabel(index)}
-                    </div>
                   </div>
                 </div>
-                
+
                 <div className="space-y-3">
                   <h3 className={`font-bold text-xl line-clamp-2 transition-colors ${
-                    isUnlocked 
-                      ? 'text-white group-hover:text-amber-300' 
-                      : 'text-gray-500'
+                    isUnlocked ? 'text-white group-hover:text-amber-300' : 'text-gray-500'
                   }`}>
                     {book.title}
                   </h3>
@@ -122,27 +86,26 @@ export function Books() {
                     {isUnlocked ? book.miniSummary : 'Este livro será liberado em breve...'}
                   </p>
                 </div>
-
-                <Button
-                  onClick={() => isUnlocked && setSelectedBook(book)}
-                  variant="outline"
-                  fullWidth
-                  disabled={!isUnlocked}
-                  className={`mt-4 transition-all duration-300 ${
-                    isUnlocked
-                      ? 'group-hover:bg-amber-600 group-hover:border-amber-500 group-hover:text-white'
-                      : 'opacity-50 cursor-not-allowed'
-                  }`}
-                >
-                  {isUnlocked ? 'Ver Detalhes' : 'Bloqueado'}
-                </Button>
               </div>
+
+              <Button
+                onClick={() => isUnlocked && setSelectedBook(book)}
+                variant="outline"
+                fullWidth
+                disabled={!isUnlocked}
+                className={`mt-4 transition-all duration-300 ${
+                  isUnlocked
+                    ? 'group-hover:bg-amber-600 group-hover:border-amber-500 group-hover:text-white'
+                    : 'opacity-50 cursor-not-allowed'
+                }`}
+              >
+                {isUnlocked ? 'Ver Sinopse' : 'Aguarde...'}
+              </Button>
             </Card>
           );
         })}
       </div>
 
-      {/* Book Details Modal */}
       <Modal
         isOpen={!!selectedBook}
         onClose={() => setSelectedBook(null)}
