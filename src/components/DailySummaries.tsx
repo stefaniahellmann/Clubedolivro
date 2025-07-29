@@ -38,12 +38,13 @@ export function DailySummaries() {
   const currentMinute = brtNow.getMinutes();
   const releaseHour = 4;
 
-  const nextRelease = new Date(now);
-  nextRelease.setHours(releaseHour, 0, 0, 0);
-  if (now >= nextRelease) nextRelease.setDate(nextRelease.getDate() + 1);
-  const diffMs = nextRelease.getTime() - now.getTime();
-  const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-  const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
+  const nextRelease = new Date(brtNow);
+nextRelease.setHours(releaseHour, 0, 0, 0);
+if (brtNow >= nextRelease) nextRelease.setDate(nextRelease.getDate() + 1);
+
+const diffMs = nextRelease.getTime() - brtNow.getTime();
+const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
+const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
 
   useEffect(() => {
     const storedRead = localStorage.getItem('readSummaries');
