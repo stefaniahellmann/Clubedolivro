@@ -113,15 +113,14 @@ const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60));
       {currentSummary && (
        <div className="flex flex-col md:flex-row justify-center items-stretch gap-6">
   {/* Resumo Liberado */}
- <div
-  className="w-full max-w-md mx-auto bg-gray-900 border border-green-500 rounded-lg p-6 text-center cursor-pointer hover:border-white"
+<div
+  className="w-full max-w-3xl mx-auto bg-gray-900 border border-green-500 rounded-xl p-8 text-center cursor-pointer hover:border-white shadow-lg"
   onClick={() => setSelected(currentSummary)}
 >
-  <h2 className="text-xl font-semibold text-white">{currentSummary.title}</h2>
-  <p className="text-sm text-gray-400">{currentSummary.author}</p>
-  <p className="text-xs text-gray-500 mt-2 italic">Clique para ler o resumo completo</p>
+  <h2 className="text-2xl md:text-3xl font-bold text-white">{currentSummary.title}</h2>
+  <p className="text-md md:text-lg text-gray-400 mt-1">{currentSummary.author}</p>
+  <p className="text-sm text-gray-500 mt-3 italic">Clique para ler o resumo completo</p>
 </div>
-
 
   {/* Resumos Lidos - Estilo quadrado */}
   <div className="w-full md:w-1/3 bg-gray-900 border border-green-500 rounded-lg p-5 text-center">
