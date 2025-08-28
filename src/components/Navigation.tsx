@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { Button } from './ui/Button';
 import { Home, Calendar, BookOpen, Users, FileText } from 'lucide-react';
 
@@ -14,27 +14,53 @@ export function Navigation({ activeView, onViewChange }: NavigationProps) {
     { id: 'books', label: 'Livros', icon: BookOpen },
     { id: 'partners', label: 'Parceiros', icon: Users },
     { id: 'materials', label: 'Materiais', icon: FileText },
-  ];
+  ] as const;
+
+  const handleKey = useCallback(
+    (e: React.KeyboardEvent<HTMLDivElement>) => {
+      const idx = navItems.findIndex((i) => i.id === activeView);
+      if (idx < 0) return;
+
+      if (e.key === 'ArrowRight') {
+        const next = (idx + 1) % navItems.length;
+        onViewChange(navItems[next].id);
+        e.preventDefault();
+      } else if (e.key === 'ArrowLeft') {
+        const prev = (idx - 1 + navItems.length) % navItems.length;
+        onViewChange(navItems[prev].id);
+        e.preventDefault();
+      }
+    },
+    [activeView, navItems, onViewChange]
+  );
 
   return (
     <nav
+      aria-label="Seções principais"
       className="
         bar mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8
         /* 'bar' vem do index.css: bg-white/80 dark:bg-zinc-900/80 + border + blur */
       "
     >
-      <div className="flex space-x-1 overflow-x-auto py-4">
+      <div
+        role="tablist"
+        aria-orientation="horizontal"
+        className="flex gap-1 overflow-x-auto py-4"
+        onKeyDown={handleKey}
+      >
         {navItems.map((item) => {
           const isActive = activeView === item.id;
           return (
             <Button
               key={item.id}
               onClick={() => onViewChange(item.id)}
-              // o variant do seu Button continua, mas as classes abaixo definem as cores
+              role="tab"
+              aria-selected={isActive}
+              aria-current={isActive ? 'page' : undefined}
               variant={isActive ? 'primary' : 'ghost'}
               size="sm"
               className={[
-                'flex items-center space-x-2 whitespace-nowrap transition-all duration-200',
+                'flex items-center gap-2 whitespace-nowrap transition-all duration-200',
                 isActive
                   ? [
                       // CLARO (pastéis)
