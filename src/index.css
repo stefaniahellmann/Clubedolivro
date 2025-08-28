@@ -79,10 +79,17 @@
            bg-amber-50 text-amber-700
            dark:bg-amber-500/10 dark:text-amber-300;
   }
- .bar {
-  @apply bg-white/90 dark:bg-zinc-900/85
-         border-b border-zinc-200 dark:border-zinc-800
-         supports-[backdrop-filter]:backdrop-blur-0;
-}
+ @layer components {
+  .bar {
+    @apply bg-white/95 dark:bg-zinc-900/95
+           border-b border-zinc-200 dark:border-zinc-800
+           supports-[backdrop-filter]:backdrop-blur-0;
+  }
 
+  /* (opcional) força “sem filtro” caso algo esteja herdando filter */
+  .bar * {
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
+}
 }
