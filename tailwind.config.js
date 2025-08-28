@@ -1,4 +1,4 @@
-// tailwind.config.js (ESM)
+// tailwind.config.js
 import typography from '@tailwindcss/typography';
 import aspectRatio from '@tailwindcss/aspect-ratio';
 
