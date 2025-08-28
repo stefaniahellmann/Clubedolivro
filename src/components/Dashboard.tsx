@@ -20,7 +20,52 @@ export function Dashboard() {
   const { user } = useAuth();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
-  const todaysMessage = dailyMessages[Math.floor(Math.random() * dailyMessages.length)];
+  const todaysMessage =
+    dailyMessages[Math.floor(Math.random() * dailyMessages.length)];
+
+  // Mapeamento de tons para CLARO (pastel) e ESCURO (suave)
+  const tone = {
+    amber: {
+      iconWrap:
+        'bg-amber-50 dark:bg-amber-500/10',
+      icon:
+        'text-amber-700 dark:text-amber-300',
+      accent:
+        'text-amber-700 dark:text-amber-300',
+      border:
+        'border-amber-200 dark:border-amber-700/40',
+    },
+    emerald: {
+      iconWrap:
+        'bg-emerald-50 dark:bg-emerald-500/10',
+      icon:
+        'text-emerald-700 dark:text-emerald-300',
+      accent:
+        'text-emerald-700 dark:text-emerald-300',
+      border:
+        'border-emerald-200 dark:border-emerald-700/40',
+    },
+    blue: {
+      iconWrap:
+        'bg-blue-50 dark:bg-blue-500/10',
+      icon:
+        'text-blue-700 dark:text-blue-300',
+      accent:
+        'text-blue-700 dark:text-blue-300',
+      border:
+        'border-blue-200 dark:border-blue-700/40',
+    },
+    purple: {
+      iconWrap:
+        'bg-purple-50 dark:bg-purple-500/10',
+      icon:
+        'text-purple-700 dark:text-purple-300',
+      accent:
+        'text-purple-700 dark:text-purple-300',
+      border:
+        'border-purple-200 dark:border-purple-700/40',
+    },
+  } as const;
 
   const quickLinks = [
     {
@@ -28,28 +73,28 @@ export function Dashboard() {
       description: 'Acesse todos os materiais complementares',
       icon: BookOpen,
       url: 'https://drive.google.com/materiais',
-      color: 'from-blue-600 to-blue-700',
+      tone: tone.blue,
     },
     {
       title: 'Grupo de Leitura',
       description: 'Participe das discussões no WhatsApp',
       icon: MessageCircle,
       url: 'https://chat.whatsapp.com/grupo-leitura',
-      color: 'from-green-600 to-green-700',
+      tone: tone.emerald,
     },
     {
       title: 'Indique Amigos',
       description: 'Compartilhe o clube com seus amigos',
       icon: UserPlus,
       url: 'https://clubedolivro.com/convite',
-      color: 'from-purple-600 to-purple-700',
+      tone: tone.purple,
     },
     {
       title: 'Podcast do Clube',
       description: 'Ouça com atenção e siga as regras combinadas abaixo:',
       icon: AlertCircle,
-      color: 'from-amber-600 to-amber-700',
       showModal: true,
+      tone: tone.amber,
     },
   ];
 
@@ -69,7 +114,7 @@ export function Dashboard() {
         title="Regras do Podcast do Clube"
         size="md"
       >
-        <ul className="list-disc pl-5 text-gray-200 space-y-2">
+        <ul className="list-disc pl-5 space-y-2 text-zinc-700 dark:text-zinc-200">
           <li>Escute os episódios com atenção e sem interrupções.</li>
           <li>Evite pausar no meio do conteúdo.</li>
           <li>Reflita sobre os temas abordados antes de comentar.</li>
@@ -78,28 +123,35 @@ export function Dashboard() {
       </Modal>
 
       {/* Saudação personalizada */}
-      <Card className="bg-gradient-to-r from-amber-600 to-green-600 text-white border-amber-500 relative overflow-hidden">
-        <div className="absolute inset-0 bg-black/10"></div>
+      <Card className="
+        relative overflow-hidden
+        bg-emerald-50 dark:bg-gradient-to-r
+        dark:from-amber-600 dark:to-emerald-600
+        border-emerald-200 dark:border-emerald-600
+        text-zinc-900 dark:text-amber-50
+      ">
+        <div className="absolute inset-0 hidden dark:block bg-black/10" />
         <div className="relative z-10">
           <div className="flex items-center justify-between">
             <div>
               <h2 className="text-3xl font-bold mb-2 flex items-center">
                 {getGreeting()}, {user?.firstName}!
-                <Sparkles className="ml-2 h-8 w-8 text-amber-200 animate-pulse" />
+                <Sparkles className="ml-2 h-8 w-8 text-amber-500 dark:text-amber-200 animate-pulse" />
               </h2>
-              <p className="text-amber-100 text-lg mb-4 leading-relaxed">
+              <p className="text-zinc-700 dark:text-amber-100 text-lg mb-4 leading-relaxed">
                 {todaysMessage.message}
               </p>
-              <div className="flex items-center space-x-2 text-amber-100">
+              <div className="flex items-center space-x-2 text-zinc-600 dark:text-amber-100">
                 <Calendar size={16} />
                 <span className="text-sm">
-                  Membro desde {new Date(user?.createdAt || '').toLocaleDateString('pt-BR')}
+                  Membro desde{' '}
+                  {new Date(user?.createdAt || '').toLocaleDateString('pt-BR')}
                 </span>
-                <Star className="ml-2 h-4 w-4 text-amber-200" />
+                <Star className="ml-2 h-4 w-4" />
               </div>
             </div>
             <div className="hidden md:block">
-              <BookOpen size={100} className="text-amber-200/50" />
+              <BookOpen size={100} className="text-emerald-400/40 dark:text-amber-200/50" />
             </div>
           </div>
         </div>
@@ -111,7 +163,7 @@ export function Dashboard() {
           <Card
             key={index}
             hover
-            className="group cursor-pointer bg-gray-800/50 backdrop-blur-sm border-gray-600"
+            className={`group cursor-pointer card ${link.tone.border}`}
           >
             {link.url ? (
               <a
@@ -122,14 +174,26 @@ export function Dashboard() {
               >
                 <div className="text-center space-y-3">
                   <div
-                    className={`bg-gradient-to-br ${link.color} p-4 rounded-xl group-hover:scale-110 transition-transform shadow-lg mx-auto w-fit`}
+                    className={[
+                      'p-4 rounded-xl group-hover:scale-110 transition-transform shadow-sm mx-auto w-fit',
+                      link.tone.iconWrap,
+                    ].join(' ')}
                   >
-                    <link.icon size={28} className="text-white" />
+                    <link.icon size={28} className={link.tone.icon} />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-white mb-2 text-lg">{link.title}</h3>
-                    <p className="text-gray-300 text-sm leading-relaxed">{link.description}</p>
-                    <div className="flex items-center justify-center mt-3 text-amber-400 text-sm font-medium">
+                    <h3 className="font-semibold text-zinc-900 dark:text-white mb-2 text-lg">
+                      {link.title}
+                    </h3>
+                    <p className="text-zinc-600 dark:text-zinc-300 text-sm leading-relaxed">
+                      {link.description}
+                    </p>
+                    <div
+                      className={[
+                        'flex items-center justify-center mt-3 text-sm font-medium',
+                        link.tone.accent,
+                      ].join(' ')}
+                    >
                       <span>Acessar</span>
                       <ExternalLink
                         size={14}
@@ -142,16 +206,26 @@ export function Dashboard() {
             ) : link.showModal ? (
               <div className="text-center space-y-3 p-4">
                 <div
-                  className={`bg-gradient-to-br ${link.color} p-4 rounded-xl shadow-lg mx-auto w-fit`}
+                  className={[
+                    'p-4 rounded-xl shadow-sm mx-auto w-fit',
+                    link.tone.iconWrap,
+                  ].join(' ')}
                 >
-                  <link.icon size={28} className="text-white" />
+                  <link.icon size={28} className={link.tone.icon} />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-white mb-2 text-lg">{link.title}</h3>
-                  <p className="text-gray-300 text-sm leading-relaxed">{link.description}</p>
+                  <h3 className="font-semibold text-zinc-900 dark:text-white mb-2 text-lg">
+                    {link.title}
+                  </h3>
+                  <p className="text-zinc-600 dark:text-zinc-300 text-sm leading-relaxed">
+                    {link.description}
+                  </p>
                   <button
                     onClick={() => setIsModalOpen(true)}
-                    className="mt-3 text-amber-300 text-sm underline hover:text-amber-100 transition"
+                    className={[
+                      'mt-3 text-sm underline transition',
+                      link.tone.accent,
+                    ].join(' ')}
                   >
                     Ver Mais
                   </button>
@@ -164,36 +238,38 @@ export function Dashboard() {
 
       {/* Estatísticas */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="text-center bg-gradient-to-br from-amber-900/30 to-amber-800/30 border-amber-700">
-          <div className="bg-amber-500/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-            <Calendar className="text-amber-400" size={36} />
+        <Card className="text-center card border-amber-200 dark:border-amber-700/40">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-amber-50 dark:bg-amber-500/10">
+            <Calendar className="text-amber-700 dark:text-amber-300" size={28} />
           </div>
-          <h3 className="text-3xl font-bold text-white mb-2">30</h3>
-          <p className="text-amber-300">Resumos Disponíveis</p>
+          <h3 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">30</h3>
+          <p className="text-amber-700 dark:text-amber-300">Resumos Disponíveis</p>
         </Card>
 
-        <Card className="text-center bg-gradient-to-br from-green-900/30 to-green-800/30 border-green-700">
-          <div className="bg-green-500/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-            <BookOpen className="text-green-400" size={36} />
+        <Card className="text-center card border-emerald-200 dark:border-emerald-700/40">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-emerald-50 dark:bg-emerald-500/10">
+            <BookOpen className="text-emerald-700 dark:text-emerald-300" size={28} />
           </div>
-          <h3 className="text-3xl font-bold text-white mb-2">4</h3>
-          <p className="text-green-300">Livros do Mês</p>
+          <h3 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">4</h3>
+          <p className="text-emerald-700 dark:text-emerald-300">Livros do Mês</p>
         </Card>
 
-        <Card className="text-center bg-gradient-to-br from-purple-900/30 to-purple-800/30 border-purple-700">
-          <div className="bg-purple-500/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-            <Users className="text-purple-400" size={36} />
+        <Card className="text-center card border-purple-200 dark:border-purple-700/40">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-purple-50 dark:bg-purple-500/10">
+            <Users className="text-purple-700 dark:text-purple-300" size={28} />
           </div>
-          <h3 className="text-3xl font-bold text-white mb-2">3</h3>
-          <p className="text-purple-300">Parceiros Especialistas</p>
+          <h3 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">3</h3>
+          <p className="text-purple-700 dark:text-purple-300">Parceiros Especialistas</p>
         </Card>
 
-        <Card className="text-center bg-gradient-to-br from-blue-900/30 to-blue-800/30 border-blue-700">
-          <div className="bg-blue-500/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 backdrop-blur-sm">
-            <FileText className="text-blue-400" size={36} />
+        <Card className="text-center card border-blue-200 dark:border-blue-700/40">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 bg-blue-50 dark:bg-blue-500/10">
+            <FileText className="text-blue-700 dark:text-blue-300" size={28} />
           </div>
-          <h3 className="text-3xl font-bold text-white mb-2">{freeMaterials.length}</h3>
-          <p className="text-blue-300">Materiais Gratuitos</p>
+          <h3 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
+            {freeMaterials.length}
+          </h3>
+          <p className="text-blue-700 dark:text-blue-300">Materiais Gratuitos</p>
         </Card>
       </div>
     </div>
