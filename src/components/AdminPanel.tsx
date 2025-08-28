@@ -3,10 +3,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Modal } from './ui/Modal';
-import { 
-  Users, 
-  BookOpen, 
-  MessageSquare, 
+import {
+  Users,
+  BookOpen,
+  MessageSquare,
   UserPlus,
   Calendar,
   Settings,
@@ -18,10 +18,17 @@ import {
   Save,
   X,
   Eye,
-  EyeOff
+  EyeOff,
 } from 'lucide-react';
 
-type AdminSection = 'dashboard' | 'users' | 'summaries' | 'books' | 'partners' | 'messages' | 'links';
+type AdminSection =
+  | 'dashboard'
+  | 'users'
+  | 'summaries'
+  | 'books'
+  | 'partners'
+  | 'messages'
+  | 'links';
 
 export function AdminPanel() {
   const { logout } = useAuth();
@@ -34,7 +41,7 @@ export function AdminPanel() {
     { id: 'books' as AdminSection, label: 'Livros', icon: BookOpen },
     { id: 'partners' as AdminSection, label: 'Parceiros', icon: UserPlus },
     { id: 'messages' as AdminSection, label: 'Mensagens Diárias', icon: MessageSquare },
-    { id: 'links' as AdminSection, label: 'Links Extras', icon: Settings }
+    { id: 'links' as AdminSection, label: 'Links Extras', icon: Settings },
   ];
 
   const renderContent = () => {
@@ -59,169 +66,169 @@ export function AdminPanel() {
   };
 
   return (
-    <div className="flex h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black">
+    <div className="flex h-screen bg-zinc-50 dark:bg-zinc-900">
       {/* Sidebar */}
-      <div className="w-64 bg-gray-800/90 backdrop-blur-sm shadow-2xl border-r border-gray-700">
-        <div className="p-6 border-b border-gray-700">
+      <aside
+        className="
+          w-64 border-r
+          bg-white/90 dark:bg-zinc-900/80
+          border-zinc-200 dark:border-zinc-800
+          backdrop-blur-sm
+        "
+      >
+        <div className="p-6 border-b border-zinc-200 dark:border-zinc-800">
           <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold bg-gradient-to-r from-amber-400 to-green-400 bg-clip-text text-transparent">
+            <h2 className="text-xl font-bold text-zinc-900 dark:text-white">
               Painel Admin
             </h2>
             <Button
               onClick={logout}
               variant="ghost"
               size="sm"
-              className="text-red-400 hover:text-red-300 hover:bg-red-900/20"
+              className="text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10"
               title="Sair"
             >
               <LogOut size={16} />
             </Button>
           </div>
         </div>
-        <nav className="mt-6">
-          {menuItems.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => setActiveSection(item.id)}
-              className={`w-full flex items-center space-x-3 px-6 py-3 text-left hover:bg-amber-900/20 transition-all duration-200 ${
-                activeSection === item.id 
-                  ? 'bg-amber-900/30 border-r-2 border-amber-500 text-amber-400' 
-                  : 'text-gray-300 hover:text-white'
-              }`}
-            >
-              <item.icon size={20} />
-              <span>{item.label}</span>
-            </button>
-          ))}
+        <nav className="mt-4">
+          {menuItems.map((item) => {
+            const active = activeSection === item.id;
+            return (
+              <button
+                key={item.id}
+                onClick={() => setActiveSection(item.id)}
+                className={[
+                  'w-full flex items-center gap-3 px-6 py-3 text-left transition',
+                  active
+                    ? 'bg-emerald-50 text-emerald-700 border-l-4 border-emerald-400 ' +
+                      'dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-600'
+                    : 'text-zinc-700 hover:bg-zinc-100 ' +
+                      'dark:text-zinc-300 dark:hover:bg-zinc-800',
+                ].join(' ')}
+              >
+                <item.icon size={18} />
+                <span>{item.label}</span>
+              </button>
+            );
+          })}
         </nav>
-      </div>
+      </aside>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-auto">
-        <div className="p-8">
-          {renderContent()}
-        </div>
-      </div>
+      <main className="flex-1 overflow-auto">
+        <div className="p-6 sm:p-8">{renderContent()}</div>
+      </main>
     </div>
   );
 }
+
+/* ---------------- DASHBOARD ---------------- */
 
 function AdminDashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-white">Dashboard Administrativo</h1>
-        <div className="text-sm text-gray-400">
+        <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">
+          Dashboard Administrativo
+        </h1>
+        <div className="text-sm text-zinc-600 dark:text-zinc-400">
           Última atualização: {new Date().toLocaleString('pt-BR')}
         </div>
       </div>
-      
+
+      {/* Cards principais */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="bg-gradient-to-br from-blue-900/50 to-blue-800/50 border-blue-700">
-          <div className="flex items-center">
-            <div className="bg-blue-500 p-3 rounded-lg">
-              <Users className="h-8 w-8 text-white" />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-white">2</h3>
-              <p className="text-blue-300">Usuários Ativos</p>
-            </div>
+        <Card className="flex items-center">
+          <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-500/10">
+            <Users className="h-8 w-8 text-blue-700 dark:text-blue-300" />
+          </div>
+          <div className="ml-4">
+            <h3 className="text-2xl font-bold text-zinc-900 dark:text-white">2</h3>
+            <p className="text-blue-700 dark:text-blue-300">Usuários Ativos</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-900/50 to-green-800/50 border-green-700">
-          <div className="flex items-center">
-            <div className="bg-green-500 p-3 rounded-lg">
-              <Calendar className="h-8 w-8 text-white" />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-white">30</h3>
-              <p className="text-green-300">Resumos Criados</p>
-            </div>
+        <Card className="flex items-center">
+          <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-500/10">
+            <Calendar className="h-8 w-8 text-emerald-700 dark:text-emerald-300" />
+          </div>
+          <div className="ml-4">
+            <h3 className="text-2xl font-bold text-zinc-900 dark:text-white">30</h3>
+            <p className="text-emerald-700 dark:text-emerald-300">Resumos Criados</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-900/50 to-purple-800/50 border-purple-700">
-          <div className="flex items-center">
-            <div className="bg-purple-500 p-3 rounded-lg">
-              <BookOpen className="h-8 w-8 text-white" />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-white">3</h3>
-              <p className="text-purple-300">Livros Cadastrados</p>
-            </div>
+        <Card className="flex items-center">
+          <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-500/10">
+            <BookOpen className="h-8 w-8 text-purple-700 dark:text-purple-300" />
+          </div>
+          <div className="ml-4">
+            <h3 className="text-2xl font-bold text-zinc-900 dark:text-white">3</h3>
+            <p className="text-purple-700 dark:text-purple-300">Livros Cadastrados</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-amber-900/50 to-amber-800/50 border-amber-700">
-          <div className="flex items-center">
-            <div className="bg-amber-500 p-3 rounded-lg">
-              <UserPlus className="h-8 w-8 text-white" />
-            </div>
-            <div className="ml-4">
-              <h3 className="text-2xl font-bold text-white">3</h3>
-              <p className="text-amber-300">Parceiros</p>
-            </div>
+        <Card className="flex items-center">
+          <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-500/10">
+            <UserPlus className="h-8 w-8 text-amber-700 dark:text-amber-300" />
+          </div>
+          <div className="ml-4">
+            <h3 className="text-2xl font-bold text-zinc-900 dark:text-white">3</h3>
+            <p className="text-amber-700 dark:text-amber-300">Parceiros</p>
           </div>
         </Card>
       </div>
 
+      {/* Duas colunas */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
-          <h3 className="text-lg font-semibold text-white mb-4 flex items-center">
+          <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4 flex items-center">
             <BarChart3 className="mr-2" />
             Atividades Recentes
           </h3>
           <div className="space-y-4">
-            <div className="flex items-center space-x-3 p-3 bg-gray-700/50 rounded-lg">
-              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
-              <div className="flex-1">
-                <span className="text-gray-300">Novo usuário cadastrado: Maria Santos</span>
-                <div className="text-xs text-gray-500">Há 2 horas</div>
+            {[
+              { dot: 'bg-emerald-500', text: 'Novo usuário cadastrado: Maria Santos', when: 'Há 2 horas' },
+              { dot: 'bg-blue-500', text: 'Resumo do Dia 15 atualizado', when: 'Há 1 dia' },
+              { dot: 'bg-purple-500', text: 'Novo livro adicionado: Atomic Habits', when: 'Há 2 dias' },
+            ].map((it, i) => (
+              <div key={i} className="flex items-center space-x-3 p-3 rounded-lg bg-zinc-100 dark:bg-zinc-800/60">
+                <div className={`w-3 h-3 rounded-full ${it.dot} animate-pulse`} />
+                <div className="flex-1">
+                  <span className="text-zinc-800 dark:text-zinc-200">{it.text}</span>
+                  <div className="text-xs text-zinc-500">{it.when}</div>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center space-x-3 p-3 bg-gray-700/50 rounded-lg">
-              <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-              <div className="flex-1">
-                <span className="text-gray-300">Resumo do Dia 15 atualizado</span>
-                <div className="text-xs text-gray-500">Há 1 dia</div>
-              </div>
-            </div>
-            <div className="flex items-center space-x-3 p-3 bg-gray-700/50 rounded-lg">
-              <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-              <div className="flex-1">
-                <span className="text-gray-300">Novo livro adicionado: Atomic Habits</span>
-                <div className="text-xs text-gray-500">Há 2 dias</div>
-              </div>
-            </div>
+            ))}
           </div>
         </Card>
 
         <Card>
-          <h3 className="text-lg font-semibold text-white mb-4">Estatísticas do Mês</h3>
+          <h3 className="text-lg font-semibold text-zinc-900 dark:text-white mb-4">
+            Estatísticas do Mês
+          </h3>
           <div className="space-y-4">
-            <div className="flex justify-between items-center">
-              <span className="text-gray-300">Novos usuários</span>
-              <span className="text-green-400 font-bold">+2</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-300">Resumos acessados</span>
-              <span className="text-blue-400 font-bold">156</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-300">Livros visualizados</span>
-              <span className="text-purple-400 font-bold">89</span>
-            </div>
-            <div className="flex justify-between items-center">
-              <span className="text-gray-300">Taxa de engajamento</span>
-              <span className="text-amber-400 font-bold">87%</span>
-            </div>
+            {[
+              ['Novos usuários', '+2', 'text-emerald-700 dark:text-emerald-300'],
+              ['Resumos acessados', '156', 'text-blue-700 dark:text-blue-300'],
+              ['Livros visualizados', '89', 'text-purple-700 dark:text-purple-300'],
+              ['Taxa de engajamento', '87%', 'text-amber-700 dark:text-amber-300'],
+            ].map(([label, value, tone]) => (
+              <div key={label} className="flex justify-between items-center">
+                <span className="text-zinc-700 dark:text-zinc-300">{label}</span>
+                <span className={`font-bold ${tone as string}`}>{value}</span>
+              </div>
+            ))}
           </div>
         </Card>
       </div>
     </div>
   );
 }
+
+/* ---------------- USERS ---------------- */
 
 function UserManagement() {
   const [showModal, setShowModal] = useState(false);
@@ -233,7 +240,7 @@ function UserManagement() {
     phone: '',
     cpf: '',
     expirationDate: '',
-    isActive: true
+    isActive: true,
   });
 
   const handleEdit = (user: any) => {
@@ -251,13 +258,12 @@ function UserManagement() {
       phone: '',
       cpf: '',
       expirationDate: '',
-      isActive: true
+      isActive: true,
     });
     setShowModal(true);
   };
 
   const handleSave = () => {
-    // Implementar lógica de salvamento
     console.log('Salvando usuário:', formData);
     setShowModal(false);
   };
@@ -265,8 +271,8 @@ function UserManagement() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">Gerenciar Usuários</h1>
-        <Button onClick={handleNew} className="flex items-center space-x-2">
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Gerenciar Usuários</h1>
+        <Button onClick={handleNew} className="flex items-center gap-2">
           <Plus size={16} />
           <span>Novo Usuário</span>
         </Button>
@@ -274,110 +280,83 @@ function UserManagement() {
 
       <Card>
         <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-700">
-            <thead className="bg-gray-700/50">
+          <table className="min-w-full divide-y divide-zinc-200 dark:divide-zinc-800">
+            <thead className="bg-zinc-100 dark:bg-zinc-800/60">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Nome
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Email
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  CPF
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Expira em
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Status
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
-                  Ações
-                </th>
+                {['Nome', 'Email', 'CPF', 'Expira em', 'Status', 'Ações'].map((th) => (
+                  <th
+                    key={th}
+                    className="px-6 py-3 text-left text-xs font-medium text-zinc-600 dark:text-zinc-300 uppercase tracking-wider"
+                  >
+                    {th}
+                  </th>
+                ))}
               </tr>
             </thead>
-            <tbody className="bg-gray-800/50 divide-y divide-gray-700">
-              <tr className="hover:bg-gray-700/30 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-white">João Silva</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-300">joao@email.com</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-300">123.456.789-01</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-300">31/12/2024</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900/50 text-green-300 border border-green-700">
-                    Ativo
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleEdit({
-                      firstName: 'João',
-                      lastName: 'Silva',
-                      email: 'joao@email.com',
-                      phone: '11999999999',
-                      cpf: '123.456.789-01',
-                      expirationDate: '2024-12-31',
-                      isActive: true
-                    })}
-                    className="text-amber-400 hover:text-amber-300"
-                  >
-                    <Edit size={14} />
-                  </Button>
-                  <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300">
-                    <Trash2 size={14} />
-                  </Button>
-                </td>
-              </tr>
-              <tr className="hover:bg-gray-700/30 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-white">Maria Santos</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-300">maria@email.com</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-300">987.654.321-09</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-300">30/11/2024</div>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-900/50 text-green-300 border border-green-700">
-                    Ativo
-                  </span>
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-2">
-                  <Button 
-                    variant="ghost" 
-                    size="sm"
-                    onClick={() => handleEdit({
-                      firstName: 'Maria',
-                      lastName: 'Santos',
-                      email: 'maria@email.com',
-                      phone: '11888888888',
-                      cpf: '987.654.321-09',
-                      expirationDate: '2024-11-30',
-                      isActive: true
-                    })}
-                    className="text-amber-400 hover:text-amber-300"
-                  >
-                    <Edit size={14} />
-                  </Button>
-                  <Button variant="ghost" size="sm" className="text-red-400 hover:text-red-300">
-                    <Trash2 size={14} />
-                  </Button>
-                </td>
-              </tr>
+            <tbody className="bg-white dark:bg-zinc-900 divide-y divide-zinc-200 dark:divide-zinc-800">
+              {[
+                {
+                  firstName: 'João',
+                  lastName: 'Silva',
+                  email: 'joao@email.com',
+                  phone: '11999999999',
+                  cpf: '123.456.789-01',
+                  expirationDate: '2024-12-31',
+                  isActive: true,
+                },
+                {
+                  firstName: 'Maria',
+                  lastName: 'Santos',
+                  email: 'maria@email.com',
+                  phone: '11888888888',
+                  cpf: '987.654.321-09',
+                  expirationDate: '2024-11-30',
+                  isActive: true,
+                },
+              ].map((u) => (
+                <tr key={u.cpf} className="hover:bg-zinc-50 dark:hover:bg-zinc-800/60 transition">
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm font-medium text-zinc-900 dark:text-white">
+                      {u.firstName} {u.lastName}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-zinc-700 dark:text-zinc-300">{u.email}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-zinc-700 dark:text-zinc-300">{u.cpf}</div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <div className="text-sm text-zinc-700 dark:text-zinc-300">
+                      {new Date(u.expirationDate).toLocaleDateString('pt-BR')}
+                    </div>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap">
+                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full
+                                     bg-emerald-50 text-emerald-700 border border-emerald-200
+                                     dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-700/40">
+                      {u.isActive ? 'Ativo' : 'Inativo'}
+                    </span>
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium space-x-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEdit(u)}
+                      className="text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-500/10"
+                    >
+                      <Edit size={14} />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10"
+                    >
+                      <Trash2 size={14} />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
@@ -391,93 +370,38 @@ function UserManagement() {
       >
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Primeiro Nome
-              </label>
-              <input
-                type="text"
-                value={formData.firstName}
-                onChange={(e) => setFormData({...formData, firstName: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Sobrenome
-              </label>
-              <input
-                type="text"
-                value={formData.lastName}
-                onChange={(e) => setFormData({...formData, lastName: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
+            <Input label="Primeiro Nome" value={formData.firstName} onChange={(v) => setFormData({ ...formData, firstName: v })} />
+            <Input label="Sobrenome" value={formData.lastName} onChange={(v) => setFormData({ ...formData, lastName: v })} />
           </div>
-          
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Email
-            </label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData({...formData, email: e.target.value})}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-            />
-          </div>
+
+          <Input label="Email" type="email" value={formData.email} onChange={(v) => setFormData({ ...formData, email: v })} />
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Telefone
-              </label>
-              <input
-                type="text"
-                value={formData.phone}
-                onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                CPF
-              </label>
-              <input
-                type="text"
-                value={formData.cpf}
-                onChange={(e) => setFormData({...formData, cpf: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
+            <Input label="Telefone" value={formData.phone} onChange={(v) => setFormData({ ...formData, phone: v })} />
+            <Input label="CPF" value={formData.cpf} onChange={(v) => setFormData({ ...formData, cpf: v })} />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Data de Expiração
-            </label>
-            <input
-              type="date"
-              value={formData.expirationDate}
-              onChange={(e) => setFormData({...formData, expirationDate: e.target.value})}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-            />
-          </div>
+          <Input
+            label="Data de Expiração"
+            type="date"
+            value={formData.expirationDate}
+            onChange={(v) => setFormData({ ...formData, expirationDate: v })}
+          />
 
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             <input
               type="checkbox"
               id="isActive"
               checked={formData.isActive}
-              onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
-              className="mr-2"
+              onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+              className="h-4 w-4 accent-emerald-600"
             />
-            <label htmlFor="isActive" className="text-sm text-gray-300">
+            <label htmlFor="isActive" className="text-sm text-zinc-700 dark:text-zinc-300">
               Usuário ativo
             </label>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => setShowModal(false)}>
               Cancelar
             </Button>
@@ -492,6 +416,8 @@ function UserManagement() {
   );
 }
 
+/* ---------------- SUMMARIES ---------------- */
+
 function SummaryManagement() {
   const [showModal, setShowModal] = useState(false);
   const [editingSummary, setEditingSummary] = useState<any>(null);
@@ -500,7 +426,7 @@ function SummaryManagement() {
     title: '',
     content: '',
     image: '',
-    audioUrl: ''
+    audioUrl: '',
   });
 
   const handleEdit = (summary: any) => {
@@ -516,7 +442,7 @@ function SummaryManagement() {
       title: '',
       content: '',
       image: '',
-      audioUrl: ''
+      audioUrl: '',
     });
     setShowModal(true);
   };
@@ -529,7 +455,7 @@ function SummaryManagement() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">Resumos Diários</h1>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Resumos Diários</h1>
         <Button onClick={handleNew}>
           <Plus size={16} className="mr-2" />
           Novo Resumo
@@ -541,35 +467,37 @@ function SummaryManagement() {
           <Card key={i} hover className="group">
             <div className="space-y-3">
               <div className="flex justify-between items-start">
-                <h3 className="font-semibold text-white">Dia {i + 1}</h3>
+                <h3 className="font-semibold text-zinc-900 dark:text-white">Dia {i + 1}</h3>
                 <div className="flex space-x-1">
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="sm"
-                    onClick={() => handleEdit({
-                      day: i + 1,
-                      title: `Reflexão do Dia ${i + 1}`,
-                      content: `Este é o resumo e reflexão do dia ${i + 1}...`,
-                      image: '',
-                      audioUrl: ''
-                    })}
-                    className="text-amber-400 hover:text-amber-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() =>
+                      handleEdit({
+                        day: i + 1,
+                        title: `Reflexão do Dia ${i + 1}`,
+                        content: `Este é o resumo e reflexão do dia ${i + 1}...`,
+                        image: '',
+                        audioUrl: '',
+                      })
+                    }
+                    className="text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-500/10 opacity-0 group-hover:opacity-100 transition"
                   >
                     <Edit size={14} />
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10 opacity-0 group-hover:opacity-100 transition"
                   >
                     <Trash2 size={14} />
                   </Button>
                 </div>
               </div>
-              <p className="text-sm text-gray-300 line-clamp-3">
+              <p className="text-sm text-zinc-700 dark:text-zinc-300 line-clamp-2">
                 Reflexão do dia {i + 1} sobre leitura e desenvolvimento pessoal...
               </p>
-              <div className="flex items-center text-xs text-gray-500">
+              <div className="flex items-center text-xs text-zinc-500">
                 <Calendar size={12} className="mr-1" />
                 Atualizado há 2 dias
               </div>
@@ -586,69 +514,43 @@ function SummaryManagement() {
       >
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Dia
-              </label>
-              <input
-                type="number"
-                min="1"
-                max="30"
-                value={formData.day}
-                onChange={(e) => setFormData({...formData, day: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Título
-              </label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Conteúdo
-            </label>
-            <textarea
-              rows={6}
-              value={formData.content}
-              onChange={(e) => setFormData({...formData, content: e.target.value})}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
+            <Input
+              label="Dia"
+              type="number"
+              min={1}
+              max={31}
+              value={formData.day}
+              onChange={(v) => setFormData({ ...formData, day: v })}
+            />
+            <Input
+              label="Título"
+              value={formData.title}
+              onChange={(v) => setFormData({ ...formData, title: v })}
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              URL da Imagem (opcional)
-            </label>
-            <input
-              type="url"
-              value={formData.image}
-              onChange={(e) => setFormData({...formData, image: e.target.value})}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-            />
-          </div>
+          <Textarea
+            label="Conteúdo"
+            rows={6}
+            value={formData.content}
+            onChange={(v) => setFormData({ ...formData, content: v })}
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              URL do Áudio (opcional)
-            </label>
-            <input
-              type="url"
-              value={formData.audioUrl}
-              onChange={(e) => setFormData({...formData, audioUrl: e.target.value})}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-            />
-          </div>
+          <Input
+            label="URL da Imagem (opcional)"
+            type="url"
+            value={formData.image}
+            onChange={(v) => setFormData({ ...formData, image: v })}
+          />
 
-          <div className="flex justify-end space-x-3 pt-4">
+          <Input
+            label="URL do Áudio (opcional)"
+            type="url"
+            value={formData.audioUrl}
+            onChange={(v) => setFormData({ ...formData, audioUrl: v })}
+          />
+
+          <div className="flex justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => setShowModal(false)}>
               Cancelar
             </Button>
@@ -663,6 +565,8 @@ function SummaryManagement() {
   );
 }
 
+/* ---------------- BOOKS ---------------- */
+
 function BookManagement() {
   const [showModal, setShowModal] = useState(false);
   const [editingBook, setEditingBook] = useState<any>(null);
@@ -674,7 +578,7 @@ function BookManagement() {
     fullSummary: '',
     quotes: [''],
     purchaseLink: '',
-    downloadLink: ''
+    downloadLink: '',
   });
 
   const handleEdit = (book: any) => {
@@ -693,7 +597,7 @@ function BookManagement() {
       fullSummary: '',
       quotes: [''],
       purchaseLink: '',
-      downloadLink: ''
+      downloadLink: '',
     });
     setShowModal(true);
   };
@@ -703,25 +607,19 @@ function BookManagement() {
     setShowModal(false);
   };
 
-  const addQuote = () => {
-    setFormData({...formData, quotes: [...formData.quotes, '']});
-  };
-
-  const removeQuote = (index: number) => {
-    const newQuotes = formData.quotes.filter((_, i) => i !== index);
-    setFormData({...formData, quotes: newQuotes});
-  };
-
-  const updateQuote = (index: number, value: string) => {
-    const newQuotes = [...formData.quotes];
-    newQuotes[index] = value;
-    setFormData({...formData, quotes: newQuotes});
+  const addQuote = () => setFormData({ ...formData, quotes: [...formData.quotes, ''] });
+  const removeQuote = (i: number) =>
+    setFormData({ ...formData, quotes: formData.quotes.filter((_, idx) => idx !== i) });
+  const updateQuote = (i: number, v: string) => {
+    const q = [...formData.quotes];
+    q[i] = v;
+    setFormData({ ...formData, quotes: q });
   };
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">Gerenciar Livros</h1>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Gerenciar Livros</h1>
         <Button onClick={handleNew}>
           <Plus size={16} className="mr-2" />
           Novo Livro
@@ -732,43 +630,45 @@ function BookManagement() {
         {[
           { title: 'O Poder do Hábito', author: 'Charles Duhigg' },
           { title: 'Mindset', author: 'Carol S. Dweck' },
-          { title: 'Atomic Habits', author: 'James Clear' }
+          { title: 'Atomic Habits', author: 'James Clear' },
         ].map((book, index) => (
           <Card key={index} hover className="group">
             <div className="space-y-3">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-semibold text-white">{book.title}</h3>
-                  <p className="text-sm text-amber-400">{book.author}</p>
+                  <h3 className="font-semibold text-zinc-900 dark:text-white">{book.title}</h3>
+                  <p className="text-sm text-emerald-700 dark:text-emerald-300">{book.author}</p>
                 </div>
                 <div className="flex space-x-1">
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="sm"
-                    onClick={() => handleEdit({
-                      title: book.title,
-                      author: book.author,
-                      cover: '',
-                      miniSummary: 'Resumo do livro...',
-                      fullSummary: 'Resumo completo...',
-                      quotes: ['Frase marcante...'],
-                      purchaseLink: '',
-                      downloadLink: ''
-                    })}
-                    className="text-amber-400 hover:text-amber-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() =>
+                      handleEdit({
+                        title: book.title,
+                        author: book.author,
+                        cover: '',
+                        miniSummary: 'Resumo do livro...',
+                        fullSummary: 'Resumo completo...',
+                        quotes: ['Frase marcante...'],
+                        purchaseLink: '',
+                        downloadLink: '',
+                      })
+                    }
+                    className="text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-500/10 opacity-0 group-hover:opacity-100 transition"
                   >
                     <Edit size={14} />
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10 opacity-0 group-hover:opacity-100 transition"
                   >
                     <Trash2 size={14} />
                   </Button>
                 </div>
               </div>
-              <p className="text-sm text-gray-300 line-clamp-2">
+              <p className="text-sm text-zinc-700 dark:text-zinc-300 line-clamp-2">
                 Descubra como os hábitos funcionam e como mudá-los...
               </p>
             </div>
@@ -784,69 +684,29 @@ function BookManagement() {
       >
         <div className="space-y-4 max-h-96 overflow-y-auto">
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Título
-              </label>
-              <input
-                type="text"
-                value={formData.title}
-                onChange={(e) => setFormData({...formData, title: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Autor
-              </label>
-              <input
-                type="text"
-                value={formData.author}
-                onChange={(e) => setFormData({...formData, author: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
+            <Input label="Título" value={formData.title} onChange={(v) => setFormData({ ...formData, title: v })} />
+            <Input label="Autor" value={formData.author} onChange={(v) => setFormData({ ...formData, author: v })} />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              URL da Capa
-            </label>
-            <input
-              type="url"
-              value={formData.cover}
-              onChange={(e) => setFormData({...formData, cover: e.target.value})}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-            />
-          </div>
+          <Input label="URL da Capa" type="url" value={formData.cover} onChange={(v) => setFormData({ ...formData, cover: v })} />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Mini Resumo
-            </label>
-            <textarea
-              rows={2}
-              value={formData.miniSummary}
-              onChange={(e) => setFormData({...formData, miniSummary: e.target.value})}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-            />
-          </div>
+          <Textarea
+            label="Mini Resumo"
+            rows={2}
+            value={formData.miniSummary}
+            onChange={(v) => setFormData({ ...formData, miniSummary: v })}
+          />
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Resumo Completo
-            </label>
-            <textarea
-              rows={4}
-              value={formData.fullSummary}
-              onChange={(e) => setFormData({...formData, fullSummary: e.target.value})}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-            />
-          </div>
+          <Textarea
+            label="Resumo Completo"
+            rows={4}
+            value={formData.fullSummary}
+            onChange={(v) => setFormData({ ...formData, fullSummary: v })}
+          />
 
           <div>
             <div className="flex justify-between items-center mb-2">
-              <label className="block text-sm font-medium text-gray-300">
+              <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300">
                 Frases Marcantes
               </label>
               <Button variant="ghost" size="sm" onClick={addQuote}>
@@ -854,12 +714,11 @@ function BookManagement() {
               </Button>
             </div>
             {formData.quotes.map((quote, index) => (
-              <div key={index} className="flex space-x-2 mb-2">
-                <input
-                  type="text"
+              <div key={index} className="flex gap-2 mb-2">
+                <Input
+                  label=""
                   value={quote}
-                  onChange={(e) => updateQuote(index, e.target.value)}
-                  className="flex-1 px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
+                  onChange={(v) => updateQuote(index, v)}
                   placeholder="Digite uma frase marcante..."
                 />
                 {formData.quotes.length > 1 && (
@@ -872,32 +731,22 @@ function BookManagement() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Link de Compra
-              </label>
-              <input
-                type="url"
-                value={formData.purchaseLink}
-                onChange={(e) => setFormData({...formData, purchaseLink: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Link de Download
-              </label>
-              <input
-                type="url"
-                value={formData.downloadLink}
-                onChange={(e) => setFormData({...formData, downloadLink: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
+            <Input
+              label="Link de Compra"
+              type="url"
+              value={formData.purchaseLink}
+              onChange={(v) => setFormData({ ...formData, purchaseLink: v })}
+            />
+            <Input
+              label="Link de Download"
+              type="url"
+              value={formData.downloadLink}
+              onChange={(v) => setFormData({ ...formData, downloadLink: v })}
+            />
           </div>
         </div>
 
-        <div className="flex justify-end space-x-3 pt-4 border-t border-gray-700">
+        <div className="flex justify-end gap-2 pt-4 border-t border-zinc-200 dark:border-zinc-800">
           <Button variant="ghost" onClick={() => setShowModal(false)}>
             Cancelar
           </Button>
@@ -911,6 +760,8 @@ function BookManagement() {
   );
 }
 
+/* ---------------- PARTNERS ---------------- */
+
 function PartnerManagement() {
   const [showModal, setShowModal] = useState(false);
   const [editingPartner, setEditingPartner] = useState<any>(null);
@@ -921,7 +772,7 @@ function PartnerManagement() {
     whatsapp: '',
     instagram: '',
     otherLink: '',
-    otherLinkLabel: ''
+    otherLinkLabel: '',
   });
 
   const handleEdit = (partner: any) => {
@@ -939,7 +790,7 @@ function PartnerManagement() {
       whatsapp: '',
       instagram: '',
       otherLink: '',
-      otherLinkLabel: ''
+      otherLinkLabel: '',
     });
     setShowModal(true);
   };
@@ -952,7 +803,7 @@ function PartnerManagement() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">Gerenciar Parceiros</h1>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Gerenciar Parceiros</h1>
         <Button onClick={handleNew}>
           <Plus size={16} className="mr-2" />
           Novo Parceiro
@@ -963,45 +814,45 @@ function PartnerManagement() {
         {[
           { name: 'Ana Costa', bio: 'Escritora e crítica literária com mais de 15 anos...' },
           { name: 'Pedro Martins', bio: 'Livreiro e curador de conteúdo. Apaixonado por...' },
-          { name: 'Carla Santos', bio: 'Bibliotecária e consultora em leitura...' }
+          { name: 'Carla Santos', bio: 'Bibliotecária e consultora em leitura...' },
         ].map((partner, index) => (
           <Card key={index} hover className="group">
             <div className="space-y-3">
               <div className="flex justify-between items-start">
-                <h3 className="font-semibold text-white">{partner.name}</h3>
+                <h3 className="font-semibold text-zinc-900 dark:text-white">{partner.name}</h3>
                 <div className="flex space-x-1">
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="sm"
-                    onClick={() => handleEdit({
-                      name: partner.name,
-                      photo: '',
-                      bio: partner.bio,
-                      whatsapp: '11999999999',
-                      instagram: '@usuario',
-                      otherLink: '',
-                      otherLinkLabel: ''
-                    })}
-                    className="text-amber-400 hover:text-amber-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                    onClick={() =>
+                      handleEdit({
+                        name: partner.name,
+                        photo: '',
+                        bio: partner.bio,
+                        whatsapp: '11999999999',
+                        instagram: '@usuario',
+                        otherLink: '',
+                        otherLinkLabel: '',
+                      })
+                    }
+                    className="text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-500/10 opacity-0 group-hover:opacity-100 transition"
                   >
                     <Edit size={14} />
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-red-400 hover:text-red-300 opacity-0 group-hover:opacity-100 transition-opacity"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10 opacity-0 group-hover:opacity-100 transition"
                   >
                     <Trash2 size={14} />
                   </Button>
                 </div>
               </div>
-              <p className="text-sm text-gray-300 line-clamp-2">
-                {partner.bio}
-              </p>
-              <div className="flex space-x-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <div className="w-2 h-2 bg-pink-500 rounded-full"></div>
-                <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+              <p className="text-sm text-zinc-700 dark:text-zinc-300 line-clamp-2">{partner.bio}</p>
+              <div className="flex gap-2">
+                <div className="w-2 h-2 rounded-full bg-emerald-500" />
+                <div className="w-2 h-2 rounded-full bg-pink-500" />
+                <div className="w-2 h-2 rounded-full bg-blue-500" />
               </div>
             </div>
           </Card>
@@ -1015,100 +866,48 @@ function PartnerManagement() {
         size="lg"
       >
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Nome
-            </label>
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => setFormData({...formData, name: e.target.value})}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
+          <Input label="Nome" value={formData.name} onChange={(v) => setFormData({ ...formData, name: v })} />
+          <Input label="URL da Foto" type="url" value={formData.photo} onChange={(v) => setFormData({ ...formData, photo: v })} />
+          <Textarea
+            label="Bio (até 200 caracteres)"
+            rows={3}
+            value={formData.bio}
+            onChange={(v) => setFormData({ ...formData, bio: v })}
+            maxLength={200}
+          />
+          <div className="text-xs text-zinc-500">{formData.bio.length}/200 caracteres</div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="WhatsApp"
+              value={formData.whatsapp}
+              onChange={(v) => setFormData({ ...formData, whatsapp: v })}
+              placeholder="11999999999"
+            />
+            <Input
+              label="Instagram"
+              value={formData.instagram}
+              onChange={(v) => setFormData({ ...formData, instagram: v })}
+              placeholder="@usuario"
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              URL da Foto
-            </label>
-            <input
+          <div className="grid grid-cols-2 gap-4">
+            <Input
+              label="Outro Link"
               type="url"
-              value={formData.photo}
-              onChange={(e) => setFormData({...formData, photo: e.target.value})}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
+              value={formData.otherLink}
+              onChange={(v) => setFormData({ ...formData, otherLink: v })}
+            />
+            <Input
+              label="Label do Link"
+              value={formData.otherLinkLabel}
+              onChange={(v) => setFormData({ ...formData, otherLinkLabel: v })}
+              placeholder="Site, TikTok, etc."
             />
           </div>
 
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Bio (até 200 caracteres)
-            </label>
-            <textarea
-              rows={3}
-              maxLength={200}
-              value={formData.bio}
-              onChange={(e) => setFormData({...formData, bio: e.target.value})}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-            />
-            <div className="text-xs text-gray-500 mt-1">
-              {formData.bio.length}/200 caracteres
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                WhatsApp
-              </label>
-              <input
-                type="text"
-                value={formData.whatsapp}
-                onChange={(e) => setFormData({...formData, whatsapp: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-                placeholder="11999999999"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Instagram
-              </label>
-              <input
-                type="text"
-                value={formData.instagram}
-                onChange={(e) => setFormData({...formData, instagram: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-                placeholder="@usuario"
-              />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Outro Link
-              </label>
-              <input
-                type="url"
-                value={formData.otherLink}
-                onChange={(e) => setFormData({...formData, otherLink: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-300 mb-1">
-                Label do Link
-              </label>
-              <input
-                type="text"
-                value={formData.otherLinkLabel}
-                onChange={(e) => setFormData({...formData, otherLinkLabel: e.target.value})}
-                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-                placeholder="Site, TikTok, etc."
-              />
-            </div>
-          </div>
-
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => setShowModal(false)}>
               Cancelar
             </Button>
@@ -1123,18 +922,20 @@ function PartnerManagement() {
   );
 }
 
+/* ---------------- MESSAGES ---------------- */
+
 function MessageManagement() {
   const [showModal, setShowModal] = useState(false);
   const [editingMessage, setEditingMessage] = useState<any>(null);
   const [formData, setFormData] = useState({
     message: '',
-    isActive: true
+    isActive: true,
   });
 
   const messages = [
     { id: 1, message: 'Bom dia! Que a leitura de hoje traga novas descobertas para sua vida! 📚', isActive: true },
     { id: 2, message: 'Cada página lida é um passo em direção ao conhecimento. Continue sua jornada! ✨', isActive: true },
-    { id: 3, message: 'A leitura é uma conversa com as mentes mais brilhantes da história. Aproveite! 🌟', isActive: false }
+    { id: 3, message: 'A leitura é uma conversa com as mentes mais brilhantes da história. Aproveite! 🌟', isActive: false },
   ];
 
   const handleEdit = (message: any) => {
@@ -1145,10 +946,7 @@ function MessageManagement() {
 
   const handleNew = () => {
     setEditingMessage(null);
-    setFormData({
-      message: '',
-      isActive: true
-    });
+    setFormData({ message: '', isActive: true });
     setShowModal(true);
   };
 
@@ -1164,7 +962,7 @@ function MessageManagement() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">Mensagens Diárias</h1>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Mensagens Diárias</h1>
         <Button onClick={handleNew}>
           <Plus size={16} className="mr-2" />
           Nova Mensagem
@@ -1174,44 +972,54 @@ function MessageManagement() {
       <Card>
         <div className="space-y-4">
           {messages.map((message, index) => (
-            <div key={message.id} className={`border-b border-gray-700 pb-4 ${index === messages.length - 1 ? 'border-b-0 pb-0' : ''}`}>
+            <div
+              key={message.id}
+              className={`border-b border-zinc-200 dark:border-zinc-800 pb-4 ${
+                index === messages.length - 1 ? 'border-b-0 pb-0' : ''
+              }`}
+            >
               <div className="flex justify-between items-start">
                 <div className="flex-1">
-                  <p className="text-gray-300 mb-2">
-                    {message.message}
-                  </p>
-                  <div className="flex items-center space-x-4">
-                    <span className={`text-xs px-2 py-1 rounded-full ${
-                      message.isActive 
-                        ? 'bg-green-900/50 text-green-300 border border-green-700' 
-                        : 'bg-red-900/50 text-red-300 border border-red-700'
-                    }`}>
+                  <p className="text-zinc-800 dark:text-zinc-200 mb-2">{message.message}</p>
+                  <div className="flex items-center gap-4">
+                    <span
+                      className={[
+                        'text-xs px-2 py-1 rounded-full border',
+                        message.isActive
+                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-700/40'
+                          : 'bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-700/40',
+                      ].join(' ')}
+                    >
                       {message.isActive ? 'Ativa' : 'Inativa'}
                     </span>
-                    <span className="text-xs text-gray-500">Criada há 5 dias</span>
+                    <span className="text-xs text-zinc-500">Criada há 5 dias</span>
                   </div>
                 </div>
-                <div className="flex space-x-2 ml-4">
-                  <Button 
-                    variant="ghost" 
+                <div className="flex gap-2 ml-4">
+                  <Button
+                    variant="ghost"
                     size="sm"
                     onClick={() => handleEdit(message)}
-                    className="text-amber-400 hover:text-amber-300"
+                    className="text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-500/10"
                   >
                     <Edit size={14} />
                   </Button>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="sm"
                     onClick={() => toggleActive(message.id)}
-                    className={message.isActive ? 'text-red-400 hover:text-red-300' : 'text-green-400 hover:text-green-300'}
+                    className={
+                      message.isActive
+                        ? 'text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10'
+                        : 'text-emerald-700 hover:bg-emerald-50 dark:text-emerald-300 dark:hover:bg-emerald-500/10'
+                    }
                   >
                     {message.isActive ? <EyeOff size={14} /> : <Eye size={14} />}
                   </Button>
-                  <Button 
-                    variant="ghost" 
-                    size="sm" 
-                    className="text-red-400 hover:text-red-300"
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10"
                   >
                     <Trash2 size={14} />
                   </Button>
@@ -1229,37 +1037,32 @@ function MessageManagement() {
         size="lg"
       >
         <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Mensagem
-            </label>
-            <textarea
-              rows={4}
-              value={formData.message}
-              onChange={(e) => setFormData({...formData, message: e.target.value})}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-              placeholder="Digite a mensagem inspiradora..."
-            />
-          </div>
+          <Textarea
+            label="Mensagem"
+            rows={4}
+            value={formData.message}
+            onChange={(v) => setFormData({ ...formData, message: v })}
+            placeholder="Digite a mensagem inspiradora..."
+          />
 
-          <div className="flex items-center">
+          <div className="flex items-center gap-2">
             <input
               type="checkbox"
               id="isActive"
               checked={formData.isActive}
-              onChange={(e) => setFormData({...formData, isActive: e.target.checked})}
-              className="mr-2"
+              onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+              className="h-4 w-4 accent-emerald-600"
             />
-            <label htmlFor="isActive" className="text-sm text-gray-300">
+            <label htmlFor="isActive" className="text-sm text-zinc-700 dark:text-zinc-300">
               Mensagem ativa
             </label>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => setShowModal(false)}>
               Cancelar
             </Button>
-            <Button onClick={handleSave}>
+            <Button onClick={() => { console.log('Salvando mensagem:', formData); setShowModal(false); }}>
               <Save size={16} className="mr-2" />
               Salvar
             </Button>
@@ -1270,19 +1073,21 @@ function MessageManagement() {
   );
 }
 
+/* ---------------- LINKS ---------------- */
+
 function LinkManagement() {
   const [showModal, setShowModal] = useState(false);
   const [editingLink, setEditingLink] = useState<any>(null);
   const [formData, setFormData] = useState({
     label: '',
     url: '',
-    icon: 'ExternalLink'
+    icon: 'ExternalLink',
   });
 
   const links = [
     { id: 1, label: 'Biblioteca Digital', url: 'https://drive.google.com/biblioteca', icon: 'BookOpen' },
     { id: 2, label: 'Podcast do Clube', url: 'https://spotify.com/podcast', icon: 'Headphones' },
-    { id: 3, label: 'Newsletter Semanal', url: 'https://newsletter.clubedolivro.com', icon: 'Mail' }
+    { id: 3, label: 'Newsletter Semanal', url: 'https://newsletter.clubedolivro.com', icon: 'Mail' },
   ];
 
   const handleEdit = (link: any) => {
@@ -1293,11 +1098,7 @@ function LinkManagement() {
 
   const handleNew = () => {
     setEditingLink(null);
-    setFormData({
-      label: '',
-      url: '',
-      icon: 'ExternalLink'
-    });
+    setFormData({ label: '', url: '', icon: 'ExternalLink' });
     setShowModal(true);
   };
 
@@ -1313,7 +1114,7 @@ function LinkManagement() {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-bold text-white">Links Extras</h1>
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Links Extras</h1>
         <Button onClick={handleNew}>
           <Plus size={16} className="mr-2" />
           Novo Link
@@ -1323,26 +1124,31 @@ function LinkManagement() {
       <Card>
         <div className="space-y-4">
           {links.map((link, index) => (
-            <div key={link.id} className={`border-b border-gray-700 pb-4 ${index === links.length - 1 ? 'border-b-0 pb-0' : ''}`}>
+            <div
+              key={link.id}
+              className={`border-b border-zinc-200 dark:border-zinc-800 pb-4 ${
+                index === links.length - 1 ? 'border-b-0 pb-0' : ''
+              }`}
+            >
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="font-medium text-white">{link.label}</h3>
-                  <p className="text-sm text-gray-400 break-all">{link.url}</p>
+                  <h3 className="font-medium text-zinc-900 dark:text-white">{link.label}</h3>
+                  <p className="text-sm text-zinc-600 dark:text-zinc-400 break-all">{link.url}</p>
                 </div>
-                <div className="flex space-x-2">
-                  <Button 
-                    variant="ghost" 
+                <div className="flex gap-2">
+                  <Button
+                    variant="ghost"
                     size="sm"
                     onClick={() => handleEdit(link)}
-                    className="text-amber-400 hover:text-amber-300"
+                    className="text-amber-700 hover:bg-amber-50 dark:text-amber-300 dark:hover:bg-amber-500/10"
                   >
                     <Edit size={14} />
                   </Button>
-                  <Button 
-                    variant="ghost" 
+                  <Button
+                    variant="ghost"
                     size="sm"
                     onClick={() => handleDelete(link.id)}
-                    className="text-red-400 hover:text-red-300"
+                    className="text-rose-700 hover:bg-rose-50 dark:text-rose-300 dark:hover:bg-rose-500/10"
                   >
                     <Trash2 size={14} />
                   </Button>
@@ -1360,40 +1166,30 @@ function LinkManagement() {
         size="lg"
       >
         <div className="space-y-4">
+          <Input
+            label="Label"
+            value={formData.label}
+            onChange={(v) => setFormData({ ...formData, label: v })}
+            placeholder="Nome do link"
+          />
+          <Input
+            label="URL"
+            type="url"
+            value={formData.url}
+            onChange={(v) => setFormData({ ...formData, url: v })}
+            placeholder="https://exemplo.com"
+          />
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              Label
-            </label>
-            <input
-              type="text"
-              value={formData.label}
-              onChange={(e) => setFormData({...formData, label: e.target.value})}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-              placeholder="Nome do link"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
-              URL
-            </label>
-            <input
-              type="url"
-              value={formData.url}
-              onChange={(e) => setFormData({...formData, url: e.target.value})}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
-              placeholder="https://exemplo.com"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
               Ícone
             </label>
             <select
               value={formData.icon}
-              onChange={(e) => setFormData({...formData, icon: e.target.value})}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white focus:ring-2 focus:ring-amber-500"
+              onChange={(e) => setFormData({ ...formData, icon: e.target.value })}
+              className="w-full px-3 py-2 rounded-lg transition
+                         bg-white border border-zinc-200 text-zinc-900
+                         focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500
+                         dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100"
             >
               <option value="ExternalLink">Link Externo</option>
               <option value="BookOpen">Livro</option>
@@ -1403,7 +1199,7 @@ function LinkManagement() {
             </select>
           </div>
 
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => setShowModal(false)}>
               Cancelar
             </Button>
@@ -1414,6 +1210,88 @@ function LinkManagement() {
           </div>
         </div>
       </Modal>
+    </div>
+  );
+}
+
+/* ---------------- Reutilizáveis (Input/Textarea) ---------------- */
+
+function Input({
+  label,
+  value,
+  onChange,
+  type = 'text',
+  placeholder,
+  maxLength,
+  min,
+  max,
+}: {
+  label: string;
+  value: any;
+  onChange: (v: any) => void;
+  type?: string;
+  placeholder?: string;
+  maxLength?: number;
+  min?: number;
+  max?: number;
+}) {
+  return (
+    <div>
+      {label && (
+        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+          {label}
+        </label>
+      )}
+      <input
+        type={type}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        min={min as any}
+        max={max as any}
+        className="w-full px-3 py-2 rounded-lg transition
+                   bg-white border border-zinc-200 text-zinc-900 placeholder-zinc-400
+                   focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500
+                   dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-500"
+      />
+    </div>
+  );
+}
+
+function Textarea({
+  label,
+  value,
+  onChange,
+  rows = 4,
+  placeholder,
+  maxLength,
+}: {
+  label: string;
+  value: any;
+  onChange: (v: any) => void;
+  rows?: number;
+  placeholder?: string;
+  maxLength?: number;
+}) {
+  return (
+    <div>
+      {label && (
+        <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+          {label}
+        </label>
+      )}
+      <textarea
+        rows={rows}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder={placeholder}
+        maxLength={maxLength}
+        className="w-full px-3 py-2 rounded-lg transition
+                   bg-white border border-zinc-200 text-zinc-900 placeholder-zinc-400
+                   focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500
+                   dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-500"
+      />
     </div>
   );
 }
