@@ -1,9 +1,10 @@
-/** @type {import('tailwindcss').Config} */
+// tailwind.config.js
 export default {
-  darkMode: 'class', // habilita tema escuro via classe "dark" na <html>
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  theme: {
-    extend: {},
-  },
-  plugins: [],
+  darkMode: 'class',
+  theme: { extend: {} },
+  plugins: [
+    require('@tailwindcss/typography'),
+    require('@tailwindcss/aspect-ratio'),
+  ],
 };
