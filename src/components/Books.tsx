@@ -31,12 +31,12 @@ export function Books() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-4xl font-bold text-white mb-4 flex items-center justify-center">
-          <Sparkles className="mr-3 text-amber-400" />
+        <h2 className="text-4xl font-bold text-zinc-900 dark:text-white mb-4 flex items-center justify-center">
+          <Sparkles className="mr-3 text-amber-600 dark:text-amber-400" />
           Livros Indicados
-          <Sparkles className="ml-3 text-amber-400" />
+          <Sparkles className="ml-3 text-amber-600 dark:text-amber-400" />
         </h2>
-        <p className="text-gray-300 max-w-3xl mx-auto text-lg leading-relaxed">
+        <p className="text-zinc-700 dark:text-zinc-300 max-w-3xl mx-auto text-lg leading-relaxed">
           Descubra nossa seleção cuidadosa de livros que podem transformar sua perspectiva e enriquecer sua jornada de conhecimento.
           Uma nova indicação é liberada a cada domingo.
         </p>
@@ -50,11 +50,13 @@ export function Books() {
             <Card
               key={book.id}
               hover={isUnlocked}
-              className={`group cursor-pointer transition-all duration-300 flex flex-col justify-between ${
+              className={[
+                'group cursor-pointer transition-all duration-300 flex flex-col justify-between',
+                'card', // usa o utilitário .card do index.css
                 isUnlocked
-                  ? 'bg-gray-800/50 backdrop-blur-sm border-gray-600 hover:border-amber-500'
-                  : 'bg-gray-900/50 border-gray-700 opacity-60'
-              }`}
+                  ? 'border-emerald-200 dark:border-emerald-700/40'
+                  : 'opacity-80 border-zinc-200 dark:border-zinc-700',
+              ].join(' ')}
             >
               <div className="flex flex-col h-full">
                 <div className="space-y-4 flex-grow">
@@ -63,29 +65,38 @@ export function Books() {
                       <img
                         src={book.cover}
                         alt={book.title}
-                        className={`w-full h-64 object-cover rounded-lg shadow-lg transition-transform duration-300 ${
-                          isUnlocked ? 'group-hover:scale-105' : 'grayscale'
-                        }`}
+                        className={[
+                          'w-full h-64 object-cover rounded-lg shadow-sm transition-transform duration-300',
+                          isUnlocked ? 'group-hover:scale-105' : 'grayscale',
+                        ].join(' ')}
                       />
                       {!isUnlocked && (
-                        <div className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-lg">
-                          <Lock className="text-gray-400" size={48} />
+                        <div className="absolute inset-0 bg-white/70 dark:bg-black/50 flex items-center justify-center rounded-lg">
+                          <Lock className="text-zinc-500 dark:text-zinc-400" size={44} />
                         </div>
                       )}
                     </div>
                   </div>
 
                   <div className="space-y-3">
-                    <h3 className={`font-bold text-xl line-clamp-2 text-center transition-colors ${
-                      isUnlocked 
-                        ? 'text-white group-hover:text-amber-300' 
-                        : 'text-gray-500'
-                    }`}>
+                    <h3
+                      className={[
+                        'font-bold text-xl line-clamp-2 text-center transition-colors',
+                        isUnlocked
+                          ? 'text-zinc-900 group-hover:text-emerald-700 dark:text-white dark:group-hover:text-amber-300'
+                          : 'text-zinc-500 dark:text-zinc-500',
+                      ].join(' ')}
+                    >
                       {book.title}
                     </h3>
-                    <p className={`text-sm line-clamp-3 leading-relaxed text-center ${
-                      isUnlocked ? 'text-gray-300' : 'text-gray-600 italic'
-                    }`}>
+                    <p
+                      className={[
+                        'text-sm line-clamp-3 leading-relaxed text-center',
+                        isUnlocked
+                          ? 'text-zinc-600 dark:text-zinc-300'
+                          : 'text-zinc-500 italic dark:text-zinc-500',
+                      ].join(' ')}
+                    >
                       {isUnlocked ? book.miniSummary : 'Aguarde...'}
                     </p>
                   </div>
@@ -97,11 +108,12 @@ export function Books() {
                     variant="outline"
                     fullWidth
                     disabled={!isUnlocked}
-                    className={`transition-all duration-300 ${
+                    className={[
+                      'transition-all duration-300',
                       isUnlocked
-                        ? 'group-hover:bg-amber-600 group-hover:border-amber-500 group-hover:text-white'
-                        : 'opacity-50 cursor-not-allowed'
-                    }`}
+                        ? 'border-emerald-300 text-emerald-700 hover:bg-emerald-50 dark:border-amber-500/60 dark:text-amber-300 dark:hover:bg-amber-500/10'
+                        : 'opacity-50 cursor-not-allowed',
+                    ].join(' ')}
                   >
                     {isUnlocked ? 'Ver Sinopse' : 'Aguarde...'}
                   </Button>
@@ -124,32 +136,32 @@ export function Books() {
               <img
                 src={selectedBook.cover}
                 alt={selectedBook.title}
-                className="w-32 h-44 object-cover rounded-lg shadow-lg"
+                className="w-32 h-44 object-cover rounded-lg shadow-sm"
               />
               <div className="flex-1">
-                <h3 className="text-2xl font-bold text-white mb-2">
+                <h3 className="text-2xl font-bold text-zinc-900 dark:text-white mb-2">
                   {selectedBook.title}
                 </h3>
-                <p className="text-amber-400 font-medium mb-4 flex items-center text-lg">
+                <p className="text-emerald-700 dark:text-amber-300 font-medium mb-4 flex items-center text-lg">
                   <Star className="w-5 h-5 mr-2" />
                   {selectedBook.author}
                 </p>
               </div>
             </div>
 
-            <div className="prose prose-invert max-w-none">
-              <h4 className="text-xl font-semibold text-white mb-3 flex items-center">
+            <div className="prose max-w-none prose-zinc dark:prose-invert">
+              <h4 className="text-xl font-semibold text-zinc-900 dark:text-white mb-3 flex items-center">
                 <BookOpen className="mr-2" size={24} />
                 Resumo
               </h4>
-              <p className="text-gray-300 leading-relaxed text-lg">
+              <p className="leading-relaxed text-zinc-700 dark:text-zinc-300 text-lg">
                 {selectedBook.fullSummary}
               </p>
             </div>
 
             {selectedBook.quotes.length > 0 && (
               <div>
-                <h4 className="text-xl font-semibold text-white mb-4 flex items-center">
+                <h4 className="text-xl font-semibold text-zinc-900 dark:text-white mb-4 flex items-center">
                   <Quote className="mr-2" size={24} />
                   Frases Marcantes
                 </h4>
@@ -157,23 +169,24 @@ export function Books() {
                   {selectedBook.quotes.map((quote, index) => (
                     <blockquote
                       key={index}
-                      className="border-l-4 border-amber-500 pl-6 py-3 bg-amber-900/20 rounded-r-lg backdrop-blur-sm"
+                      className="border-l-4 border-amber-300 dark:border-amber-500 pl-6 py-3 bg-amber-50 dark:bg-amber-500/10 rounded-r-lg"
                     >
-                      <p className="text-gray-300 italic text-lg">"{quote}"</p>
+                      <p className="italic text-zinc-700 dark:text-zinc-200 text-lg">"{quote}"</p>
                     </blockquote>
                   ))}
                 </div>
               </div>
             )}
 
-            <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-gray-700">
+            <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
               {selectedBook.purchaseLink && (
                 <Button
                   as="a"
                   href={selectedBook.purchaseLink}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center space-x-2 bg-gradient-to-r from-amber-600 to-green-600 hover:from-amber-700 hover:to-green-700"
+                  variant="primary"
+                  className="flex items-center justify-center space-x-2"
                 >
                   <ShoppingCart size={18} />
                   <span>Comprar</span>
