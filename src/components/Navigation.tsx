@@ -13,28 +13,51 @@ export function Navigation({ activeView, onViewChange }: NavigationProps) {
     { id: 'summaries', label: 'Resumos', icon: Calendar },
     { id: 'books', label: 'Livros', icon: BookOpen },
     { id: 'partners', label: 'Parceiros', icon: Users },
-    { id: 'materials', label: 'Materiais', icon: FileText }
+    { id: 'materials', label: 'Materiais', icon: FileText },
   ];
 
   return (
-    <nav className="bg-gray-800/90 backdrop-blur-sm shadow-lg border-b border-gray-700 mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8">
+    <nav
+      className="
+        bar mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8
+        /* 'bar' vem do index.css: bg-white/80 dark:bg-zinc-900/80 + border + blur */
+      "
+    >
       <div className="flex space-x-1 overflow-x-auto py-4">
-        {navItems.map((item) => (
-          <Button
-            key={item.id}
-            onClick={() => onViewChange(item.id)}
-            variant={activeView === item.id ? 'primary' : 'ghost'}
-            size="sm"
-            className={`flex items-center space-x-2 whitespace-nowrap transition-all duration-200 ${
-              activeView === item.id 
-                ? 'bg-gradient-to-r from-amber-600 to-green-600 text-white shadow-lg' 
-                : 'text-gray-300 hover:text-white hover:bg-gray-700'
-            }`}
-          >
-            <item.icon size={16} />
-            <span>{item.label}</span>
-          </Button>
-        ))}
+        {navItems.map((item) => {
+          const isActive = activeView === item.id;
+          return (
+            <Button
+              key={item.id}
+              onClick={() => onViewChange(item.id)}
+              // o variant do seu Button continua, mas as classes abaixo definem as cores
+              variant={isActive ? 'primary' : 'ghost'}
+              size="sm"
+              className={[
+                'flex items-center space-x-2 whitespace-nowrap transition-all duration-200',
+                isActive
+                  ? [
+                      // CLARO (pastéis)
+                      'bg-emerald-50 text-emerald-700 border border-emerald-200',
+                      'hover:bg-emerald-100',
+                      // ESCURO
+                      'dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-700/40',
+                      'dark:hover:bg-emerald-500/15',
+                      'shadow-sm',
+                    ].join(' ')
+                  : [
+                      // CLARO
+                      'text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100',
+                      // ESCURO
+                      'dark:text-zinc-300 dark:hover:text-white dark:hover:bg-zinc-800',
+                    ].join(' '),
+              ].join(' ')}
+            >
+              <item.icon size={16} />
+              <span>{item.label}</span>
+            </Button>
+          );
+        })}
       </div>
     </nav>
   );
