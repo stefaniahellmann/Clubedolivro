@@ -1,16 +1,22 @@
 import React from 'react';
 
-interface CardProps {
+interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   children: React.ReactNode;
   className?: string;
   hover?: boolean;
 }
 
-export function Card({ children, className = '', hover = false }: CardProps) {
-  const hoverClasses = hover ? 'hover:shadow-2xl hover:-translate-y-1 transition-all duration-300' : '';
-  
+export function Card({ children, className = '', hover = false, ...props }: CardProps) {
+  const base =
+    // usamos a utilitária .card (definida no index.css) + reforço explícito das cores
+    'card rounded-2xl border bg-white dark:bg-zinc-800 border-zinc-200 dark:border-zinc-700 shadow-sm p-6';
+
+  const hoverClasses = hover
+    ? 'transition-all duration-300 hover:shadow-md hover:-translate-y-0.5'
+    : '';
+
   return (
-    <div className={`bg-gray-800 border border-gray-700 rounded-xl shadow-lg p-6 ${hoverClasses} ${className}`}>
+    <div className={[base, hoverClasses, className].join(' ')} {...props}>
       {children}
     </div>
   );
