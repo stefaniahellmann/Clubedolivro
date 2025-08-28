@@ -80,7 +80,8 @@
            dark:bg-amber-500/10 dark:text-amber-300;
   }
   .bar {
-    @apply bg-white/80 dark:bg-zinc-900/80
-           border-b border-zinc-200 dark:border-zinc-800 backdrop-blur;
-  }
+  @apply bg-white/90 dark:bg-zinc-900/85
+         border-b border-zinc-200 dark:border-zinc-800
+         supports-[backdrop-filter]:backdrop-blur-sm;
+}
 }
