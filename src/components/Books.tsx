@@ -17,15 +17,12 @@ export function Books() {
     return Math.ceil(adjustedDay / 7);
   };
 
-  const isBookUnlocked = (bookIndex: number) => {
-    return bookIndex === getCurrentWeek() - 1;
-  };
-
+  const isBookUnlocked = (bookIndex: number) => bookIndex === getCurrentWeek() - 1;
   const unlockedIndex = getCurrentWeek() - 1;
 
   const sortedBooks = [
     ...(books[unlockedIndex] ? [books[unlockedIndex]] : []),
-    ...books.filter((_, i) => i !== unlockedIndex)
+    ...books.filter((_, i) => i !== unlockedIndex),
   ];
 
   return (
@@ -43,7 +40,7 @@ export function Books() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-4 gap-6">
-        {sortedBooks.slice(0, 4).map((book, index) => {
+        {sortedBooks.slice(0, 4).map((book) => {
           const isUnlocked = books.indexOf(book) === unlockedIndex;
 
           return (
@@ -52,7 +49,7 @@ export function Books() {
               hover={isUnlocked}
               className={[
                 'group cursor-pointer transition-all duration-300 flex flex-col justify-between',
-                'card', // usa o utilitário .card do index.css
+                'card', // utilitário do index.css
                 isUnlocked
                   ? 'border-emerald-200 dark:border-emerald-700/40'
                   : 'opacity-80 border-zinc-200 dark:border-zinc-700',
@@ -61,12 +58,13 @@ export function Books() {
               <div className="flex flex-col h-full">
                 <div className="space-y-4 flex-grow">
                   <div className="relative">
-                    <div className="aspect-w-3 aspect-h-4 relative overflow-hidden rounded-lg">
+                    {/* Container simples sem plugin de aspect ratio */}
+                    <div className="relative overflow-hidden rounded-lg h-64">
                       <img
                         src={book.cover}
                         alt={book.title}
                         className={[
-                          'w-full h-64 object-cover rounded-lg shadow-sm transition-transform duration-300',
+                          'w-full h-full object-cover rounded-lg shadow-sm transition-transform duration-300',
                           isUnlocked ? 'group-hover:scale-105' : 'grayscale',
                         ].join(' ')}
                       />
@@ -124,12 +122,7 @@ export function Books() {
         })}
       </div>
 
-      <Modal
-        isOpen={!!selectedBook}
-        onClose={() => setSelectedBook(null)}
-        title=""
-        size="xl"
-      >
+      <Modal isOpen={!!selectedBook} onClose={() => setSelectedBook(null)} title="" size="xl">
         {selectedBook && (
           <div className="space-y-6">
             <div className="flex space-x-6">
@@ -149,7 +142,8 @@ export function Books() {
               </div>
             </div>
 
-            <div className="prose max-w-none prose-zinc dark:prose-invert">
+            {/* Sem typography plugin; classes manuais */}
+            <div>
               <h4 className="text-xl font-semibold text-zinc-900 dark:text-white mb-3 flex items-center">
                 <BookOpen className="mr-2" size={24} />
                 Resumo
@@ -181,12 +175,9 @@ export function Books() {
             <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-zinc-200 dark:border-zinc-700">
               {selectedBook.purchaseLink && (
                 <Button
-                  as="a"
-                  href={selectedBook.purchaseLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  onClick={() => window.open(selectedBook.purchaseLink!, '_blank', 'noopener,noreferrer')}
                   variant="primary"
-                  className="flex items-center justify-center space-x-2"
+                  className="flex items-center justify-center gap-2"
                 >
                   <ShoppingCart size={18} />
                   <span>Comprar</span>
@@ -195,12 +186,9 @@ export function Books() {
 
               {selectedBook.downloadLink && (
                 <Button
-                  as="a"
-                  href={selectedBook.downloadLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
+                  onClick={() => window.open(selectedBook.downloadLink!, '_blank', 'noopener,noreferrer')}
                   variant="secondary"
-                  className="flex items-center justify-center space-x-2"
+                  className="flex items-center justify-center gap-2"
                 >
                   <Download size={18} />
                   <span>Download</span>
