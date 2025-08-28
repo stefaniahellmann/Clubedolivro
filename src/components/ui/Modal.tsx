@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -19,21 +19,55 @@ export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalPr
     xl: 'max-w-4xl',
   };
 
-  return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
-      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
-        <div className="fixed inset-0 transition-opacity bg-black bg-opacity-75" onClick={onClose}></div>
+  // Fecha no Esc
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [onClose]);
 
+  return (
+    <div
+      className="fixed inset-0 z-50"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
+    >
+      {/* Overlay */}
+      <div
+        className="fixed inset-0 bg-zinc-900/40 dark:bg-black/70 backdrop-blur-sm"
+        onClick={onClose}
+      />
+
+      {/* Conteúdo */}
+      <div className="relative min-h-full flex items-center justify-center p-4">
         <div
-          className={`inline-block w-full ${sizeClasses[size]} p-6 my-8 overflow-hidden text-left align-middle transition-all transform bg-gray-800 border border-gray-700 shadow-xl rounded-2xl`}
+          className={[
+            'w-full', sizeClasses[size],
+            'rounded-2xl border shadow-xl overflow-hidden',
+            'bg-white dark:bg-zinc-900',
+            'border-zinc-200 dark:border-zinc-800',
+          ].join(' ')}
         >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-medium text-white">{title}</h3>
-            <button onClick={onClose} className="text-gray-400 hover:text-white transition-colors">
-              <X size={24} />
+          <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
+            <h3 id="modal-title" className="text-lg font-semibold text-zinc-900 dark:text-white">
+              {title}
+            </h3>
+            <button
+              onClick={onClose}
+              aria-label="Fechar"
+              className="p-1 rounded-md text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100
+                         dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800 transition"
+            >
+              <X size={22} />
             </button>
           </div>
-          {children}
+
+          <div className="px-6 py-5">
+            {children}
+          </div>
         </div>
       </div>
     </div>
