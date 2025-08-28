@@ -1,42 +1,76 @@
 import React from 'react';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
-  size?: 'sm' | 'md' | 'lg';
-  fullWidth?: boolean;
-}
+type Variant = 'primary' | 'secondary' | 'outline' | 'ghost' | 'danger';
+type Size = 'sm' | 'md' | 'lg';
 
-export function Button({ 
-  children, 
-  variant = 'primary', 
-  size = 'md', 
+type CommonProps = {
+  variant?: Variant;
+  size?: Size;
+  fullWidth?: boolean;
+  className?: string;
+  as?: 'button' | 'a';
+  href?: string;
+  target?: string;
+  rel?: string;
+};
+
+type ButtonProps =
+  & CommonProps
+  & React.ButtonHTMLAttributes<HTMLButtonElement>
+  & React.AnchorHTMLAttributes<HTMLAnchorElement>;
+
+export function Button({
+  children,
+  variant = 'primary',
+  size = 'md',
   fullWidth = false,
   className = '',
-  ...props 
+  as = 'button',
+  href,
+  target,
+  rel,
+  ...props
 }: ButtonProps) {
-  const baseClasses = 'font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900';
-  
-  const variants = {
-    primary: 'bg-amber-600 hover:bg-amber-700 text-white focus:ring-amber-500',
-    secondary: 'bg-green-600 hover:bg-green-700 text-white focus:ring-green-500',
-    outline: 'border-2 border-amber-600 text-amber-400 hover:bg-amber-600 hover:text-white focus:ring-amber-500',
-    ghost: 'text-gray-300 hover:bg-gray-800 focus:ring-gray-500',
-    danger: 'bg-red-600 hover:bg-red-700 text-white focus:ring-red-500'
+  const base =
+    'inline-flex items-center justify-center font-medium rounded-xl transition-all duration-200 focus:outline-none focus:ring-2';
+  const ring = 'focus:ring-emerald-500 focus:ring-offset-2 focus:ring-offset-zinc-50 dark:focus:ring-offset-zinc-900';
+
+  // Tons mais suaves no claro; contraste no escuro
+  const variants: Record<Variant, string> = {
+    primary:
+      'bg-emerald-600/90 hover:bg-emerald-600 text-white dark:bg-emerald-600 dark:hover:bg-emerald-500',
+    secondary:
+      'bg-amber-600/90 hover:bg-amber-600 text-white dark:bg-amber-600 dark:hover:bg-amber-500',
+    outline:
+      'border border-emerald-300 text-emerald-700 hover:bg-emerald-50 ' +
+      'dark:border-emerald-600 dark:text-emerald-300 dark:hover:bg-emerald-500/10',
+    ghost:
+      'text-zinc-700 hover:bg-zinc-100 ' +
+      'dark:text-zinc-300 dark:hover:bg-zinc-800',
+    danger:
+      'bg-red-600/90 hover:bg-red-600 text-white dark:bg-red-600 dark:hover:bg-red-500',
   };
-  
-  const sizes = {
+
+  const sizes: Record<Size, string> = {
     sm: 'px-3 py-1.5 text-sm',
     md: 'px-4 py-2 text-base',
-    lg: 'px-6 py-3 text-lg'
+    lg: 'px-6 py-3 text-lg',
   };
-  
-  const widthClass = fullWidth ? 'w-full' : '';
-  
+
+  const width = fullWidth ? 'w-full' : '';
+
+  const classes = [base, ring, variants[variant], sizes[size], width, className].join(' ');
+
+  if (as === 'a') {
+    return (
+      <a href={href} target={target} rel={rel} className={classes} {...(props as any)}>
+        {children}
+      </a>
+    );
+  }
+
   return (
-    <button
-      className={`${baseClasses} ${variants[variant]} ${sizes[size]} ${widthClass} ${className}`}
-      {...props}
-    >
+    <button className={classes} {...(props as any)}>
       {children}
     </button>
   );
