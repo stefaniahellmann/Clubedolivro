@@ -17,7 +17,7 @@ const allSummariesBase: Summary[] = Array.from({ length: 31 }, (_, i) => ({
   author: `Autor Exemplar ${i + 1}`,
   rating: parseFloat((Math.random() * 1 + 4).toFixed(1)),
   content: `Este é o resumo completo do livro ${i + 1}. `.repeat(20).trim(),
-  quote: `Frase impactante do livro ${i + 1} para compartilhar.`,
+  quote: `Frase impactante do livro ${i + 1} para compartilhar.`
 }));
 
 export function DailySummaries() {
@@ -28,14 +28,11 @@ export function DailySummaries() {
   const [page, setPage] = useState(1);
   const [round, setRound] = useState(1);
 
-  const currentUnlockedId = (readIds.length % 31) + 1;
-  const summaries = allSummariesBase.map((s) => ({ ...s, id: (round - 1) * 31 + s.id }));
+  const currentUnlockedId = readIds.length % 31 + 1;
+  const summaries = allSummariesBase.map(s => ({ ...s, id: ((round - 1) * 31) + s.id }));
   const allSummaries = summaries;
 
-  // Hora de liberação (America/Sao_Paulo)
-  const brtNow = new Date(
-    new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' })
-  );
+  const brtNow = new Date(new Date().toLocaleString('en-US', { timeZone: 'America/Sao_Paulo' }));
   const releaseHour = 4;
 
   const nextRelease = new Date(brtNow);
@@ -73,7 +70,7 @@ export function DailySummaries() {
 
   const toggleFavorite = (id: number) => {
     const updated = favorites.includes(id)
-      ? favorites.filter((f) => f !== id)
+      ? favorites.filter(f => f !== id)
       : [...favorites, id];
     setFavorites(updated);
     localStorage.setItem('favoriteSummaries', JSON.stringify(updated));
@@ -93,7 +90,7 @@ export function DailySummaries() {
   const readSummaries = allSummaries.filter((s) => readIds.includes(s.id));
   const currentSummary =
     brtNow.getHours() >= releaseHour
-      ? allSummaries.find((s) => s.id === (round - 1) * 31 + currentUnlockedId)
+      ? allSummaries.find((s) => s.id === ((round - 1) * 31) + currentUnlockedId)
       : null;
 
   const paginatedRead = readSummaries.slice((page - 1) * 10, page * 10);
@@ -101,59 +98,61 @@ export function DailySummaries() {
   const favoriteSummaries = allSummaries.filter((s) => favorites.includes(s.id));
 
   return (
-    <div className="p-6 space-y-10">
-      {/* Cabeçalho */}
+    <div className="p-6 space-y-10 text-zinc-900 dark:text-zinc-100">
       <div className="flex flex-col items-center space-y-1">
-        <h1 className="text-3xl font-bold text-zinc-900 dark:text-white">Leitura Diária</h1>
+        <h1 className="text-3xl font-bold">Leitura Diária</h1>
         <p className="text-sm italic text-zinc-600 dark:text-zinc-400">
           Falta apenas {diffHours} horas {diffMinutes} minutos para o próximo resumo.
         </p>
       </div>
 
-      <hr className="border-zinc-200 dark:border-zinc-700 my-4" />
+      <hr className="border-zinc-200 dark:border-zinc-800 my-4" />
 
-      {/* Resumo liberado + contador lidos */}
       {currentSummary && (
         <div className="flex flex-col md:flex-row justify-center items-stretch gap-6">
           {/* Resumo Liberado */}
           <div
             className="
-              w-full max-w-3xl mx-auto card border-emerald-200 dark:border-emerald-700/40
-              p-8 text-center cursor-pointer
-              hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition
+              w-full max-w-3xl mx-auto
+              rounded-xl p-8 text-center cursor-pointer shadow-sm
+              border border-emerald-200 bg-emerald-50 text-emerald-900
+              hover:border-emerald-300 transition
+              dark:bg-zinc-900 dark:border-emerald-600 dark:text-zinc-100
+              dark:hover:border-emerald-500
             "
             onClick={() => setSelected(currentSummary)}
           >
-            <h2 className="text-2xl md:text-3xl font-bold text-zinc-900 dark:text-white">
-              {currentSummary.title}
-            </h2>
-            <p className="text-md md:text-lg text-zinc-600 dark:text-zinc-300 mt-1">
+            <h2 className="text-2xl md:text-3xl font-bold">{currentSummary.title}</h2>
+            <p className="text-md md:text-lg text-emerald-800 dark:text-zinc-400 mt-1">
               {currentSummary.author}
             </p>
-            <p className="text-sm text-zinc-500 dark:text-zinc-400 mt-3 italic">
+            <p className="text-sm text-emerald-700/80 dark:text-zinc-500 mt-3 italic">
               Clique para ler o resumo completo
             </p>
           </div>
 
           {/* Resumos Lidos */}
-          <div className="w-full md:w-1/3 card p-5 text-center border-emerald-200 dark:border-emerald-700/40">
+          <div
+            className="
+              w-full md:w-1/3 rounded-lg p-5 text-center shadow-sm
+              border border-amber-200 bg-amber-50
+              dark:border-emerald-600 dark:bg-zinc-900
+            "
+          >
             <div className="text-3xl mb-2">🏆</div>
-            <h3 className="text-md font-semibold text-zinc-900 dark:text-white mb-1">
-              Resumos Lidos
-            </h3>
-            <p className="text-sm text-emerald-700 dark:text-emerald-300 font-medium">
+            <h3 className="text-md font-semibold">Resumos Lidos</h3>
+            <p className="text-sm text-amber-700 dark:text-emerald-300 font-medium">
               {readIds.length} de {allSummaries.length}
             </p>
           </div>
         </div>
       )}
 
-      <hr className="border-zinc-200 dark:border-zinc-700 my-4" />
+      <hr className="border-zinc-200 dark:border-zinc-800 my-4" />
 
-      {/* Favoritos */}
       {favorites.length > 0 && (
         <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">Favoritos 💛</h2>
+          <h2 className="text-xl font-semibold text-left">Favoritos 💛</h2>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
             {favoriteSummaries
@@ -162,80 +161,29 @@ export function DailySummaries() {
                 <div
                   key={summary.id}
                   className="
-                    card p-3 cursor-pointer
-                    border-amber-200 dark:border-amber-700/40
-                    hover:bg-amber-50 dark:hover:bg-amber-500/10 transition
+                    rounded-lg p-3 cursor-pointer shadow-sm
+                    border border-yellow-200 bg-yellow-50
+                    hover:border-yellow-300 transition
+                    dark:border-yellow-500/40 dark:bg-zinc-900
                   "
                   onClick={() => setSelected(summary)}
                 >
-                  <h3 className="font-semibold text-sm text-zinc-900 dark:text-white">
-                    {summary.title}
-                  </h3>
+                  <h3 className="font-semibold text-sm text-left">{summary.title}</h3>
                 </div>
               ))}
           </div>
 
           {Math.ceil(favoriteSummaries.length / 15) > 1 && (
             <div className="flex justify-center mt-4 space-x-2">
-              {Array.from(
-                { length: Math.ceil(favoriteSummaries.length / 15) },
-                (_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => setPage(i + 1)}
-                    className={[
-                      'px-3 py-1 rounded text-sm transition',
-                      page === i + 1
-                        ? 'bg-amber-500 text-white'
-                        : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700',
-                    ].join(' ')}
-                  >
-                    {i + 1}
-                  </button>
-                )
-              )}
-            </div>
-          )}
-        </div>
-      )}
-
-      <hr className="border-zinc-200 dark:border-zinc-700 my-4" />
-
-      {/* Lidos */}
-      <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">Resumos Lidos</h2>
-      {readSummaries.length > 0 ? (
-        <div className="space-y-4">
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-            {paginatedRead.map((summary) => (
-              <div
-                key={summary.id}
-                className="
-                  card p-3 cursor-pointer
-                  border-emerald-200 dark:border-emerald-700/40
-                  hover:border-amber-300 dark:hover:border-amber-500 transition
-                "
-                onClick={() => setSelected(summary)}
-              >
-                <h3 className="font-semibold text-sm text-zinc-900 dark:text-white">
-                  {summary.title}
-                </h3>
-                <p className="text-xs text-emerald-700 dark:text-emerald-300">✔️ Lido</p>
-              </div>
-            ))}
-          </div>
-
-          {totalPages > 1 && (
-            <div className="flex justify-center mt-4 space-x-2">
-              {Array.from({ length: totalPages }, (_, i) => (
+              {Array.from({ length: Math.ceil(favoriteSummaries.length / 15) }, (_, i) => (
                 <button
                   key={i}
                   onClick={() => setPage(i + 1)}
-                  className={[
-                    'px-3 py-1 rounded text-sm transition',
-                    page === i + 1
+                  className={`px-3 py-1 rounded text-sm transition
+                    ${page === i + 1
                       ? 'bg-amber-500 text-white'
-                      : 'bg-zinc-100 text-zinc-700 hover:bg-zinc-200 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700',
-                  ].join(' ')}
+                      : 'bg-zinc-200 text-zinc-800 hover:bg-zinc-300 dark:bg-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-600'
+                    }`}
                 >
                   {i + 1}
                 </button>
@@ -243,82 +191,19 @@ export function DailySummaries() {
             </div>
           )}
         </div>
-      ) : (
-        <p className="text-center text-sm italic text-zinc-500 dark:text-zinc-400">
-          Você ainda não leu nenhum resumo.
-        </p>
       )}
 
-      {/* Modal */}
-      <Modal
-        isOpen={!!selected}
-        onClose={() => setSelected(null)}
-        title={selected?.title || ''}
-        size="xl"
-      >
-        {selected && (
-          <div className="space-y-4">
-            <div className="flex justify-between text-sm text-zinc-600 dark:text-zinc-300">
-              <span>
-                <strong>Autor:</strong> {selected.author}
-              </span>
-              <span>
-                <strong>Média das Avaliações:</strong> {selected.rating.toFixed(1)} ⭐
-              </span>
-            </div>
+      <hr className="border-zinc-200 dark:border-zinc-800 my-4" />
 
-            <div className="card text-sm p-4 leading-relaxed max-h-[300px] overflow-y-auto">
-              <p className="text-zinc-700 dark:text-zinc-200">{selected.content}</p>
-            </div>
-
-            <div className="p-3 text-sm italic border-l-4 rounded-md card border-amber-300 dark:border-amber-500">
-              <span className="text-zinc-700 dark:text-zinc-200">
-                📌 Frase marcante: “{selected.quote}”
-              </span>
-              <button
-                onClick={() => navigator.clipboard.writeText(selected.quote)}
-                className="text-emerald-700 dark:text-emerald-300 ml-2 text-xs underline"
-              >
-                Copiar
-              </button>
-            </div>
-
-            <div className="flex flex-wrap justify-between items-center mt-4 gap-4">
-              <div className="flex items-center text-sm text-zinc-700 dark:text-zinc-200">
-                <span className="mr-2">Avalie sua leitura:</span>
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <button key={star} onClick={() => handleRate(selected.id, star)}>
-                    <Star
-                      className={[
-                        'w-5 h-5 mx-1',
-                        (userRating[selected.id] || 0) >= star
-                          ? 'text-amber-500 fill-amber-500'
-                          : 'text-zinc-500 dark:text-zinc-500',
-                      ].join(' ')}
-                    />
-                  </button>
-                ))}
-              </div>
-
-              <button
-                onClick={() => toggleFavorite(selected.id)}
-                className="text-emerald-700 dark:text-emerald-300 text-sm underline"
-              >
-                {favorites.includes(selected.id) ? '💛 Remover Favorito' : '🤍 Marcar como Favorito'}
-              </button>
-
-              {!readIds.includes(selected.id) && (
-                <button
-                  onClick={() => markAsRead(selected.id)}
-                  className="bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded transition"
-                >
-                  Marcar como lido
-                </button>
-              )}
-            </div>
-          </div>
-        )}
-      </Modal>
-    </div>
-  );
-}
+      <h2 className="text-xl font-semibold text-left">Resumos Lidos</h2>
+      {readSummaries.length > 0 ? (
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            {paginatedRead.map((summary) => (
+              <div
+                key={summary.id}
+                className="
+                  rounded-lg p-3 cursor-pointer shadow-sm
+                  border border-emerald-200 bg-emerald-50 hover:border-emerald-300
+                  transition
+                  dark:border-
