@@ -9,6 +9,7 @@ import { Partners } from './components/Partners';
 import { FreeMaterials } from './components/FreeMaterials';
 import { AdminPanel } from './components/AdminPanel';
 import { Navigation } from './components/Navigation';
+import { FloatingThemeToggle } from './components/FloatingThemeToggle';
 
 function AppContent() {
   const { user, isAdmin } = useAuth();
@@ -19,6 +20,7 @@ function AppContent() {
   }
 
   if (isAdmin) {
+    // Admin também herda o tema do wrapper
     return <AdminPanel />;
   }
 
@@ -49,9 +51,15 @@ function AppContent() {
 
 function App() {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    // Wrapper que aplica cores base para claro/escuro
+    <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 transition-colors">
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+
+      {/* Botão flutuante de tema (fica sempre disponível) */}
+      <FloatingThemeToggle />
+    </div>
   );
 }
 
