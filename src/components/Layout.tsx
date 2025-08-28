@@ -11,23 +11,38 @@ export function Layout({ children }: LayoutProps) {
   const { user, isAdmin, logout } = useAuth();
 
   return (
-    // Deixa o fundo para o wrapper do App; aqui só garantimos altura mínima
     <div className="min-h-screen">
-      <header className="
-        bg-white/80 dark:bg-zinc-900/80
-        backdrop-blur-sm shadow-lg
-        border-b border-zinc-200 dark:border-zinc-800
-      ">
+      {/* Skip link para acessibilidade */}
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2
+                   focus:bg-amber-100 focus:text-amber-900 dark:focus:bg-amber-500/10
+                   dark:focus:text-amber-300 rounded px-3 py-2 shadow-sm"
+      >
+        Pular para conteúdo
+      </a>
+
+      <header
+        className="
+          sticky top-0 z-40
+          bg-white/80 dark:bg-zinc-900/80
+          supports-[backdrop-filter]:backdrop-blur-sm
+          shadow-lg border-b border-zinc-200 dark:border-zinc-800
+        "
+        role="banner"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center space-x-2">
               <BookOpen className="h-8 w-8 text-amber-600 dark:text-amber-500" />
-              <h1 className="
-                text-xl font-bold bg-gradient-to-r
-                from-amber-600 to-emerald-600
-                dark:from-amber-400 dark:to-emerald-400
-                bg-clip-text text-transparent
-              ">
+              <h1
+                className="
+                  text-xl font-bold bg-gradient-to-r
+                  from-amber-600 to-emerald-600
+                  dark:from-amber-400 dark:to-emerald-400
+                  bg-clip-text text-transparent
+                "
+              >
                 Clube do Livro
               </h1>
             </div>
@@ -53,6 +68,8 @@ export function Layout({ children }: LayoutProps) {
                   text-zinc-700 hover:text-zinc-900
                   dark:text-zinc-300 dark:hover:text-white
                 "
+                aria-label="Sair"
+                title="Sair"
               >
                 <LogOut size={16} />
                 <span>Sair</span>
@@ -62,7 +79,11 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main
+        id="main"
+        className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
+        role="main"
+      >
         {children}
       </main>
     </div>
