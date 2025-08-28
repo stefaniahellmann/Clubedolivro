@@ -35,7 +35,6 @@ export function Login() {
         if (!success) setError('Senha de administrador incorreta');
       } else {
         const cpfSemPontuacao = cpf.replace(/\D/g, '');
-        console.log('Tentando login com CPF limpo:', cpfSemPontuacao);
         success = await login(cpfSemPontuacao);
         if (!success) setError('CPF não encontrado ou acesso expirado');
       }
@@ -47,58 +46,74 @@ export function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-black flex items-center justify-center p-4 relative overflow-hidden">
-      {/* Animated background elements */}
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-40 -right-40 w-80 h-80 bg-amber-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
-        <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-green-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-2000"></div>
-        <div className="absolute top-40 left-40 w-60 h-60 bg-purple-500 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse animation-delay-4000"></div>
+    <div className="min-h-screen flex items-center justify-center p-4 relative overflow-hidden">
+      {/* blobs decorativas — pastel no claro / suave no dark */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl opacity-40 animate-pulse
+                        bg-amber-200 dark:bg-amber-500/30"></div>
+        <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl opacity-40 animate-pulse animation-delay-2000
+                        bg-emerald-200 dark:bg-emerald-500/30"></div>
+        <div className="absolute top-40 left-40 w-60 h-60 rounded-full blur-3xl opacity-30 animate-pulse animation-delay-4000
+                        bg-purple-200 dark:bg-purple-500/30"></div>
       </div>
 
-      {/* Floating particles */}
-      <div className="absolute inset-0">
+      {/* partículas */}
+      <div className="absolute inset-0 pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <div
             key={i}
-            className="absolute w-2 h-2 bg-amber-400 rounded-full opacity-30 animate-float"
+            className="absolute w-2 h-2 rounded-full opacity-30 animate-float
+                       bg-amber-300 dark:bg-amber-400"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
               animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${3 + Math.random() * 4}s`
+              animationDuration: `${3 + Math.random() * 4}s`,
             }}
           />
         ))}
       </div>
 
-      <Card className="w-full max-w-md relative z-10 backdrop-blur-sm bg-gray-800/90 border-gray-600">
+      <Card className="w-full max-w-md relative z-10">
         <div className="text-center mb-8">
           <div className="flex justify-center items-center space-x-2 mb-4 relative">
             <div className="relative">
-              <BookOpen className="h-12 w-12 text-amber-500" />
-              <Sparkles className="h-6 w-6 text-amber-400 absolute -top-2 -right-2 animate-pulse" />
+              <BookOpen className="h-12 w-12 text-amber-700 dark:text-amber-500" />
+              <Sparkles className="h-6 w-6 text-amber-500 dark:text-amber-300 absolute -top-2 -right-2 animate-pulse" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2 bg-gradient-to-r from-amber-400 to-green-400 bg-clip-text text-transparent">
+          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r
+                         from-amber-700 to-emerald-700
+                         dark:from-amber-400 dark:to-emerald-400
+                         bg-clip-text text-transparent">
             Clube do Livro
           </h1>
-          <p className="text-gray-300">Bem-vindo de volta à sua jornada literária!</p>
+          <p className="text-zinc-700 dark:text-zinc-300">
+            Bem-vindo de volta à sua jornada literária!
+          </p>
         </div>
 
-        <div className="flex space-x-1 mb-6 bg-gray-700/50 p-1 rounded-lg backdrop-blur-sm">
+        {/* Abas Usuário/Admin */}
+        <div className="flex space-x-1 mb-6 p-1 rounded-lg border
+                        bg-zinc-100 border-zinc-200
+                        dark:bg-zinc-800 dark:border-zinc-700">
           <button
             onClick={() => setIsAdminLogin(false)}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-              !isAdminLogin ? 'bg-amber-600 text-white shadow-lg' : 'text-gray-300 hover:text-white'
-            }`}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all
+              ${!isAdminLogin
+                ? 'bg-white text-emerald-700 border border-emerald-200 shadow-sm dark:bg-zinc-900 dark:text-emerald-300 dark:border-emerald-700/40'
+                : 'text-zinc-700 hover:bg-zinc-200 dark:text-zinc-300 dark:hover:bg-zinc-700'
+              }`}
           >
             Usuário
           </button>
           <button
             onClick={() => setIsAdminLogin(true)}
-            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all ${
-              isAdminLogin ? 'bg-amber-600 text-white shadow-lg' : 'text-gray-300 hover:text-white'
-            }`}
+            className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all
+              ${isAdminLogin
+                ? 'bg-white text-emerald-700 border border-emerald-200 shadow-sm dark:bg-zinc-900 dark:text-emerald-300 dark:border-emerald-700/40'
+                : 'text-zinc-700 hover:bg-zinc-200 dark:text-zinc-300 dark:hover:bg-zinc-700'
+              }`}
           >
             Admin
           </button>
@@ -107,7 +122,7 @@ export function Login() {
         <form onSubmit={handleSubmit} className="space-y-4">
           {!isAdminLogin ? (
             <div>
-              <label htmlFor="cpf" className="block text-sm font-medium text-gray-300 mb-1">
+              <label htmlFor="cpf" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                 CPF (sua senha de acesso)
               </label>
               <input
@@ -115,7 +130,10 @@ export function Login() {
                 type="text"
                 value={cpf}
                 onChange={(e) => setCpf(formatCPF(e.target.value))}
-                className="w-full px-4 py-3 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-white placeholder-gray-400 transition-all"
+                className="w-full px-4 py-3 rounded-lg transition-all
+                           bg-white border border-zinc-200 text-zinc-900 placeholder-zinc-400
+                           focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500
+                           dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-500"
                 placeholder="000.000.000-00"
                 maxLength={14}
                 required
@@ -123,7 +141,7 @@ export function Login() {
             </div>
           ) : (
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-300 mb-1">
+              <label htmlFor="password" className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                 Senha de Administrador
               </label>
               <div className="relative">
@@ -132,14 +150,19 @@ export function Login() {
                   type={showPassword ? 'text' : 'password'}
                   value={adminPassword}
                   onChange={(e) => setAdminPassword(e.target.value)}
-                  className="w-full px-4 py-3 pr-12 bg-gray-700 border border-gray-600 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500 text-white placeholder-gray-400 transition-all"
+                  className="w-full px-4 py-3 pr-12 rounded-lg transition-all
+                             bg-white border border-zinc-200 text-zinc-900 placeholder-zinc-400
+                             focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500
+                             dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-500"
                   placeholder="Digite sua senha"
                   required
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-white transition-colors"
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded
+                             text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900
+                             dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white transition"
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -148,8 +171,10 @@ export function Login() {
           )}
 
           {error && (
-            <div className="bg-red-900/50 border border-red-700 rounded-lg p-3 backdrop-blur-sm">
-              <p className="text-red-300 text-sm">{error}</p>
+            <div className="rounded-lg p-3 border
+                            bg-rose-50 text-rose-700 border-rose-200
+                            dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-700/40">
+              <p className="text-sm">{error}</p>
             </div>
           )}
 
@@ -157,7 +182,8 @@ export function Login() {
             type="submit"
             fullWidth
             disabled={isLoading}
-            className="py-3 bg-gradient-to-r from-amber-600 to-green-600 hover:from-amber-700 hover:to-green-700 transform hover:scale-105 transition-all duration-200"
+            variant="primary"
+            className="py-3"
           >
             {isLoading ? (
               <div className="flex items-center justify-center space-x-2">
@@ -171,15 +197,27 @@ export function Login() {
         </form>
 
         {!isAdminLogin && (
-          <div className="mt-6 p-4 bg-amber-900/30 border border-amber-700/50 rounded-lg backdrop-blur-sm">
-            <h3 className="font-medium text-amber-300 mb-2 flex items-center">
+          <div className="mt-6 card p-4 border-amber-200 dark:border-amber-700/40">
+            <h3 className="font-medium text-amber-700 dark:text-amber-300 mb-2 flex items-center">
               <Sparkles className="w-4 h-4 mr-2" />
               Para teste:
             </h3>
-            <div className="text-sm text-amber-200 space-y-1">
-              <p>CPF: <span className="font-mono bg-gray-700 px-2 py-1 rounded">123.456.789-01</span> (João Silva)</p>
-              <p>CPF: <span className="font-mono bg-gray-700 px-2 py-1 rounded">987.654.321-09</span> (Maria Santos)</p>
-              <p className="text-xs mt-2 text-amber-300">
+            <div className="text-sm text-zinc-700 dark:text-zinc-300 space-y-1">
+              <p>
+                CPF:{' '}
+                <span className="font-mono px-2 py-1 rounded bg-zinc-100 dark:bg-zinc-800">
+                  123.456.789-01
+                </span>{' '}
+                (João Silva)
+              </p>
+              <p>
+                CPF:{' '}
+                <span className="font-mono px-2 py-1 rounded bg-zinc-100 dark:bg-zinc-800">
+                  987.654.321-09
+                </span>{' '}
+                (Maria Santos)
+              </p>
+              <p className="text-xs mt-2 text-zinc-600 dark:text-zinc-400">
                 Pode digitar com ou sem pontos e traços
               </p>
             </div>
@@ -187,33 +225,30 @@ export function Login() {
         )}
 
         {isAdminLogin && (
-          <div className="mt-6 p-4 bg-amber-900/30 border border-amber-700/50 rounded-lg backdrop-blur-sm">
-            <h3 className="font-medium text-amber-300 mb-2 flex items-center">
+          <div className="mt-6 card p-4 border-amber-200 dark:border-amber-700/40">
+            <h3 className="font-medium text-amber-700 dark:text-amber-300 mb-2 flex items-center">
               <Sparkles className="w-4 h-4 mr-2" />
               Para teste:
             </h3>
-            <p className="text-sm text-amber-200">
-              Senha: <span className="font-mono bg-gray-700 px-2 py-1 rounded">admin123</span>
+            <p className="text-sm text-zinc-700 dark:text-zinc-300">
+              Senha:{' '}
+              <span className="font-mono px-2 py-1 rounded bg-zinc-100 dark:bg-zinc-800">
+                admin123
+              </span>
             </p>
           </div>
         )}
       </Card>
 
-      <style jsx>{`
+      <style>{`
         @keyframes float {
           0%, 100% { transform: translateY(0px) rotate(0deg); }
           33% { transform: translateY(-10px) rotate(120deg); }
           66% { transform: translateY(5px) rotate(240deg); }
         }
-        .animate-float {
-          animation: float 6s ease-in-out infinite;
-        }
-        .animation-delay-2000 {
-          animation-delay: 2s;
-        }
-        .animation-delay-4000 {
-          animation-delay: 4s;
-        }
+        .animate-float { animation: float 6s ease-in-out infinite; }
+        .animation-delay-2000 { animation-delay: 2s; }
+        .animation-delay-4000 { animation-delay: 4s; }
       `}</style>
     </div>
   );
