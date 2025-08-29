@@ -11,8 +11,9 @@ import {
   ExternalLink
 } from 'lucide-react';
 import { Modal } from './ui/Modal';
+import { useLinks } from '../contexts/LinksContext';
 
-/* Utils */
+/* Saudação correta (inclui “Boa noite”) */
 function getGreeting() {
   const h = new Date().getHours();
   if (h < 5) return 'Boa noite';
@@ -21,17 +22,18 @@ function getGreeting() {
   return 'Boa noite';
 }
 
-/* Coloque aqui seus links reais (ou ligue isso ao seu Admin/Context depois) */
-const LINKS = {
-  drive: 'https://seu-drive.com/biblioteca',          // Acesse +1k Volumes
-  whatsapp: 'https://wa.me/5511999999999',            // Grupo WhatsApp
-  telegram: 'https://t.me/seu_canal',                 // Grupo Telegram
-  shareUrl: 'https://clubedolivro.com.br'             // URL para compartilhar
-};
-
 export function Dashboard() {
   const greeting = useMemo(getGreeting, []);
+  const { links } = useLinks();
+
+  // modal “Regras”
   const [rulesOpen, setRulesOpen] = useState(false);
+
+  // modais informativos extras
+  const [infoDriveOpen, setInfoDriveOpen] = useState(false);
+  const [infoWhatsOpen, setInfoWhatsOpen] = useState(false);
+  const [infoTelOpen, setInfoTelOpen] = useState(false);
+  const [infoShareOpen, setInfoShareOpen] = useState(false);
 
   const handleOpen = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -41,18 +43,18 @@ export function Dashboard() {
     const shareData = {
       title: 'Clube do Livro',
       text: 'Vem pro Clube do Livro! Resumos, materiais e comunidade 📚✨',
-      url: LINKS.shareUrl
+      url: links.shareUrl
     };
 
     try {
       if (navigator.share) {
         await navigator.share(shareData);
       } else {
-        await navigator.clipboard.writeText(LINKS.shareUrl);
+        await navigator.clipboard.writeText(links.shareUrl);
         alert('Link copiado! Agora é só colar e enviar para seus amigos.');
       }
     } catch {
-      // usuário cancelou; sem problemas
+      /* usuário cancelou */
     }
   };
 
@@ -63,7 +65,7 @@ export function Dashboard() {
       subtitle: 'Acesse +1k Volumes',
       cta: 'Acesse',
       icon: FolderOpen,
-      onClick: () => handleOpen(LINKS.drive),
+      onClick: () => handleOpen(links.drive),
       tone: {
         iconWrap: 'bg-emerald-50 dark:bg-emerald-500/10',
         icon: 'text-emerald-700 dark:text-emerald-300',
@@ -76,7 +78,7 @@ export function Dashboard() {
       subtitle: 'Acesse o grupo de WhatsApp',
       cta: 'Acesse',
       icon: MessageCircle,
-      onClick: () => handleOpen(LINKS.whatsapp),
+      onClick: () => handleOpen(links.whatsapp),
       tone: {
         iconWrap: 'bg-green-50 dark:bg-green-500/10',
         icon: 'text-green-700 dark:text-green-300',
@@ -89,7 +91,7 @@ export function Dashboard() {
       subtitle: 'Acesse o grupo Telegram',
       cta: 'Acesse',
       icon: Send,
-      onClick: () => handleOpen(LINKS.telegram),
+      onClick: () => handleOpen(links.telegram),
       tone: {
         iconWrap: 'bg-sky-50 dark:bg-sky-500/10',
         icon: 'text-sky-700 dark:text-sky-300',
@@ -126,7 +128,7 @@ export function Dashboard() {
 
   return (
     <div className="space-y-8">
-      {/* Banner com degradê verde pastel (claro) / cinza (escuro) */}
+      {/* Banner — CLARO: verde pastel / ESCURO: cinza */}
       <div
         className="
           rounded-2xl border shadow-sm p-6 sm:p-7
@@ -169,7 +171,6 @@ export function Dashboard() {
                   <div className={['p-3 rounded-xl shadow-sm', item.tone.iconWrap].join(' ')}>
                     <Icon size={24} className={item.tone.icon} />
                   </div>
-                  {/* Indicador de ação */}
                   <ExternalLink
                     size={16}
                     className="text-zinc-400 group-hover:text-emerald-600 dark:group-hover:text-emerald-300 transition-colors"
@@ -204,6 +205,57 @@ export function Dashboard() {
         })}
       </div>
 
+      {/* Sessão informativa com 4 botões → abre modais “embaixo” */}
+      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
+        <Card className="flex flex-col">
+          <h4 className="font-semibold text-zinc-900 dark:text-white">Sobre o Drive</h4>
+          <p className="subtle mt-1">Entenda como acessar os materiais e boas práticas.</p>
+          <Button
+            onClick={() => setInfoDriveOpen(true)}
+            variant="ghost"
+            className="mt-4 border w-full"
+          >
+            Saiba mais
+          </Button>
+        </Card>
+
+        <Card className="flex flex-col">
+          <h4 className="font-semibold text-zinc-900 dark:text-white">Sobre o WhatsApp</h4>
+          <p className="subtle mt-1">Dicas e regras rápidas para o grupo.</p>
+          <Button
+            onClick={() => setInfoWhatsOpen(true)}
+            variant="ghost"
+            className="mt-4 border w-full"
+          >
+            Saiba mais
+          </Button>
+        </Card>
+
+        <Card className="flex flex-col">
+          <h4 className="font-semibold text-zinc-900 dark:text-white">Sobre o Telegram</h4>
+          <p className="subtle mt-1">Como participar e notificações.</p>
+          <Button
+            onClick={() => setInfoTelOpen(true)}
+            variant="ghost"
+            className="mt-4 border w-full"
+          >
+            Saiba mais
+          </Button>
+        </Card>
+
+        <Card className="flex flex-col">
+          <h4 className="font-semibold text-zinc-900 dark:text-white">Indicações</h4>
+          <p className="subtle mt-1">Como compartilhar o Clube com amigos.</p>
+          <Button
+            onClick={() => setInfoShareOpen(true)}
+            variant="ghost"
+            className="mt-4 border w-full"
+          >
+            Saiba mais
+          </Button>
+        </Card>
+      </div>
+
       {/* Modal: Regras do Clube */}
       <Modal
         isOpen={rulesOpen}
@@ -215,7 +267,6 @@ export function Dashboard() {
           <p className="text-zinc-700 dark:text-zinc-300">
             Leia com atenção as regras para mantermos a comunidade organizada e acolhedora:
           </p>
-
           <ul className="list-disc pl-5 space-y-2 text-zinc-700 dark:text-zinc-300">
             <li>Respeito sempre: trate todos com cordialidade.</li>
             <li>Evite spam e divulgações fora do tema leitura.</li>
@@ -223,19 +274,64 @@ export function Dashboard() {
             <li>Mantenha as discussões no tópico do dia/semana.</li>
             <li>Denuncie comportamentos inadequados aos admins.</li>
           </ul>
-
           <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
-            <Button
-              onClick={() => setRulesOpen(false)}
-              fullWidth
-              className="
-                border border-zinc-200 text-zinc-700
-                hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200
-                dark:border-zinc-700 dark:text-zinc-200
-                dark:hover:bg-emerald-500/10 dark:hover:text-emerald-300 dark:hover:border-emerald-700/40
-              "
-            >
+            <Button onClick={() => setRulesOpen(false)} fullWidth>
               Fechar
+            </Button>
+          </div>
+        </div>
+      </Modal>
+
+      {/* 4 MODAIS informativos “de volta” */}
+      <Modal isOpen={infoDriveOpen} onClose={() => setInfoDriveOpen(false)} title="Materiais e Acesso" size="md">
+        <div className="space-y-3">
+          <p className="text-zinc-700 dark:text-zinc-300">
+            O Drive reúne materiais selecionados. Use a busca, respeite direitos autorais e evite compartilhar fora do clube.
+          </p>
+          <Button as="a" href={links.drive} target="_blank" rel="noopener noreferrer" fullWidth>
+            Acessar o Drive
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal isOpen={infoWhatsOpen} onClose={() => setInfoWhatsOpen(false)} title="Grupo de WhatsApp" size="md">
+        <div className="space-y-3">
+          <p className="text-zinc-700 dark:text-zinc-300">
+            Mantenha o foco em leitura, evite correntes e respeite os horários. Dúvidas? Marque um admin.
+          </p>
+          <Button as="a" href={links.whatsapp} target="_blank" rel="noopener noreferrer" fullWidth>
+            Acessar WhatsApp
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal isOpen={infoTelOpen} onClose={() => setInfoTelOpen(false)} title="Grupo do Telegram" size="md">
+        <div className="space-y-3">
+          <p className="text-zinc-700 dark:text-zinc-300">
+            Ideal para quem quer receber avisos e materiais com menos ruído. Ative as notificações do canal.
+          </p>
+          <Button as="a" href={links.telegram} target="_blank" rel="noopener noreferrer" fullWidth>
+            Acessar Telegram
+          </Button>
+        </div>
+      </Modal>
+
+      <Modal isOpen={infoShareOpen} onClose={() => setInfoShareOpen(false)} title="Indique Amigos" size="md">
+        <div className="space-y-3">
+          <p className="text-zinc-700 dark:text-zinc-300">
+            Convide quem você gosta para ler com você! Ao indicar, você fortalece a comunidade.
+          </p>
+          <div className="flex gap-2">
+            <Button onClick={handleShare} className="flex-1">Compartilhar</Button>
+            <Button
+              variant="ghost"
+              className="flex-1 border"
+              onClick={async () => {
+                await navigator.clipboard.writeText(links.shareUrl);
+                alert('Link copiado!');
+              }}
+            >
+              Copiar link
             </Button>
           </div>
         </div>
