@@ -13,19 +13,13 @@ function ProfileInner() {
   const [photoUrl, setPhotoUrl] = useState(profile.photoUrl || '');
   const fileRef = useRef<HTMLInputElement | null>(null);
 
-  const handleUpload = async (file: File) => {
+  const handleUpload = (file: File) => {
     const reader = new FileReader();
-    reader.onload = () => {
-      const url = String(reader.result);
-      setPhotoUrl(url);
-    };
+    reader.onload = () => setPhotoUrl(String(reader.result));
     reader.readAsDataURL(file);
   };
 
-  const handleSave = () => {
-    setProfile({ displayName: displayName.trim(), photoUrl });
-  };
-
+  const handleSave = () => setProfile({ displayName: displayName.trim(), photoUrl });
   const handleReset = () => {
     setDisplayName(user?.firstName || '');
     setPhotoUrl('');
@@ -48,10 +42,8 @@ function ProfileInner() {
                   className="w-28 h-28 rounded-full object-cover border border-zinc-200 dark:border-zinc-700"
                 />
               ) : (
-                <div
-                  className="w-28 h-28 rounded-full grid place-items-center bg-emerald-50 text-emerald-700
-                             dark:bg-emerald-500/10 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/40"
-                >
+                <div className="w-28 h-28 rounded-full grid place-items-center bg-emerald-50 text-emerald-700
+                                dark:bg-emerald-500/10 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-700/40">
                   <User className="w-10 h-10" />
                 </div>
               )}
@@ -121,7 +113,7 @@ function ProfileInner() {
   );
 }
 
-/** Export nomeado e default */
+/** Export nomeado e default (funcionam os dois tipos de import) */
 export function Profile() {
   return <ProfileInner />;
 }
