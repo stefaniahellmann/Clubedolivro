@@ -1,5 +1,7 @@
+// src/App.tsx
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ThemeProvider } from './contexts/ThemeContext';
 import { Layout } from './components/Layout';
 import { Login } from './components/Login';
 import { Dashboard } from './components/Dashboard';
@@ -20,7 +22,6 @@ function AppContent() {
   }
 
   if (isAdmin) {
-    // Admin também herda o tema do wrapper
     return <AdminPanel />;
   }
 
@@ -51,15 +52,16 @@ function AppContent() {
 
 function App() {
   return (
-    // Wrapper que aplica cores base para claro/escuro
-    <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 transition-colors">
-      <AuthProvider>
-        <AppContent />
-      </AuthProvider>
-
-      {/* Botão flutuante de tema (fica sempre disponível) */}
-      <FloatingThemeToggle />
-    </div>
+    <ThemeProvider>
+      {/* Wrapper com transição suave + cores base claro/escuro */}
+      <div className="min-h-screen theme-smooth bg-zinc-50 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 transition-colors">
+        <AuthProvider>
+          <AppContent />
+          {/* Botão flutuante de tema (dentro do ThemeProvider) */}
+          <FloatingThemeToggle />
+        </AuthProvider>
+      </div>
+    </ThemeProvider>
   );
 }
 
