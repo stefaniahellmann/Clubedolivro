@@ -1,8 +1,15 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { Button } from './ui/Button';
 import { Card } from './ui/Card';
 import { BookOpen, Eye, EyeOff, Sparkles } from 'lucide-react';
+
+type Particle = {
+  left: string;
+  top: string;
+  delay: string;
+  duration: string;
+};
 
 export function Login() {
   const [cpf, setCpf] = useState('');
@@ -21,6 +28,18 @@ export function Login() {
     }
     return value;
   };
+
+  // Mantém as partículas estáveis entre renders (evita “surpresas” no React StrictMode)
+  const particles: Particle[] = useMemo(
+    () =>
+      Array.from({ length: 20 }, () => ({
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        delay: `${Math.random() * 5}s`,
+        duration: `${3 + Math.random() * 4}s`,
+      })),
+    [],
+  );
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -50,25 +69,25 @@ export function Login() {
       {/* blobs decorativas — pastel no claro / suave no dark */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 rounded-full blur-3xl opacity-40 animate-pulse
-                        bg-amber-200 dark:bg-amber-500/30"></div>
+                        bg-amber-200 dark:bg-amber-500/30" />
         <div className="absolute -bottom-40 -left-40 w-80 h-80 rounded-full blur-3xl opacity-40 animate-pulse animation-delay-2000
-                        bg-emerald-200 dark:bg-emerald-500/30"></div>
+                        bg-emerald-200 dark:bg-emerald-500/30" />
         <div className="absolute top-40 left-40 w-60 h-60 rounded-full blur-3xl opacity-30 animate-pulse animation-delay-4000
-                        bg-purple-200 dark:bg-purple-500/30"></div>
+                        bg-purple-200 dark:bg-purple-500/30" />
       </div>
 
       {/* partículas */}
       <div className="absolute inset-0 pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+        {particles.map((p, i) => (
           <div
             key={i}
             className="absolute w-2 h-2 rounded-full opacity-30 animate-float
                        bg-amber-300 dark:bg-amber-400"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              animationDelay: `${Math.random() * 5}s`,
-              animationDuration: `${3 + Math.random() * 4}s`,
+              left: p.left,
+              top: p.top,
+              animationDelay: p.delay,
+              animationDuration: p.duration,
             }}
           />
         ))}
@@ -82,10 +101,12 @@ export function Login() {
               <Sparkles className="h-6 w-6 text-amber-500 dark:text-amber-300 absolute -top-2 -right-2 animate-pulse" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold mb-2 bg-gradient-to-r
-                         from-amber-700 to-emerald-700
-                         dark:from-amber-400 dark:to-emerald-400
-                         bg-clip-text text-transparent">
+          <h1
+            className="text-3xl font-bold mb-2 bg-gradient-to-r
+                       from-amber-700 to-emerald-700
+                       dark:from-amber-400 dark:to-emerald-400
+                       bg-clip-text text-transparent"
+          >
             Clube do Livro
           </h1>
           <p className="text-zinc-700 dark:text-zinc-300">
@@ -94,25 +115,37 @@ export function Login() {
         </div>
 
         {/* Abas Usuário/Admin */}
-        <div className="flex space-x-1 mb-6 p-1 rounded-lg border
-                        bg-zinc-100 border-zinc-200
-                        dark:bg-zinc-800 dark:border-zinc-700">
+        <div
+          className="flex space-x-1 mb-6 p-1 rounded-lg border
+                     bg-zinc-100 border-zinc-200
+                     dark:bg-zinc-800 dark:border-zinc-700"
+          role="tablist"
+          aria-label="Tipo de login"
+        >
           <button
+            type="button"
+            role="tab"
+            aria-selected={!isAdminLogin}
             onClick={() => setIsAdminLogin(false)}
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all
-              ${!isAdminLogin
-                ? 'bg-white text-emerald-700 border border-emerald-200 shadow-sm dark:bg-zinc-900 dark:text-emerald-300 dark:border-emerald-700/40'
-                : 'text-zinc-700 hover:bg-zinc-200 dark:text-zinc-300 dark:hover:bg-zinc-700'
+              ${
+                !isAdminLogin
+                  ? 'bg-white text-emerald-700 border border-emerald-200 shadow-sm dark:bg-zinc-900 dark:text-emerald-300 dark:border-emerald-700/40'
+                  : 'text-zinc-700 hover:bg-zinc-200 dark:text-zinc-300 dark:hover:bg-zinc-700'
               }`}
           >
             Usuário
           </button>
           <button
+            type="button"
+            role="tab"
+            aria-selected={isAdminLogin}
             onClick={() => setIsAdminLogin(true)}
             className={`flex-1 py-2 px-4 rounded-md text-sm font-medium transition-all
-              ${isAdminLogin
-                ? 'bg-white text-emerald-700 border border-emerald-200 shadow-sm dark:bg-zinc-900 dark:text-emerald-300 dark:border-emerald-700/40'
-                : 'text-zinc-700 hover:bg-zinc-200 dark:text-zinc-300 dark:hover:bg-zinc-700'
+              ${
+                isAdminLogin
+                  ? 'bg-white text-emerald-700 border border-emerald-200 shadow-sm dark:bg-zinc-900 dark:text-emerald-300 dark:border-emerald-700/40'
+                  : 'text-zinc-700 hover:bg-zinc-200 dark:text-zinc-300 dark:hover:bg-zinc-700'
               }`}
           >
             Admin
@@ -136,6 +169,7 @@ export function Login() {
                            dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-500"
                 placeholder="000.000.000-00"
                 maxLength={14}
+                autoComplete="username"
                 required
               />
             </div>
@@ -155,6 +189,7 @@ export function Login() {
                              focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500
                              dark:bg-zinc-800 dark:border-zinc-700 dark:text-zinc-100 dark:placeholder-zinc-500"
                   placeholder="Digite sua senha"
+                  autoComplete="current-password"
                   required
                 />
                 <button
@@ -163,6 +198,7 @@ export function Login() {
                   className="absolute right-3 top-1/2 -translate-y-1/2 p-1 rounded
                              text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900
                              dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white transition"
+                  aria-label={showPassword ? 'Ocultar senha' : 'Mostrar senha'}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
@@ -171,23 +207,20 @@ export function Login() {
           )}
 
           {error && (
-            <div className="rounded-lg p-3 border
-                            bg-rose-50 text-rose-700 border-rose-200
-                            dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-700/40">
+            <div
+              className="rounded-lg p-3 border
+                         bg-rose-50 text-rose-700 border-rose-200
+                         dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-700/40"
+              role="alert"
+            >
               <p className="text-sm">{error}</p>
             </div>
           )}
 
-          <Button
-            type="submit"
-            fullWidth
-            disabled={isLoading}
-            variant="primary"
-            className="py-3"
-          >
+          <Button type="submit" fullWidth disabled={isLoading} variant="primary" className="py-3">
             {isLoading ? (
               <div className="flex items-center justify-center space-x-2">
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 <span>Entrando...</span>
               </div>
             ) : (
@@ -239,18 +272,6 @@ export function Login() {
           </div>
         )}
       </Card>
-
-     @layer utilities {
-  @keyframes float {
-    0%, 100% { transform: translateY(0px) rotate(0deg); }
-    33% { transform: translateY(-10px) rotate(120deg); }
-    66% { transform: translateY(5px) rotate(240deg); }
-  }
-  .animate-float { animation: float 6s ease-in-out infinite; }
-  .animation-delay-2000 { animation-delay: 2s; }
-  .animation-delay-4000 { animation-delay: 4s; }
-}
-
     </div>
   );
 }
