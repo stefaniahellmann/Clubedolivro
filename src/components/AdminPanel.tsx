@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
-import { useAuth } from '../contexts/AuthContext';
-import { useLinks } from '../contexts/LinksContext';
  
 export type LinksState = {
   drive: string;
@@ -334,8 +332,6 @@ function RaffleManagement() {
   );
 }
 
-import { users } from '../data/mockData';
-
 export function useLinks() {
   const ctx = useContext(LinksContext);
   if (!ctx) throw new Error('useLinks deve ser usado dentro de <LinksProvider>');
@@ -353,19 +349,10 @@ import {
   DollarSign, 
   Trophy, 
   Settings, 
-  RefreshCw,
-  Save,
-  Users,
-  Link,
-  MessageSquare,
-  Send,
-  Share2,
-  FolderOpen
+  RefreshCw 
 } from 'lucide-react';
 
 export function AdminPanel() {
-  const { logout } = useAuth();
-  const { links, updateLink } = useLinks();
   const { 
     state, 
     approveReservation, 
@@ -373,10 +360,6 @@ export function AdminPanel() {
     resetPendingForUser,
     pricePerNumber 
   } = useRaffle();
-  
-  const [activeTab, setActiveTab] = useState<'raffle' | 'links' | 'users'>('raffle');
-  const [tempLinks, setTempLinks] = useState(links);
-  const [linksSaved, setLinksSaved] = useState(false);
 
   const pendingReservations = state.reservations.filter(r => r.status === 'pending');
   const approvedReservations = state.reservations.filter(r => r.status === 'approved');
