@@ -122,40 +122,35 @@ export function Dashboard() {
         </ul>
       </Modal>
 
-      {/* Saudação personalizada */}
-      <Card className="
-        relative overflow-hidden
-        bg-emerald-50 dark:bg-gradient-to-r
-        dark:from-amber-600 dark:to-emerald-600
-        border-emerald-200 dark:border-emerald-600
-        text-zinc-900 dark:text-amber-50
-      ">
-        <div className="absolute inset-0 hidden dark:block bg-black/10" />
-        <div className="relative z-10">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-3xl font-bold mb-2 flex items-center">
-                {getGreeting()}, {user?.firstName}!
-                <Sparkles className="ml-2 h-8 w-8 text-amber-500 dark:text-amber-200 animate-pulse" />
-              </h2>
-              <p className="text-zinc-700 dark:text-amber-100 text-lg mb-4 leading-relaxed">
-                {todaysMessage.message}
-              </p>
-              <div className="flex items-center space-x-2 text-zinc-600 dark:text-amber-100">
-                <Calendar size={16} />
-                <span className="text-sm">
-                  Membro desde{' '}
-                  {new Date(user?.createdAt || '').toLocaleDateString('pt-BR')}
-                </span>
-                <Star className="ml-2 h-4 w-4" />
-              </div>
-            </div>
-            <div className="hidden md:block">
-              <BookOpen size={100} className="text-emerald-400/40 dark:text-amber-200/50" />
-            </div>
-          </div>
+     {/* Saudação personalizada — pastel no claro, cinza no dark */}
+<Card className="relative overflow-hidden border border-emerald-200 dark:border-emerald-700/40 bg-emerald-50 dark:bg-zinc-800">
+  {/* leve brilho decorativo no claro */}
+  <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-emerald-200/20 to-transparent dark:from-transparent" />
+  <div className="relative z-10">
+    <div className="flex items-center justify-between">
+      <div>
+        <h2 className="text-3xl font-bold mb-2 flex items-center text-zinc-900 dark:text-white">
+          {getGreeting()}, {user?.firstName}!
+          <Sparkles className="ml-2 h-8 w-8 text-amber-600 dark:text-amber-300 animate-pulse" />
+        </h2>
+        <p className="text-zinc-700 dark:text-zinc-300 text-lg mb-4 leading-relaxed">
+          {todaysMessage.message}
+        </p>
+        <div className="flex items-center space-x-2 text-emerald-700 dark:text-amber-300">
+          <Calendar size={16} />
+          <span className="text-sm">
+            Membro desde {new Date(user?.createdAt || '').toLocaleDateString('pt-BR')}
+          </span>
+          <Star className="ml-2 h-4 w-4" />
         </div>
-      </Card>
+      </div>
+      <div className="hidden md:block">
+        <BookOpen size={100} className="text-emerald-600/30 dark:text-amber-200/40" />
+      </div>
+    </div>
+  </div>
+</Card>
+
 
       {/* Blocos de links rápidos */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
