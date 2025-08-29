@@ -1,4 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useLinks } from '../contexts/LinksContext';
 
 export type LinksState = {
   drive: string;
@@ -349,10 +351,19 @@ import {
   DollarSign, 
   Trophy, 
   Settings, 
-  RefreshCw 
+  RefreshCw,
+  Save,
+  Users,
+  Link,
+  MessageSquare,
+  Send,
+  Share2,
+  FolderOpen
 } from 'lucide-react';
 
 export function AdminPanel() {
+  const { logout } = useAuth();
+  const { links, updateLink } = useLinks();
   const { 
     state, 
     approveReservation, 
@@ -360,6 +371,10 @@ export function AdminPanel() {
     resetPendingForUser,
     pricePerNumber 
   } = useRaffle();
+  
+  const [activeTab, setActiveTab] = useState<'raffle' | 'links' | 'users'>('raffle');
+  const [tempLinks, setTempLinks] = useState(links);
+  const [linksSaved, setLinksSaved] = useState(false);
 
   const pendingReservations = state.reservations.filter(r => r.status === 'pending');
   const approvedReservations = state.reservations.filter(r => r.status === 'approved');
