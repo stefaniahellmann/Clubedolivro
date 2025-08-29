@@ -86,20 +86,65 @@ function RaffleManagement() {
     return new Date(isoString).toLocaleString('pt-BR');
   };
 
-  const handleSaveLinks = () => {
-    Object.entries(tempLinks).forEach(([key, value]) => {
-      updateLink(key as keyof typeof links, value);
-    });
-    setLinksSaved(true);
-    setTimeout(() => setLinksSaved(false), 2000);
-  };
-
-  const handleLinkChange = (key: keyof typeof links, value: string) => {
-    setTempLinks(prev => ({ ...prev, [key]: value }));
-  };
-
   return (
     <div className="space-y-6">
+      {/* Header com logout */}
+      <div className="flex justify-between items-center">
+        <div className="text-center flex-1">
+          <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
+            Painel Administrativo
+          </h1>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            Gerencie o clube, links e configurações
+          </p>
+        </div>
+        <Button onClick={logout} variant="outline" size="sm">
+          Sair
+        </Button>
+      </div>
+
+      {/* Navegação por abas */}
+      <Card className="p-1">
+        <div className="flex space-x-1">
+          <button
+            onClick={() => setActiveTab('raffle')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'raffle'
+                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+                : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
+            }`}
+          >
+            <Ticket className="w-4 h-4 inline mr-2" />
+            Rifa
+          </button>
+          <button
+            onClick={() => setActiveTab('links')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'links'
+                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+                : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
+            }`}
+          >
+            <Link className="w-4 h-4 inline mr-2" />
+            Links
+          </button>
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'users'
+                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+                : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
+            }`}
+          >
+            <Users className="w-4 h-4 inline mr-2" />
+            Usuários
+          </button>
+        </div>
+      </Card>
+
+      {/* Conteúdo das abas */}
+      {activeTab === 'raffle' && (
+        <>
       <div className="text-center">
         <h2 className="text-3xl font-bold text-zinc-900 dark:text-white mb-4 flex items-center justify-center">
           <Ticket className="mr-3 text-amber-600 dark:text-amber-400" />
@@ -341,6 +386,8 @@ function RaffleManagement() {
             ))}
           </div>
         </Card>
+      )}
+        </>
       )}
     </div>
   );
@@ -417,20 +464,65 @@ export function AdminPanel() {
     return new Date(isoString).toLocaleString('pt-BR');
   };
 
-  const handleSaveLinks = () => {
-    Object.entries(tempLinks).forEach(([key, value]) => {
-      updateLink(key as keyof typeof links, value);
-    });
-    setLinksSaved(true);
-    setTimeout(() => setLinksSaved(false), 2000);
-  };
-
-  const handleLinkChange = (key: keyof typeof links, value: string) => {
-    setTempLinks(prev => ({ ...prev, [key]: value }));
-  };
-
   return (
     <div className="space-y-6">
+      {/* Header com logout */}
+      <div className="flex justify-between items-center">
+        <div className="text-center flex-1">
+          <h1 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2">
+            Painel Administrativo
+          </h1>
+          <p className="text-zinc-600 dark:text-zinc-400">
+            Gerencie o clube, links e configurações
+          </p>
+        </div>
+        <Button onClick={logout} variant="outline" size="sm">
+          Sair
+        </Button>
+      </div>
+
+      {/* Navegação por abas */}
+      <Card className="p-1">
+        <div className="flex space-x-1">
+          <button
+            onClick={() => setActiveTab('raffle')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'raffle'
+                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+                : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
+            }`}
+          >
+            <Ticket className="w-4 h-4 inline mr-2" />
+            Rifa
+          </button>
+          <button
+            onClick={() => setActiveTab('links')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'links'
+                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+                : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
+            }`}
+          >
+            <Link className="w-4 h-4 inline mr-2" />
+            Links
+          </button>
+          <button
+            onClick={() => setActiveTab('users')}
+            className={`flex-1 py-2 px-4 rounded-lg text-sm font-medium transition-all ${
+              activeTab === 'users'
+                ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300'
+                : 'text-zinc-600 hover:bg-zinc-100 dark:text-zinc-400 dark:hover:bg-zinc-800'
+            }`}
+          >
+            <Users className="w-4 h-4 inline mr-2" />
+            Usuários
+          </button>
+        </div>
+      </Card>
+
+      {/* Conteúdo das abas */}
+      {activeTab === 'raffle' && (
+        <>
       <div className="text-center">
         <h2 className="text-3xl font-bold text-zinc-900 dark:text-white mb-4 flex items-center justify-center">
           <Ticket className="mr-3 text-amber-600 dark:text-amber-400" />
@@ -672,6 +764,8 @@ export function AdminPanel() {
             ))}
           </div>
         </Card>
+      )}
+        </>
       )}
     </div>
   );
