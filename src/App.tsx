@@ -56,7 +56,7 @@ export default function App() {
     </div>
   );
 }
-// ...
+
 import { ConfigProvider } from './contexts/ConfigContext';
 
 function App() {
