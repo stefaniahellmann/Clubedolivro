@@ -1,94 +1,45 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-export type LinkKey = 'drive' | 'whatsapp' | 'telegram' | 'refer' | 'rules';
-
-export type ClubLink = {
-  key: LinkKey;
-  label: string;
-  url: string;
-  description?: string;
-};
-
-type LinksState = Record<LinkKey, ClubLink>;
-
-const DEFAULT_LINKS: LinksState = {
-  drive: {
-    key: 'drive',
-    label: 'Drive de Materiais',
-    url: '',
-    description: 'Acesse +1k volumes, PDFs e materiais de apoio.',
-  },
-  whatsapp: {
-    key: 'whatsapp',
-    label: 'Clube Whats',
-    url: '',
-    description: 'Entre no grupo oficial do WhatsApp.',
-  },
-  telegram: {
-    key: 'telegram',
-    label: 'Clube Telegram',
-    url: '',
-    description: 'Entre no grupo oficial do Telegram.',
-  },
-  refer: {
-    key: 'refer',
-    label: 'Indique Amigos',
-    url: '',
-    description: 'Compartilhe o clube com seus amigos.',
-  },
-  rules: {
-    key: 'rules',
-    label: 'Regras do Clube',
-    url: '',
-    description: 'Leia com atenção as regras do clube.',
-  },
+export type LinksState = {
+  drive: string;
+  whatsapp: string;
+  telegram: string;
+  shareUrl: string;
 };
 
 type LinksContextType = {
   links: LinksState;
-  updateLink: (key: LinkKey, url: string) => void;
-  resetLinks: () => void;
+  setLinks: React.Dispatch<React.SetStateAction<LinksState>>;
+  updateLink: (key: keyof LinksState, value: string) => void;
+};
+
+const DEFAULT_LINKS: LinksState = {
+  drive: 'https://seu-drive.com/biblioteca',
+  whatsapp: 'https://wa.me/5511999999999',
+  telegram: 'https://t.me/seu_canal',
+  shareUrl: 'https://clubedolivro.com.br',
 };
 
 const LinksContext = createContext<LinksContextType | null>(null);
-const LS_KEY = 'club_links_v1';
 
 export function LinksProvider({ children }: { children: React.ReactNode }) {
-  const [links, setLinks] = useState<LinksState>(DEFAULT_LINKS);
-
-  useEffect(() => {
+  const [links, setLinks] = useState<LinksState>(() => {
     try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as Partial<LinksState>;
-        setLinks((prev) => ({
-          ...prev,
-          ...parsed,
-          // garante labels/descrições padrão se faltar
-          drive: { ...prev.drive, ...parsed?.drive },
-          whatsapp: { ...prev.whatsapp, ...parsed?.whatsapp },
-          telegram: { ...prev.telegram, ...parsed?.telegram },
-          refer: { ...prev.refer, ...parsed?.refer },
-          rules: { ...prev.rules, ...parsed?.rules },
-        }));
-      }
+      const raw = localStorage.getItem('cl_links');
+      return raw ? { ...DEFAULT_LINKS, ...JSON.parse(raw) } : DEFAULT_LINKS;
     } catch {
-      // ignora
+      return DEFAULT_LINKS;
     }
-  }, []);
+  });
 
   useEffect(() => {
-    localStorage.setItem(LS_KEY, JSON.stringify(links));
+    localStorage.setItem('cl_links', JSON.stringify(links));
   }, [links]);
 
-  const updateLink = (key: LinkKey, url: string) => {
-    setLinks((prev) => ({ ...prev, [key]: { ...prev[key], url } }));
-  };
+  const updateLink = (key: keyof LinksState, value: string) =>
+    setLinks(prev => ({ ...prev, [key]: value }));
 
-  const resetLinks = () => setLinks(DEFAULT_LINKS);
-
-  const value = useMemo(() => ({ links, updateLink, resetLinks }), [links]);
-
+  const value = useMemo(() => ({ links, setLinks, updateLink }), [links]);
   return <LinksContext.Provider value={value}>{children}</LinksContext.Provider>;
 }
 
