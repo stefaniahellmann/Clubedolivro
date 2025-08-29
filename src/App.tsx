@@ -1,6 +1,9 @@
+// src/App.tsx
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { LinksProvider } from './contexts/LinksContext';
+import { ConfigProvider } from './contexts/ConfigContext';
+import { LinksProvider } from './contexts/LinksContext'; // ⬅️ importe o provider
+
 import { Layout } from './components/Layout';
 import { Login } from './components/Login';
 import { Dashboard } from './components/Dashboard';
@@ -21,18 +24,12 @@ function AppContent() {
 
   const renderContent = () => {
     switch (activeView) {
-      case 'dashboard':
-        return <Dashboard />;
-      case 'summaries':
-        return <DailySummaries />;
-      case 'books':
-        return <Books />;
-      case 'partners':
-        return <Partners />;
-      case 'materials':
-        return <FreeMaterials />;
-      default:
-        return <Dashboard />;
+      case 'dashboard': return <Dashboard />;
+      case 'summaries': return <DailySummaries />;
+      case 'books':     return <Books />;
+      case 'partners':  return <Partners />;
+      case 'materials': return <FreeMaterials />;
+      default:          return <Dashboard />;
     }
   };
 
@@ -44,16 +41,20 @@ function AppContent() {
   );
 }
 
-export default function App() {
+function App() {
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 transition-colors">
-      <AuthProvider>
-        <LinksProvider>
-          <AppContent />
+      <ConfigProvider>
+        <LinksProvider> {/* ⬅️ coloque o provider aqui (uma vez só) */}
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
         </LinksProvider>
-      </AuthProvider>
+      </ConfigProvider>
+
       <FloatingThemeToggle />
     </div>
   );
 }
 
+export default App;
