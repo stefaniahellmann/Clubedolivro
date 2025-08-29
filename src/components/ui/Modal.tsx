@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
+import { createPortal } from 'react-dom';
 import { X } from 'lucide-react';
 
 interface ModalProps {
@@ -9,67 +10,77 @@ interface ModalProps {
   size?: 'sm' | 'md' | 'lg' | 'xl';
 }
 
+const SIZE: Record<NonNullable<ModalProps['size']>, string> = {
+  sm: 'max-w-md',
+  md: 'max-w-lg',
+  lg: 'max-w-2xl',
+  xl: 'max-w-4xl',
+};
+
 export function Modal({ isOpen, onClose, title, children, size = 'md' }: ModalProps) {
+  // Não renderiza nada se estiver fechado
   if (!isOpen) return null;
 
-  const sizeClasses = {
-    sm: 'max-w-md',
-    md: 'max-w-lg',
-    lg: 'max-w-2xl',
-    xl: 'max-w-4xl',
-  };
-
-  // Fecha no Esc
+  // Bloqueia scroll do body enquanto o modal está aberto
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
-    };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
+    const { overflow } = document.body.style;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = overflow; };
+  }, []);
+
+  // Fecha no ESC
+  const onKeyDown = useCallback((e: KeyboardEvent) => {
+    if (e.key === 'Escape') onClose();
   }, [onClose]);
 
-  return (
+  useEffect(() => {
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [onKeyDown]);
+
+  // Conteúdo do modal
+  const node = (
     <div
       className="fixed inset-0 z-50"
       role="dialog"
       aria-modal="true"
-      aria-labelledby="modal-title"
+      aria-label={title}
     >
       {/* Overlay */}
       <div
-        className="fixed inset-0 bg-zinc-900/40 dark:bg-black/70 backdrop-blur-sm"
+        className="absolute inset-0 bg-black/70"
         onClick={onClose}
       />
 
-      {/* Conteúdo */}
-      <div className="relative min-h-full flex items-center justify-center p-4">
+      {/* Caixa */}
+      <div className="absolute inset-0 flex items-center justify-center p-4">
         <div
           className={[
-            'w-full', sizeClasses[size],
-            'rounded-2xl border shadow-xl overflow-hidden',
+            'w-full', SIZE[size],
+            'rounded-2xl shadow-lg border',
             'bg-white dark:bg-zinc-900',
             'border-zinc-200 dark:border-zinc-800',
+            'p-6',
           ].join(' ')}
         >
-          <div className="flex items-center justify-between px-6 py-4 border-b border-zinc-200 dark:border-zinc-800">
-            <h3 id="modal-title" className="text-lg font-semibold text-zinc-900 dark:text-white">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-zinc-900 dark:text-zinc-100">
               {title}
             </h3>
             <button
               onClick={onClose}
+              className="p-1 rounded hover:bg-zinc-100 dark:hover:bg-zinc-800 text-zinc-600 dark:text-zinc-300"
               aria-label="Fechar"
-              className="p-1 rounded-md text-zinc-500 hover:text-zinc-900 hover:bg-zinc-100
-                         dark:text-zinc-400 dark:hover:text-white dark:hover:bg-zinc-800 transition"
             >
               <X size={22} />
             </button>
           </div>
-
-          <div className="px-6 py-5">
-            {children}
-          </div>
+          {children}
         </div>
       </div>
     </div>
   );
+
+  // Portal garante isolamento e evita quirks de layout
+  return createPortal(node, document.body);
 }
