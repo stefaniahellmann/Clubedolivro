@@ -1,86 +1,85 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { User, AuthContextType } from '../types';
+// src/contexts/AuthContext.tsx
+import React, { createContext, useContext, useEffect, useState } from 'react';
+
+type User = {
+  id: string;
+  firstName: string;
+  lastName?: string;
+  email?: string;
+  avatarUrl?: string;
+  // ...outros campos que você já tem
+};
+
+type AuthContextType = {
+  user: User | null;
+  isAdmin: boolean;
+  login: (cpf: string) => Promise<boolean>;
+  adminLogin: (password: string) => Promise<boolean>;
+  logout: () => void;
+  /** <-- NOVO */
+  updateUser: (partial: Partial<User>) => void;
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const ADMIN_PASSWORD = 'admin123';
-
-const mockUsers: User[] = [
-  {
-    id: '1',
-    firstName: 'João',
-    lastName: 'Silva',
-    email: 'joao@email.com',
-    phone: '11999999999',
-    cpf: '12345678901',
-    expirationDate: '2025-12-31', // 🔁 Atualizado para 2025
-    isActive: true,
-    createdAt: '2024-01-01'
-  },
-  {
-    id: '2',
-    firstName: 'Maria',
-    lastName: 'Santos',
-    email: 'maria@email.com',
-    phone: '11888888888',
-    cpf: '98765432109',
-    expirationDate: '2025-11-30', // 🔁 Atualizado para 2025
-    isActive: true,
-    createdAt: '2024-01-15'
-  }
-];
-
-export function AuthProvider({ children }: { children: ReactNode }) {
+export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
 
+  // carregue do localStorage (se já não faz isso)
   useEffect(() => {
-    const savedUser = localStorage.getItem('currentUser');
-    const savedAdmin = localStorage.getItem('isAdmin');
-    if (savedUser) setUser(JSON.parse(savedUser));
-    if (savedAdmin) setIsAdmin(JSON.parse(savedAdmin));
+    const raw = localStorage.getItem('clube_user');
+    const rawAdmin = localStorage.getItem('clube_is_admin');
+    if (raw) setUser(JSON.parse(raw));
+    if (rawAdmin) setIsAdmin(rawAdmin === 'true');
   }, []);
 
-  const login = async (cpf: string): Promise<boolean> => {
-    const cleanCpf = cpf.replace(/\D/g, '');
-    const foundUser = mockUsers.find(u => u.cpf.replace(/\D/g, '') === cleanCpf && u.isActive);
-    if (foundUser) {
-      const today = new Date();
-      const expiration = new Date(foundUser.expirationDate);
-      if (expiration >= today) {
-        setUser(foundUser);
-        localStorage.setItem('currentUser', JSON.stringify(foundUser));
-        return true;
-      }
-    }
-    return false;
+  // persista user & isAdmin
+  useEffect(() => {
+    if (user) localStorage.setItem('clube_user', JSON.stringify(user));
+    else localStorage.removeItem('clube_user');
+    localStorage.setItem('clube_is_admin', String(isAdmin));
+  }, [user, isAdmin]);
+
+  // implemente como você já tinha
+  const login = async (cpf: string) => {
+    // ...sua lógica
+    return true;
   };
 
-  const adminLogin = async (password: string): Promise<boolean> => {
-    if (password === ADMIN_PASSWORD) {
-      setIsAdmin(true);
-      localStorage.setItem('isAdmin', 'true');
-      return true;
-    }
-    return false;
+  const adminLogin = async (password: string) => {
+    // ...sua lógica
+    return true;
   };
 
   const logout = () => {
     setUser(null);
     setIsAdmin(false);
-    localStorage.removeItem('currentUser');
-    localStorage.removeItem('isAdmin');
+    localStorage.removeItem('clube_user');
+    localStorage.removeItem('clube_is_admin');
+  };
+
+  /** <-- NOVO: atualiza e persiste */
+  const updateUser = (partial: Partial<User>) => {
+    setUser((prev) => {
+      if (!prev) return prev;
+      const next = { ...prev, ...partial };
+      localStorage.setItem('clube_user', JSON.stringify(next));
+      return next;
+    });
   };
 
   return (
-    <AuthContext.Provider value={{ user, isAdmin, login, adminLogin, logout }}>
+    <AuthContext.Provider
+      value={{ user, isAdmin, login, adminLogin, logout, updateUser }}
+    >
       {children}
     </AuthContext.Provider>
   );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth must be used within an AuthProvider');
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth deve ser usado dentro de <AuthProvider>');
+  return ctx;
 }
