@@ -15,6 +15,8 @@ import { Navigation } from './components/Navigation';
 import { FloatingThemeToggle } from './components/FloatingThemeToggle';
 import { Profile } from './components/Profile';
 import { Raffle } from './components/Raffle';
+import { RaffleProvider } from './contexts/RaffleContext';
+
 
 function AppContent() {
   const { user, isAdmin, hydrated } = useAuth();
