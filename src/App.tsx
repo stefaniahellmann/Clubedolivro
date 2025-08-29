@@ -62,11 +62,11 @@ export default function App() {
     <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 transition-colors">
       <ConfigProvider>
         <LinksProvider>
-          <RaffleProvider>
-            <AuthProvider>
+          <AuthProvider>
+            <RaffleProvider>
               <AppContent />
-            </AuthProvider>
-          </RaffleProvider>
+            </RaffleProvider>
+          </AuthProvider>
         </LinksProvider>
       </ConfigProvider>
 
