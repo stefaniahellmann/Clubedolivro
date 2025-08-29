@@ -1,176 +1,186 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
+import { useRaffle } from '../contexts/RaffleContext';
+import { Card } from './ui/Card';
+import { Button } from './ui/Button';
+import { Check, Phone, Copy, Ticket } from 'lucide-react';
 
-export type RaffleNumberStatus = 'free' | 'pending' | 'sold';
+const PIX_KEY = 'chavepix@exemplo.com';          // ajuste
+const WHATS_APP_NUMBER = '5599999999999';        // ajuste (com DDI 55 + DDD + número)
 
-export type RaffleNumber = {
-  n: number;
-  status: RaffleNumberStatus;
-  userId?: string;
-  userName?: string;
-  reservationId?: string;
-};
+export function Raffle() {
+  const { user } = useAuth();
+  const { pricePerNumber, state, createReservation } = useRaffle();
+  const [selected, setSelected] = useState<number[]>([]);
+  const total = selected.length * pricePerNumber;
 
-export type Reservation = {
-  id: string;
-  userId: string;
-  userName: string;
-  numbers: number[];
-  amount: number; // em reais
-  status: 'pending' | 'approved' | 'rejected';
-  createdAt: string; // ISO
-};
+  const statusMap = useMemo(() => {
+    const m = new Map<number, { s: 'free'|'pending'|'sold'; by?: string }>();
+    state.numbers.forEach((x) => m.set(x.n, { s: x.status, by: x.userName }));
+    return m;
+  }, [state.numbers]);
 
-type RaffleState = {
-  numbers: RaffleNumber[];
-  reservations: Reservation[];
-};
+  const toggle = (n: number) => {
+    const st = statusMap.get(n)?.s ?? 'free';
+    if (st !== 'free') return;
+    setSelected((prev) =>
+      prev.includes(n) ? prev.filter((x) => x !== n) : [...prev, n]
+    );
+  };
 
-type RaffleContextType = {
-  pricePerNumber: number;
-  state: RaffleState;
-  availableNumbers: number[];
-  userNumbers: (userId: string) => number[];
-  createReservation: (userId: string, userName: string, numbers: number[], amount: number) => string;
-  approveReservation: (reservationId: string) => void;
-  rejectReservation: (reservationId: string) => void;
-  resetPendingForUser: (userId: string) => void; // opcional
-};
+  const copy = async (text: string) => {
+    try { await navigator.clipboard.writeText(text); } catch {}
+  };
 
-const RaffleContext = createContext<RaffleContextType | undefined>(undefined);
+  const handleReserveAndWhats = () => {
+    if (!user || selected.length === 0) return;
 
-const LS_KEY = 'clube_raffle_v1';
-const TOTAL_NUMBERS = 1000;
-const PRICE = 2; // R$2,00
+    // cria reserva PENDENTE (bloqueia os números)
+    const reservationId = createReservation(user.id, user.firstName, selected, total);
+    if (!reservationId) return;
 
-function bootstrap(): RaffleState {
-  const raw = localStorage.getItem(LS_KEY);
-  if (raw) {
-    try {
-      return JSON.parse(raw) as RaffleState;
-    } catch {
-      localStorage.removeItem(LS_KEY);
-    }
-  }
-  const numbers: RaffleNumber[] = Array.from({ length: TOTAL_NUMBERS }, (_, i) => ({
-    n: i + 1,
-    status: 'free',
-  }));
-  return { numbers, reservations: [] };
-}
+    // mensagem pro Whats
+    const msg =
+`Olá! Quero confirmar a compra dos números da rifa.
 
-function persist(state: RaffleState) {
-  localStorage.setItem(LS_KEY, JSON.stringify(state));
-}
+Nome: ${user.firstName}
+Números: ${[...selected].sort((a,b)=>a-b).join(', ')}
+Total: R$ ${total.toFixed(2).replace('.', ',')}
 
-export function RaffleProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<RaffleState>(bootstrap);
+Chave PIX: ${PIX_KEY}
+(Enviei o comprovante em anexo.)`;
 
-  useEffect(() => {
-    persist(state);
-  }, [state]);
+    const url = `https://wa.me/${WHATS_APP_NUMBER}?text=${encodeURIComponent(msg)}`;
+    window.open(url, '_blank');
+    setSelected([]); // limpa seleção local
+  };
 
-  const availableNumbers = useMemo(
-    () => state.numbers.filter((x) => x.status === 'free').map((x) => x.n),
-    [state.numbers]
+  return (
+    <div className="space-y-6">
+      <header className="text-center">
+        <h2 className="text-3xl font-bold text-zinc-900 dark:text-white mb-2 flex items-center justify-center gap-2">
+          <Ticket className="text-amber-600 dark:text-amber-400" />
+          Rifa do Clube
+        </h2>
+        <p className="text-zinc-700 dark:text-zinc-300">
+          Selecione seus números disponíveis (R$ {pricePerNumber.toFixed(2).replace('.', ',')} cada).
+        </p>
+      </header>
+
+      {/* Resumo + Ações */}
+      <Card className="p-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          <div className="text-zinc-800 dark:text-zinc-200">
+            <div>Selecionados: <strong>{selected.length}</strong></div>
+            <div>Total: <strong>R$ {total.toFixed(2).replace('.', ',')}</strong></div>
+          </div>
+          <div className="flex gap-2">
+            <Button
+              variant="secondary"
+              onClick={() => copy(PIX_KEY)}
+              className="flex items-center gap-2"
+              title="Copiar chave PIX"
+            >
+              <Copy size={16} />
+              Copiar PIX
+            </Button>
+            <Button
+              onClick={handleReserveAndWhats}
+              disabled={selected.length === 0}
+              className="flex items-center gap-2"
+              title="Reservar e abrir WhatsApp"
+            >
+              <Phone size={16} />
+              Enviar no WhatsApp
+            </Button>
+          </div>
+        </div>
+      </Card>
+
+      {/* Legenda */}
+      <div className="flex flex-wrap items-center gap-3 text-sm">
+        <span className="inline-flex items-center gap-2">
+          <span className="w-4 h-4 rounded border border-zinc-300 dark:border-zinc-700" />
+          Livre
+        </span>
+        <span className="inline-flex items-center gap-2">
+          <span className="w-4 h-4 rounded bg-amber-100 border border-amber-200 dark:bg-amber-500/10 dark:border-amber-600" />
+          Pendente
+        </span>
+        <span className="inline-flex items-center gap-2">
+          <span className="w-4 h-4 rounded bg-rose-100 border border-rose-200 dark:bg-rose-500/10 dark:border-rose-600" />
+          Vendido
+        </span>
+        <span className="inline-flex items-center gap-2">
+          <span className="w-4 h-4 rounded bg-emerald-100 border border-emerald-200 dark:bg-emerald-500/10 dark:border-emerald-600" />
+          Selecionado
+        </span>
+      </div>
+
+      {/* GRID 1..1000 */}
+      <Card className="p-3">
+        <div className="grid grid-cols-5 sm:grid-cols-10 md:grid-cols-15 lg:grid-cols-20 xl:grid-cols-25 gap-2">
+          {Array.from({ length: 1000 }, (_, i) => i + 1).map((n) => {
+            const info = statusMap.get(n);
+            const st = info?.s ?? 'free';
+            const isSel = selected.includes(n);
+            const base =
+              'text-xs rounded-md px-2 py-1 border transition select-none text-center';
+
+            const cls =
+              st === 'sold'
+                ? 'bg-rose-100 text-rose-800 border-rose-200 dark:bg-rose-500/10 dark:text-rose-300 dark:border-rose-700/40 cursor-not-allowed'
+                : st === 'pending'
+                ? 'bg-amber-100 text-amber-800 border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-700/40 cursor-not-allowed'
+                : isSel
+                ? 'bg-emerald-100 text-emerald-800 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-700/40'
+                : 'bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-100 cursor-pointer dark:bg-zinc-800 dark:text-zinc-200 dark:border-zinc-700 dark:hover:bg-zinc-700';
+
+            return (
+              <button
+                key={n}
+                onClick={() => toggle(n)}
+                className={`${base} ${cls}`}
+                title={
+                  st === 'sold'
+                    ? `Vendido ${info?.by ? `para ${info.by}` : ''}`
+                    : st === 'pending'
+                    ? `Pendente ${info?.by ? `por ${info.by}` : ''}`
+                    : `Selecionar ${n}`
+                }
+              >
+                {n}
+              </button>
+            );
+          })}
+        </div>
+      </Card>
+
+      {/* Minhas compras (opcional) */}
+      {user && (
+        <Card className="p-4">
+          <h3 className="font-semibold text-zinc-900 dark:text-white mb-2">Minhas compras aprovadas</h3>
+          <div className="text-sm text-zinc-700 dark:text-zinc-300">
+            {state.numbers.some((x) => x.userId === user.id && x.status === 'sold') ? (
+              <div className="flex flex-wrap gap-2">
+                {state.numbers
+                  .filter((x) => x.userId === user.id && x.status === 'sold')
+                  .map((x) => (
+                    <span
+                      key={x.n}
+                      className="inline-flex items-center gap-1 px-2 py-1 rounded border bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-700/40"
+                    >
+                      <Check size={14} />
+                      {x.n}
+                    </span>
+                  ))}
+              </div>
+            ) : (
+              <span>Nenhum número aprovado ainda.</span>
+            )}
+          </div>
+        </Card>
+      )}
+    </div>
   );
-
-  const userNumbers = (userId: string) =>
-    state.numbers.filter((x) => x.userId === userId && x.status === 'sold').map((x) => x.n);
-
-  const createReservation = (userId: string, userName: string, numbers: number[], amount: number) => {
-    if (!numbers.length) return '';
-    // valida se ainda estão livres
-    const freeSet = new Set(availableNumbers);
-    const allFree = numbers.every((n) => freeSet.has(n));
-    if (!allFree) return '';
-
-    const reservationId = `res_${Date.now()}`;
-
-    setState((prev) => {
-      const nextNumbers = prev.numbers.map((it) =>
-        numbers.includes(it.n)
-          ? { ...it, status: 'pending', reservationId, userId, userName }
-          : it
-      );
-      const nextRes: Reservation = {
-        id: reservationId,
-        userId,
-        userName,
-        numbers: [...numbers].sort((a, b) => a - b),
-        amount,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-      };
-      return { numbers: nextNumbers, reservations: [nextRes, ...prev.reservations] };
-    });
-
-    return reservationId;
-  };
-
-  const approveReservation = (reservationId: string) => {
-    setState((prev) => {
-      const res = prev.reservations.find((r) => r.id === reservationId);
-      if (!res) return prev;
-      const nextReservations = prev.reservations.map((r) =>
-        r.id === reservationId ? { ...r, status: 'approved' } : r
-      );
-      const nextNumbers = prev.numbers.map((n) =>
-        res.numbers.includes(n.n)
-          ? { ...n, status: 'sold', reservationId, userId: res.userId, userName: res.userName }
-          : n
-      );
-      return { numbers: nextNumbers, reservations: nextReservations };
-    });
-  };
-
-  const rejectReservation = (reservationId: string) => {
-    setState((prev) => {
-      const res = prev.reservations.find((r) => r.id === reservationId);
-      if (!res) return prev;
-      const nextReservations = prev.reservations.map((r) =>
-        r.id === reservationId ? { ...r, status: 'rejected' } : r
-      );
-      const nextNumbers = prev.numbers.map((n) =>
-        res.numbers.includes(n.n)
-          ? { n: n.n, status: 'free' as const } // limpa campos do pending
-          : n
-      );
-      return { numbers: nextNumbers, reservations: nextReservations };
-    });
-  };
-
-  const resetPendingForUser = (userId: string) => {
-    setState((prev) => {
-      const pendingOfUser = prev.reservations.filter(
-        (r) => r.userId === userId && r.status === 'pending'
-      );
-      const pendIds = new Set(pendingOfUser.map((r) => r.id));
-      const nextReservations = prev.reservations.map((r) =>
-        pendIds.has(r.id) ? { ...r, status: 'rejected' } : r
-      );
-      const nextNumbers = prev.numbers.map((n) =>
-        n.status === 'pending' && n.userId === userId ? { n: n.n, status: 'free' } : n
-      );
-      return { numbers: nextNumbers, reservations: nextReservations };
-    });
-  };
-
-  const value: RaffleContextType = {
-    pricePerNumber: PRICE,
-    state,
-    availableNumbers,
-    userNumbers,
-    createReservation,
-    approveReservation,
-    rejectReservation,
-    resetPendingForUser,
-  };
-
-  return <RaffleContext.Provider value={value}>{children}</RaffleContext.Provider>;
-}
-
-export function useRaffle() {
-  const ctx = useContext(RaffleContext);
-  if (!ctx) throw new Error('useRaffle deve ser usado dentro de <RaffleProvider>');
-  return ctx;
 }
