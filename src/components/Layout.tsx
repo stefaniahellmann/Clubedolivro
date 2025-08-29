@@ -37,6 +37,8 @@ export function Layout({ children }: LayoutProps) {
     [profile.nickname, user]
   );
 
+  const greeting = getGreeting(); // ex.: "Bom dia"
+
   return (
     <div className="min-h-screen">
       {/* Skip link para acessibilidade */}
@@ -78,7 +80,7 @@ export function Layout({ children }: LayoutProps) {
             <div className="flex items-center gap-4">
               {user && (
                 <div className="flex items-center gap-2">
-                  {/* Avatar (foto ou iniciais) */}
+                  {/* Avatar (foto ou ícone) */}
                   <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-200 dark:bg-zinc-700 grid place-items-center">
                     {profile.photoDataUrl ? (
                       <img
@@ -91,16 +93,17 @@ export function Layout({ children }: LayoutProps) {
                     )}
                   </div>
 
-                  {/* Saudação com pastel no claro */}
+                  {/* >>> Saudação com degradê verde pastel e ponto final <<< */}
                   <span
                     className="
-                      text-sm
-                      px-2 py-1 rounded
-                      bg-emerald-50 text-emerald-800 border border-emerald-200
-                      dark:bg-transparent dark:text-zinc-300 dark:border-transparent
+                      text-sm font-medium
+                      px-3 py-1.5 rounded-lg border shadow-sm
+                      bg-gradient-to-r from-emerald-100 via-emerald-50 to-teal-100
+                      text-emerald-800 border-emerald-200
+                      dark:bg-zinc-800/60 dark:text-zinc-200 dark:border-zinc-700
                     "
                   >
-                    {getGreeting()}, <span className="font-medium">{displayName}</span>!
+                    {greeting}, {displayName}.
                   </span>
                 </div>
               )}
