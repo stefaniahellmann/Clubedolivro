@@ -1,81 +1,124 @@
-// src/contexts/AuthContext.tsx
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import { users as mockUsers } from '../data/mockData';
 
 type User = {
   id: string;
   firstName: string;
   lastName?: string;
   email?: string;
+  cpf?: string;
   avatarUrl?: string;
-  // ...outros campos que você já tem
+  expiresAt?: string; // ISO
 };
 
 type AuthContextType = {
   user: User | null;
   isAdmin: boolean;
+  hydrated: boolean;
   login: (cpf: string) => Promise<boolean>;
   adminLogin: (password: string) => Promise<boolean>;
   logout: () => void;
-  /** <-- NOVO */
   updateUser: (partial: Partial<User>) => void;
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// chaves de persistência
+const K_USER = 'clube_user';
+const K_ADMIN = 'clube_is_admin';
+
+function onlyDigits(s: string) {
+  return (s || '').replace(/\D/g, '');
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [hydrated, setHydrated] = useState(false);
 
-  // carregue do localStorage (se já não faz isso)
+  // hidrata do localStorage uma única vez
   useEffect(() => {
-    const raw = localStorage.getItem('clube_user');
-    const rawAdmin = localStorage.getItem('clube_is_admin');
-    if (raw) setUser(JSON.parse(raw));
-    if (rawAdmin) setIsAdmin(rawAdmin === 'true');
+    try {
+      const rawUser = localStorage.getItem(K_USER);
+      const rawAdmin = localStorage.getItem(K_ADMIN);
+      if (rawUser) setUser(JSON.parse(rawUser));
+      if (rawAdmin) setIsAdmin(rawAdmin === 'true');
+    } catch {
+      // se der erro de parse, zera
+      localStorage.removeItem(K_USER);
+      localStorage.removeItem(K_ADMIN);
+      setUser(null);
+      setIsAdmin(false);
+    } finally {
+      setHydrated(true);
+    }
   }, []);
 
-  // persista user & isAdmin
+  // persiste quando mudar
   useEffect(() => {
-    if (user) localStorage.setItem('clube_user', JSON.stringify(user));
-    else localStorage.removeItem('clube_user');
-    localStorage.setItem('clube_is_admin', String(isAdmin));
+    if (user) localStorage.setItem(K_USER, JSON.stringify(user));
+    else localStorage.removeItem(K_USER);
+    localStorage.setItem(K_ADMIN, String(isAdmin));
   }, [user, isAdmin]);
 
-  // implemente como você já tinha
   const login = async (cpf: string) => {
-    // ...sua lógica
+    const d = onlyDigits(cpf);
+    const found = mockUsers.find((u: any) => onlyDigits(u.cpf) === d);
+    if (!found) return false;
+
+    // opcional: checar validade
+    const expiresISO =
+      typeof found.expirationDate === 'string'
+        ? found.expirationDate
+        : found.expirationDate?.toISOString?.() ?? undefined;
+
+    const newUser: User = {
+      id: found.id?.toString?.() ?? d,
+      firstName: found.firstName ?? 'Usuário',
+      lastName: found.lastName,
+      email: found.email,
+      cpf: d,
+      expiresAt: expiresISO,
+      avatarUrl: found.avatarUrl,
+    };
+
+    setUser(newUser);
+    setIsAdmin(false);
     return true;
   };
 
   const adminLogin = async (password: string) => {
-    // ...sua lógica
+    // simples: admin123
+    if (password !== 'admin123') return false;
+    setIsAdmin(true);
+
+    // mantém um user básico p/ header saudar
+    setUser((prev) => prev ?? { id: 'admin', firstName: 'Admin' });
     return true;
   };
 
   const logout = () => {
     setUser(null);
     setIsAdmin(false);
-    localStorage.removeItem('clube_user');
-    localStorage.removeItem('clube_is_admin');
+    localStorage.removeItem(K_USER);
+    localStorage.removeItem(K_ADMIN);
   };
 
-  /** <-- NOVO: atualiza e persiste */
   const updateUser = (partial: Partial<User>) => {
     setUser((prev) => {
       if (!prev) return prev;
       const next = { ...prev, ...partial };
-      localStorage.setItem('clube_user', JSON.stringify(next));
+      localStorage.setItem(K_USER, JSON.stringify(next));
       return next;
     });
   };
 
-  return (
-    <AuthContext.Provider
-      value={{ user, isAdmin, login, adminLogin, logout, updateUser }}
-    >
-      {children}
-    </AuthContext.Provider>
+  const value = useMemo<AuthContextType>(
+    () => ({ user, isAdmin, hydrated, login, adminLogin, logout, updateUser }),
+    [user, isAdmin, hydrated]
   );
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
