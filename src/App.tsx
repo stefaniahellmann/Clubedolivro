@@ -12,8 +12,8 @@ import { Navigation } from './components/Navigation';
 import { FloatingThemeToggle } from './components/FloatingThemeToggle';
 import { ConfigProvider } from './contexts/ConfigContext';
 import { Profile } from './components/Profile';
-import { Raffle } from './components/Raffle';
- 
+import { Raffle } from './components/Raffle'; // <-- ADICIONADO
+
 function AppContent() {
   const { user, isAdmin } = useAuth();
   const [activeView, setActiveView] = useState('dashboard');
