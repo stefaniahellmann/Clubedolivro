@@ -1,99 +1,49 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React from 'react';
+import { X } from 'lucide-react';
 
-export type LinkKey = 'drive' | 'whatsapp' | 'telegram' | 'refer' | 'rules';
-
-export type ClubLink = {
-  key: LinkKey;
-  label: string;
-  url: string;
-  description?: string;
-};
-
-type LinksState = Record<LinkKey, ClubLink>;
-
-const DEFAULT_LINKS: LinksState = {
-  drive: {
-    key: 'drive',
-    label: 'Drive de Materiais',
-    url: '',
-    description: 'Acesse +1k volumes, PDFs e materiais de apoio.',
-  },
-  whatsapp: {
-    key: 'whatsapp',
-    label: 'Clube Whats',
-    url: '',
-    description: 'Entre no grupo oficial do WhatsApp.',
-  },
-  telegram: {
-    key: 'telegram',
-    label: 'Clube Telegram',
-    url: '',
-    description: 'Entre no grupo oficial do Telegram.',
-  },
-  refer: {
-    key: 'refer',
-    label: 'Indique Amigos',
-    url: '',
-    description: 'Compartilhe o clube com seus amigos.',
-  },
-  rules: {
-    key: 'rules',
-    label: 'Regras do Clube',
-    url: '',
-    description: 'Leia com atenção as regras do clube.',
-  },
-};
-
-type LinksContextType = {
-  links: LinksState;
-  updateLink: (key: LinkKey, url: string) => void;
-  resetLinks: () => void;
-};
-
-const LinksContext = createContext<LinksContextType | null>(null);
-const LS_KEY = 'club_links_v1';
-
-export function LinksProvider({ children }: { children: React.ReactNode }) {
-  const [links, setLinks] = useState<LinksState>(DEFAULT_LINKS);
-
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem(LS_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as Partial<LinksState>;
-        setLinks((prev) => ({
-          ...prev,
-          ...parsed,
-          // garante labels/descrições padrão se faltar
-          drive: { ...prev.drive, ...parsed?.drive },
-          whatsapp: { ...prev.whatsapp, ...parsed?.whatsapp },
-          telegram: { ...prev.telegram, ...parsed?.telegram },
-          refer: { ...prev.refer, ...parsed?.refer },
-          rules: { ...prev.rules, ...parsed?.rules },
-        }));
-      }
-    } catch {
-      // ignora
-    }
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem(LS_KEY, JSON.stringify(links));
-  }, [links]);
-
-  const updateLink = (key: LinkKey, url: string) => {
-    setLinks((prev) => ({ ...prev, [key]: { ...prev[key], url } }));
-  };
-
-  const resetLinks = () => setLinks(DEFAULT_LINKS);
-
-  const value = useMemo(() => ({ links, updateLink, resetLinks }), [links]);
-
-  return <LinksContext.Provider value={value}>{children}</LinksContext.Provider>;
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  title: string;
+  children: React.ReactNode;
+  size?: 'sm' | 'md' | 'lg' | 'xl';
+  /** opcional: conteúdo do rodapé (botão de acesso) */
+  footer?: React.ReactNode;
 }
 
-export function useLinks() {
-  const ctx = useContext(LinksContext);
-  if (!ctx) throw new Error('useLinks deve ser usado dentro de <LinksProvider>');
-  return ctx;
+export function Modal({ isOpen, onClose, title, children, size = 'md', footer }: ModalProps) {
+  if (!isOpen) return null;
+
+  const sizeClasses = {
+    sm: 'max-w-md',
+    md: 'max-w-lg',
+    lg: 'max-w-2xl',
+    xl: 'max-w-4xl',
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 overflow-y-auto">
+      <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
+        <div className="fixed inset-0 transition-opacity bg-black/75" onClick={onClose} />
+        <div
+          className={`inline-block w-full ${sizeClasses[size]} p-6 my-8 overflow-hidden text-left align-middle transition-all bg-white dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 shadow-xl rounded-2xl`}
+        >
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-medium text-zinc-900 dark:text-white">{title}</h3>
+            <button onClick={onClose} className="text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition">
+              <X size={24} />
+            </button>
+          </div>
+
+          <div className="text-zinc-700 dark:text-zinc-200">{children}</div>
+
+          {footer && (
+            <div className="mt-6 pt-4 border-t border-zinc-200 dark:border-zinc-700">
+              {footer}
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
