@@ -27,7 +27,7 @@ function ModalInner({
   onClose,
   title,
   size = 'md',
-  backdrop = 'light',
+  backdrop = 'dark',
   children,
 }: ModalProps) {
   const onKey = useCallback((e: KeyboardEvent) => {
