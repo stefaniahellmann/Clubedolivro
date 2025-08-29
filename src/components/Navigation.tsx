@@ -31,16 +31,13 @@ export function Navigation({ activeView, onViewChange }: NavigationProps) {
         e.preventDefault();
       }
     },
-    [activeView, navItems, onViewChange]
+    [activeView, onViewChange]
   );
 
   return (
     <nav
       aria-label="Seções principais"
-      className="
-        bar mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8
-        /* 'bar' vem do index.css: bg-white/80 dark:bg-zinc-900/80 + border + blur */
-      "
+      className="bar mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8"
     >
       <div
         role="tablist"
