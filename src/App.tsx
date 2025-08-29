@@ -11,8 +11,9 @@ import { AdminPanel } from './components/AdminPanel';
 import { Navigation } from './components/Navigation';
 import { FloatingThemeToggle } from './components/FloatingThemeToggle';
 import { ConfigProvider } from './contexts/ConfigContext';
+import { LinksProvider } from './contexts/LinksContext'; // <-- ADICIONADO
 import { Profile } from './components/Profile';
-import { Raffle } from './components/Raffle'; // <-- ADICIONADO
+import { Raffle } from './components/Raffle';
 
 function AppContent() {
   const { user, isAdmin } = useAuth();
@@ -53,11 +54,15 @@ function AppContent() {
 export default function App() {
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 transition-colors">
-      <ConfigProvider>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
-      </ConfigProvider>
+      {/* O LinksProvider precisa envolver tudo que usa useLinks (Dashboard, Admin, etc) */}
+      <LinksProvider>
+        <ConfigProvider>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
+        </ConfigProvider>
+      </LinksProvider>
+
       <FloatingThemeToggle />
     </div>
   );
