@@ -8,12 +8,17 @@ import {
   Send,
   Share2,
   ScrollText,
-  ExternalLink
+  ExternalLink,
+  FileText,
+  BookOpen,
+  Users,
+  BarChart3,
 } from 'lucide-react';
 import { Modal } from './ui/Modal';
 import { useLinks } from '../contexts/LinksContext';
+import { books, freeMaterials, partners } from '../data/mockData';
 
-/* Saudação correta (inclui “Boa noite”) */
+/* Saudação correta */
 function getGreeting() {
   const h = new Date().getHours();
   if (h < 5) return 'Boa noite';
@@ -26,14 +31,21 @@ export function Dashboard() {
   const greeting = useMemo(getGreeting, []);
   const { links } = useLinks();
 
-  // modal “Regras”
+  /* ==== MODAIS dos atalhos ==== */
   const [rulesOpen, setRulesOpen] = useState(false);
-
-  // modais informativos extras
   const [infoDriveOpen, setInfoDriveOpen] = useState(false);
   const [infoWhatsOpen, setInfoWhatsOpen] = useState(false);
   const [infoTelOpen, setInfoTelOpen] = useState(false);
   const [infoShareOpen, setInfoShareOpen] = useState(false);
+
+  /* ==== MODAIS das estatísticas ==== */
+  const [statsOpen, setStatsOpen] = useState<null | 'materiais' | 'resumos' | 'livros' | 'parceiros'>(null);
+
+  /* Contadores (ajuste o de resumos se necessário) */
+  const totalMateriais = freeMaterials.length;
+  const totalLivros = books.length;
+  const totalParceiros = partners.length;
+  const totalSummaries = 30;
 
   const handleOpen = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -43,9 +55,8 @@ export function Dashboard() {
     const shareData = {
       title: 'Clube do Livro',
       text: 'Vem pro Clube do Livro! Resumos, materiais e comunidade 📚✨',
-      url: links.shareUrl
+      url: links.shareUrl,
     };
-
     try {
       if (navigator.share) {
         await navigator.share(shareData);
@@ -53,11 +64,10 @@ export function Dashboard() {
         await navigator.clipboard.writeText(links.shareUrl);
         alert('Link copiado! Agora é só colar e enviar para seus amigos.');
       }
-    } catch {
-      /* usuário cancelou */
-    }
+    } catch {}
   };
 
+  /* Atalhos rápidos (Acesse/Compartilhe/Saiba mais) */
   const quickItems = [
     {
       id: 'drive',
@@ -69,8 +79,8 @@ export function Dashboard() {
       tone: {
         iconWrap: 'bg-emerald-50 dark:bg-emerald-500/10',
         icon: 'text-emerald-700 dark:text-emerald-300',
-        hover: 'hover:border-emerald-200 dark:hover:border-emerald-600'
-      }
+        hover: 'hover:border-emerald-200 dark:hover:border-emerald-600',
+      },
     },
     {
       id: 'whats',
@@ -82,8 +92,8 @@ export function Dashboard() {
       tone: {
         iconWrap: 'bg-green-50 dark:bg-green-500/10',
         icon: 'text-green-700 dark:text-green-300',
-        hover: 'hover:border-green-200 dark:hover:border-green-600'
-      }
+        hover: 'hover:border-green-200 dark:hover:border-green-600',
+      },
     },
     {
       id: 'telegram',
@@ -95,8 +105,8 @@ export function Dashboard() {
       tone: {
         iconWrap: 'bg-sky-50 dark:bg-sky-500/10',
         icon: 'text-sky-700 dark:text-sky-300',
-        hover: 'hover:border-sky-200 dark:hover:border-sky-600'
-      }
+        hover: 'hover:border-sky-200 dark:hover:border-sky-600',
+      },
     },
     {
       id: 'share',
@@ -108,8 +118,8 @@ export function Dashboard() {
       tone: {
         iconWrap: 'bg-amber-50 dark:bg-amber-500/10',
         icon: 'text-amber-700 dark:text-amber-300',
-        hover: 'hover:border-amber-200 dark:hover:border-amber-600'
-      }
+        hover: 'hover:border-amber-200 dark:hover:border-amber-600',
+      },
     },
     {
       id: 'rules',
@@ -121,10 +131,70 @@ export function Dashboard() {
       tone: {
         iconWrap: 'bg-zinc-100 dark:bg-zinc-700/40',
         icon: 'text-zinc-700 dark:text-zinc-200',
-        hover: 'hover:border-zinc-200 dark:hover:border-zinc-600'
-      }
-    }
+        hover: 'hover:border-zinc-200 dark:hover:border-zinc-600',
+      },
+    },
   ] as const;
+
+  /* Estatísticas (cards coloridos + modais) */
+  const statCards = [
+    {
+      id: 'materiais' as const,
+      label: 'Materiais Gratuitos',
+      value: totalMateriais,
+      icon: FileText,
+      tone: {
+        wrap: 'from-blue-50 via-sky-50 to-blue-50 dark:from-sky-500/10 dark:via-sky-500/10 dark:to-sky-500/10',
+        border: 'border-blue-200 dark:border-sky-700/40',
+        text: 'text-blue-700 dark:text-sky-300',
+        iconWrap: 'bg-blue-50 dark:bg-sky-500/10',
+        icon: 'text-blue-700 dark:text-sky-300',
+      },
+      open: () => setStatsOpen('materiais'),
+    },
+    {
+      id: 'resumos' as const,
+      label: 'Resumos',
+      value: totalSummaries,
+      icon: BarChart3,
+      tone: {
+        wrap: 'from-emerald-50 via-teal-50 to-emerald-50 dark:from-emerald-500/10 dark:via-teal-500/10 dark:to-emerald-500/10',
+        border: 'border-emerald-200 dark:border-emerald-700/40',
+        text: 'text-emerald-700 dark:text-emerald-300',
+        iconWrap: 'bg-emerald-50 dark:bg-emerald-500/10',
+        icon: 'text-emerald-700 dark:text-emerald-300',
+      },
+      open: () => setStatsOpen('resumos'),
+    },
+    {
+      id: 'livros' as const,
+      label: 'Livros',
+      value: totalLivros,
+      icon: BookOpen,
+      tone: {
+        wrap: 'from-purple-50 via-violet-50 to-purple-50 dark:from-violet-500/10 dark:via-purple-500/10 dark:to-violet-500/10',
+        border: 'border-purple-200 dark:border-violet-700/40',
+        text: 'text-purple-700 dark:text-violet-300',
+        iconWrap: 'bg-purple-50 dark:bg-violet-500/10',
+        icon: 'text-purple-700 dark:text-violet-300',
+      },
+      open: () => setStatsOpen('livros'),
+    },
+    {
+      id: 'parceiros' as const,
+      label: 'Parceiros',
+      value: totalParceiros,
+      icon: Users,
+      tone: {
+        wrap: 'from-amber-50 via-orange-50 to-amber-50 dark:from-amber-500/10 dark:via-orange-500/10 dark:to-amber-500/10',
+        border: 'border-amber-200 dark:border-amber-700/40',
+        text: 'text-amber-700 dark:text-amber-300',
+        iconWrap: 'bg-amber-50 dark:bg-amber-500/10',
+        icon: 'text-amber-700 dark:text-amber-300',
+      },
+      open: () => setStatsOpen('parceiros'),
+    },
+  ];
 
   return (
     <div className="space-y-8">
@@ -163,7 +233,7 @@ export function Dashboard() {
               className={[
                 'group card cursor-pointer transition-all duration-200',
                 'flex flex-col justify-between',
-                item.tone.hover
+                item.tone.hover,
               ].join(' ')}
             >
               <div className="space-y-4">
@@ -205,58 +275,45 @@ export function Dashboard() {
         })}
       </div>
 
-      {/* Sessão informativa com 4 botões → abre modais “embaixo” */}
+      {/* Estatísticas (4 cards coloridos) */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
-        <Card className="flex flex-col">
-          <h4 className="font-semibold text-zinc-900 dark:text-white">Sobre o Drive</h4>
-          <p className="subtle mt-1">Entenda como acessar os materiais e boas práticas.</p>
-          <Button
-            onClick={() => setInfoDriveOpen(true)}
-            variant="ghost"
-            className="mt-4 border w-full"
-          >
-            Saiba mais
-          </Button>
-        </Card>
-
-        <Card className="flex flex-col">
-          <h4 className="font-semibold text-zinc-900 dark:text-white">Sobre o WhatsApp</h4>
-          <p className="subtle mt-1">Dicas e regras rápidas para o grupo.</p>
-          <Button
-            onClick={() => setInfoWhatsOpen(true)}
-            variant="ghost"
-            className="mt-4 border w-full"
-          >
-            Saiba mais
-          </Button>
-        </Card>
-
-        <Card className="flex flex-col">
-          <h4 className="font-semibold text-zinc-900 dark:text-white">Sobre o Telegram</h4>
-          <p className="subtle mt-1">Como participar e notificações.</p>
-          <Button
-            onClick={() => setInfoTelOpen(true)}
-            variant="ghost"
-            className="mt-4 border w-full"
-          >
-            Saiba mais
-          </Button>
-        </Card>
-
-        <Card className="flex flex-col">
-          <h4 className="font-semibold text-zinc-900 dark:text-white">Indicações</h4>
-          <p className="subtle mt-1">Como compartilhar o Clube com amigos.</p>
-          <Button
-            onClick={() => setInfoShareOpen(true)}
-            variant="ghost"
-            className="mt-4 border w-full"
-          >
-            Saiba mais
-          </Button>
-        </Card>
+        {statCards.map((s) => {
+          const Icon = s.icon;
+          return (
+            <Card
+              key={s.id}
+              hover
+              className={[
+                'cursor-pointer transition-all duration-200',
+                'border',
+                s.tone.border,
+                'bg-gradient-to-br',
+                s.tone.wrap,
+              ].join(' ')}
+              onClick={s.open}
+            >
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <div className={`text-3xl font-bold ${s.tone.text}`}>{s.value}</div>
+                  <div className={`text-sm ${s.tone.text}`}>{s.label}</div>
+                </div>
+                <div className={`p-3 rounded-xl ${s.tone.iconWrap}`}>
+                  <Icon className={s.tone.icon} size={24} />
+                </div>
+              </div>
+              <Button
+                variant="ghost"
+                className="mt-4 w-full border text-zinc-700 dark:text-zinc-200"
+                onClick={s.open}
+              >
+                Ver detalhes
+              </Button>
+            </Card>
+          );
+        })}
       </div>
 
-      {/* Modal: Regras do Clube */}
+      {/* --------- MODAIS: Regras (atalho) --------- */}
       <Modal
         isOpen={rulesOpen}
         onClose={() => setRulesOpen(false)}
@@ -282,7 +339,7 @@ export function Dashboard() {
         </div>
       </Modal>
 
-      {/* 4 MODAIS informativos “de volta” */}
+      {/* --------- MODAIS: Atalhos informativos --------- */}
       <Modal isOpen={infoDriveOpen} onClose={() => setInfoDriveOpen(false)} title="Materiais e Acesso" size="md">
         <div className="space-y-3">
           <p className="text-zinc-700 dark:text-zinc-300">
@@ -321,6 +378,8 @@ export function Dashboard() {
           <p className="text-zinc-700 dark:text-zinc-300">
             Convide quem você gosta para ler com você! Ao indicar, você fortalece a comunidade.
           </p>
+        </div>
+        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
           <div className="flex gap-2">
             <Button onClick={handleShare} className="flex-1">Compartilhar</Button>
             <Button
@@ -334,6 +393,92 @@ export function Dashboard() {
               Copiar link
             </Button>
           </div>
+        </div>
+      </Modal>
+
+      {/* --------- MODAIS: Estatísticas --------- */}
+      <Modal
+        isOpen={statsOpen === 'materiais'}
+        onClose={() => setStatsOpen(null)}
+        title="Materiais Gratuitos — detalhes"
+        size="lg"
+      >
+        <div className="space-y-3">
+          <p className="text-zinc-700 dark:text-zinc-300">
+            Você tem <strong>{totalMateriais}</strong> PDFs gratuitos disponíveis.
+          </p>
+          <ul className="list-disc pl-5 text-zinc-700 dark:text-zinc-300">
+            {freeMaterials.slice(0, 5).map((m) => (
+              <li key={m.id}>{m.title}</li>
+            ))}
+            {totalMateriais > 5 && <li>… e mais {totalMateriais - 5}</li>}
+          </ul>
+        </div>
+        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
+          <Button onClick={() => setStatsOpen(null)} fullWidth>Fechar</Button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={statsOpen === 'resumos'}
+        onClose={() => setStatsOpen(null)}
+        title="Resumos — detalhes"
+        size="lg"
+      >
+        <div className="space-y-3">
+          <p className="text-zinc-700 dark:text-zinc-300">
+            Total de resumos disponíveis: <strong>{totalSummaries}</strong>.
+          </p>
+          <p className="text-zinc-700 dark:text-zinc-300">
+            Mantemos um resumo por dia — ajuste esse número no código se preferir.
+          </p>
+        </div>
+        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
+          <Button onClick={() => setStatsOpen(null)} fullWidth>Fechar</Button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={statsOpen === 'livros'}
+        onClose={() => setStatsOpen(null)}
+        title="Livros — detalhes"
+        size="lg"
+      >
+        <div className="space-y-3">
+          <p className="text-zinc-700 dark:text-zinc-300">
+            Livros no acervo do clube: <strong>{totalLivros}</strong>.
+          </p>
+          <ul className="list-disc pl-5 text-zinc-700 dark:text-zinc-300">
+            {books.slice(0, 5).map((b) => (
+              <li key={b.id}>{b.title} — {b.author}</li>
+            ))}
+            {totalLivros > 5 && <li>… e mais {totalLivros - 5}</li>}
+          </ul>
+        </div>
+        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
+          <Button onClick={() => setStatsOpen(null)} fullWidth>Fechar</Button>
+        </div>
+      </Modal>
+
+      <Modal
+        isOpen={statsOpen === 'parceiros'}
+        onClose={() => setStatsOpen(null)}
+        title="Parceiros — detalhes"
+        size="lg"
+      >
+        <div className="space-y-3">
+          <p className="text-zinc-700 dark:text-zinc-300">
+            Profissionais e criadores que colaboram com o clube: <strong>{totalParceiros}</strong>.
+          </p>
+          <ul className="list-disc pl-5 text-zinc-700 dark:text-zinc-300">
+            {partners.slice(0, 6).map((p) => (
+              <li key={p.id}>{p.name}</li>
+            ))}
+            {totalParceiros > 6 && <li>… e mais {totalParceiros - 6}</li>}
+          </ul>
+        </div>
+        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
+          <Button onClick={() => setStatsOpen(null)} fullWidth>Fechar</Button>
         </div>
       </Modal>
     </div>
