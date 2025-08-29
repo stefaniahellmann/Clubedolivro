@@ -1,3 +1,4 @@
+// src/components/ui/Modal.tsx
 import React, { useEffect, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { X } from 'lucide-react';
@@ -29,7 +30,6 @@ function ModalInner({
   backdrop = 'light',
   children,
 }: ModalProps) {
-  // fecha com ESC
   const onKey = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Escape') onClose();
   }, [onClose]);
@@ -37,7 +37,6 @@ function ModalInner({
   useEffect(() => {
     if (!isOpen) return;
     document.addEventListener('keydown', onKey);
-    // trava scroll
     const prev = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     return () => {
@@ -53,18 +52,18 @@ function ModalInner({
       ? 'bg-transparent'
       : backdrop === 'dark'
       ? 'bg-black/60 dark:bg-black/70'
-      : 'bg-black/20 dark:bg-black/30'; // leve e visível
+      : 'bg-black/20 dark:bg-black/30';
 
   return (
     <>
-      {/* OVERLAY (z-50) */}
+      {/* OVERLAY (z bem alto) */}
       <div
-        className={`fixed inset-0 z-50 ${overlayTone}`}
+        className={`fixed inset-0 z-[1000] ${overlayTone}`}
         onClick={onClose}
         aria-hidden="true"
       />
-      {/* PAINEL (z-60) */}
-      <div className="fixed inset-0 z-60 flex items-start justify-center px-4 py-8">
+      {/* PAINEL por cima do overlay */}
+      <div className="fixed inset-0 z-[1001] flex items-start justify-center px-4 py-8">
         <div
           role="dialog"
           aria-modal="true"
@@ -94,7 +93,6 @@ function ModalInner({
 }
 
 export function Modal(props: ModalProps) {
-  // Portal para evitar conflitos de z-index/stacking-context
   const mount = typeof document !== 'undefined' ? document.body : null;
   if (!props.isOpen || !mount) return null;
   return ReactDOM.createPortal(<ModalInner {...props} />, mount);
