@@ -31,21 +31,18 @@ export function Dashboard() {
   const greeting = useMemo(getGreeting, []);
   const { links } = useLinks();
 
-  /* ==== MODAIS dos atalhos ==== */
+  /* ==== MODAIS dos atalhos (mantidos) ==== */
   const [rulesOpen, setRulesOpen] = useState(false);
   const [infoDriveOpen, setInfoDriveOpen] = useState(false);
   const [infoWhatsOpen, setInfoWhatsOpen] = useState(false);
   const [infoTelOpen, setInfoTelOpen] = useState(false);
   const [infoShareOpen, setInfoShareOpen] = useState(false);
 
-  /* ==== MODAIS das estatísticas ==== */
-  const [statsOpen, setStatsOpen] = useState<null | 'materiais' | 'resumos' | 'livros' | 'parceiros'>(null);
-
-  /* Contadores (ajuste o de resumos se necessário) */
+  /* Contadores (dados exibidos diretamente) */
   const totalMateriais = freeMaterials.length;
   const totalLivros = books.length;
   const totalParceiros = partners.length;
-  const totalSummaries = 30;
+  const totalSummaries = 30; // ajuste se desejar
 
   const handleOpen = (url: string) => {
     window.open(url, '_blank', 'noopener,noreferrer');
@@ -67,7 +64,7 @@ export function Dashboard() {
     } catch {}
   };
 
-  /* Atalhos rápidos (Acesse/Compartilhe/Saiba mais) */
+  /* Atalhos rápidos */
   const quickItems = [
     {
       id: 'drive',
@@ -136,7 +133,7 @@ export function Dashboard() {
     },
   ] as const;
 
-  /* Estatísticas (cards coloridos + modais) */
+  /* Cartões de estatística — APENAS DADOS (sem links/modais/botão) */
   const statCards = [
     {
       id: 'materiais' as const,
@@ -150,7 +147,6 @@ export function Dashboard() {
         iconWrap: 'bg-blue-50 dark:bg-sky-500/10',
         icon: 'text-blue-700 dark:text-sky-300',
       },
-      open: () => setStatsOpen('materiais'),
     },
     {
       id: 'resumos' as const,
@@ -164,7 +160,6 @@ export function Dashboard() {
         iconWrap: 'bg-emerald-50 dark:bg-emerald-500/10',
         icon: 'text-emerald-700 dark:text-emerald-300',
       },
-      open: () => setStatsOpen('resumos'),
     },
     {
       id: 'livros' as const,
@@ -178,7 +173,6 @@ export function Dashboard() {
         iconWrap: 'bg-purple-50 dark:bg-violet-500/10',
         icon: 'text-purple-700 dark:text-violet-300',
       },
-      open: () => setStatsOpen('livros'),
     },
     {
       id: 'parceiros' as const,
@@ -192,7 +186,6 @@ export function Dashboard() {
         iconWrap: 'bg-amber-50 dark:bg-amber-500/10',
         icon: 'text-amber-700 dark:text-amber-300',
       },
-      open: () => setStatsOpen('parceiros'),
     },
   ];
 
@@ -222,7 +215,7 @@ export function Dashboard() {
         </div>
       </div>
 
-      {/* Acessos rápidos */}
+      {/* Acessos rápidos (mantidos) */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
         {quickItems.map((item) => {
           const Icon = item.icon;
@@ -275,22 +268,18 @@ export function Dashboard() {
         })}
       </div>
 
-      {/* Estatísticas (4 cards coloridos) */}
+      {/* Estatísticas — SOMENTE DADOS */}
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {statCards.map((s) => {
           const Icon = s.icon;
           return (
             <Card
               key={s.id}
-              hover
               className={[
-                'cursor-pointer transition-all duration-200',
-                'border',
+                'border bg-gradient-to-br',
                 s.tone.border,
-                'bg-gradient-to-br',
                 s.tone.wrap,
               ].join(' ')}
-              onClick={s.open}
             >
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
@@ -301,19 +290,13 @@ export function Dashboard() {
                   <Icon className={s.tone.icon} size={24} />
                 </div>
               </div>
-              <Button
-                variant="ghost"
-                className="mt-4 w-full border text-zinc-700 dark:text-zinc-200"
-                onClick={s.open}
-              >
-                Ver detalhes
-              </Button>
+              {/* sem botão/links */}
             </Card>
           );
         })}
       </div>
 
-      {/* --------- MODAIS: Regras (atalho) --------- */}
+      {/* --------- MODAIS dos atalhos (mantidos) --------- */}
       <Modal
         isOpen={rulesOpen}
         onClose={() => setRulesOpen(false)}
@@ -339,7 +322,6 @@ export function Dashboard() {
         </div>
       </Modal>
 
-      {/* --------- MODAIS: Atalhos informativos --------- */}
       <Modal isOpen={infoDriveOpen} onClose={() => setInfoDriveOpen(false)} title="Materiais e Acesso" size="md">
         <div className="space-y-3">
           <p className="text-zinc-700 dark:text-zinc-300">
@@ -393,92 +375,6 @@ export function Dashboard() {
               Copiar link
             </Button>
           </div>
-        </div>
-      </Modal>
-
-      {/* --------- MODAIS: Estatísticas --------- */}
-      <Modal
-        isOpen={statsOpen === 'materiais'}
-        onClose={() => setStatsOpen(null)}
-        title="Materiais Gratuitos — detalhes"
-        size="lg"
-      >
-        <div className="space-y-3">
-          <p className="text-zinc-700 dark:text-zinc-300">
-            Você tem <strong>{totalMateriais}</strong> PDFs gratuitos disponíveis.
-          </p>
-          <ul className="list-disc pl-5 text-zinc-700 dark:text-zinc-300">
-            {freeMaterials.slice(0, 5).map((m) => (
-              <li key={m.id}>{m.title}</li>
-            ))}
-            {totalMateriais > 5 && <li>… e mais {totalMateriais - 5}</li>}
-          </ul>
-        </div>
-        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
-          <Button onClick={() => setStatsOpen(null)} fullWidth>Fechar</Button>
-        </div>
-      </Modal>
-
-      <Modal
-        isOpen={statsOpen === 'resumos'}
-        onClose={() => setStatsOpen(null)}
-        title="Resumos — detalhes"
-        size="lg"
-      >
-        <div className="space-y-3">
-          <p className="text-zinc-700 dark:text-zinc-300">
-            Total de resumos disponíveis: <strong>{totalSummaries}</strong>.
-          </p>
-          <p className="text-zinc-700 dark:text-zinc-300">
-            Mantemos um resumo por dia — ajuste esse número no código se preferir.
-          </p>
-        </div>
-        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
-          <Button onClick={() => setStatsOpen(null)} fullWidth>Fechar</Button>
-        </div>
-      </Modal>
-
-      <Modal
-        isOpen={statsOpen === 'livros'}
-        onClose={() => setStatsOpen(null)}
-        title="Livros — detalhes"
-        size="lg"
-      >
-        <div className="space-y-3">
-          <p className="text-zinc-700 dark:text-zinc-300">
-            Livros no acervo do clube: <strong>{totalLivros}</strong>.
-          </p>
-          <ul className="list-disc pl-5 text-zinc-700 dark:text-zinc-300">
-            {books.slice(0, 5).map((b) => (
-              <li key={b.id}>{b.title} — {b.author}</li>
-            ))}
-            {totalLivros > 5 && <li>… e mais {totalLivros - 5}</li>}
-          </ul>
-        </div>
-        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
-          <Button onClick={() => setStatsOpen(null)} fullWidth>Fechar</Button>
-        </div>
-      </Modal>
-
-      <Modal
-        isOpen={statsOpen === 'parceiros'}
-        onClose={() => setStatsOpen(null)}
-        title="Parceiros — detalhes"
-        size="lg"
-      >
-        <div className="space-y-3">
-          <p className="text-zinc-700 dark:text-zinc-300">
-            Profissionais e criadores que colaboram com o clube: <strong>{totalParceiros}</strong>.
-          </p>
-          <ul className="list-disc pl-5 text-zinc-700 dark:text-zinc-300">
-            {partners.slice(0, 6).map((p) => (
-              <li key={p.id}>{p.name}</li>
-            ))}
-            {totalParceiros > 6 && <li>… e mais {totalParceiros - 6}</li>}
-          </ul>
-        </div>
-        <div className="pt-4 border-t border-zinc-200 dark:border-zinc-800">
-          <Button onClick={() => setStatsOpen(null)} fullWidth>Fechar</Button>
         </div>
       </Modal>
     </div>
