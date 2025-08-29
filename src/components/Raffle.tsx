@@ -1,176 +1,91 @@
-import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
+import { Card } from './ui/Card';
+import { Button } from './ui/Button';
 
-export type RaffleNumberStatus = 'free' | 'pending' | 'sold';
+type Buyer = { name: string; numbers: number[] };
 
-export type RaffleNumber = {
-  n: number;
-  status: RaffleNumberStatus;
-  userId?: string;
-  userName?: string;
-  reservationId?: string;
-};
+function RaffleInner() {
+  // mock simples em memória
+  const [buyers, setBuyers] = useState<Buyer[]>([]);
+  const [name, setName] = useState('');
+  const [qty, setQty] = useState(1);
 
-export type Reservation = {
-  id: string;
-  userId: string;
-  userName: string;
-  numbers: number[];
-  amount: number; // em reais
-  status: 'pending' | 'approved' | 'rejected';
-  createdAt: string; // ISO
-};
+  const taken = useMemo(() => new Set(buyers.flatMap(b => b.numbers)), [buyers]);
 
-type RaffleState = {
-  numbers: RaffleNumber[];
-  reservations: Reservation[];
-};
+  const availableNumbers = useMemo(() => {
+    const arr: number[] = [];
+    for (let i = 1; i <= 1000; i++) if (!taken.has(i)) arr.push(i);
+    return arr;
+  }, [taken]);
 
-type RaffleContextType = {
-  pricePerNumber: number;
-  state: RaffleState;
-  availableNumbers: number[];
-  userNumbers: (userId: string) => number[];
-  createReservation: (userId: string, userName: string, numbers: number[], amount: number) => string;
-  approveReservation: (reservationId: string) => void;
-  rejectReservation: (reservationId: string) => void;
-  resetPendingForUser: (userId: string) => void; // opcional
-};
+  const buy = () => {
+    if (!name.trim() || qty < 1) return;
+    const chosen = availableNumbers.slice(0, qty);
+    setBuyers(prev => [...prev, { name: name.trim(), numbers: chosen }]);
+    setName('');
+    setQty(1);
+  };
 
-const RaffleContext = createContext<RaffleContextType | undefined>(undefined);
+  const progress = Math.round((taken.size / 1000) * 100);
 
-const LS_KEY = 'clube_raffle_v1';
-const TOTAL_NUMBERS = 1000;
-const PRICE = 2; // R$2,00
+  return (
+    <div className="space-y-6">
+      <Card className="p-6">
+        <h2 className="text-2xl font-bold text-zinc-900 dark:text-white mb-4">Rifa</h2>
 
-function bootstrap(): RaffleState {
-  const raw = localStorage.getItem(LS_KEY);
-  if (raw) {
-    try {
-      return JSON.parse(raw) as RaffleState;
-    } catch {
-      localStorage.removeItem(LS_KEY);
-    }
-  }
-  const numbers: RaffleNumber[] = Array.from({ length: TOTAL_NUMBERS }, (_, i) => ({
-    n: i + 1,
-    status: 'free',
-  }));
-  return { numbers, reservations: [] };
-}
+        <div className="mb-4">
+          <div className="h-2 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+            <div className="h-full bg-emerald-500" style={{ width: `${progress}%` }} />
+          </div>
+          <div className="text-sm text-zinc-600 dark:text-zinc-400 mt-1">
+            {taken.size}/1000 números vendidos ({progress}%)
+          </div>
+        </div>
 
-function persist(state: RaffleState) {
-  localStorage.setItem(LS_KEY, JSON.stringify(state));
-}
-
-export function RaffleProvider({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<RaffleState>(bootstrap);
-
-  useEffect(() => {
-    persist(state);
-  }, [state]);
-
-  const availableNumbers = useMemo(
-    () => state.numbers.filter((x) => x.status === 'free').map((x) => x.n),
-    [state.numbers]
+        <div className="grid sm:grid-cols-3 gap-3 items-end">
+          <div>
+            <label className="block text-sm mb-1 text-zinc-700 dark:text-zinc-300">Nome</label>
+            <input
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-200
+                         dark:bg-zinc-800 dark:border-zinc-700"
+              placeholder="Fulano"
+            />
+          </div>
+          <div>
+            <label className="block text-sm mb-1 text-zinc-700 dark:text-zinc-300">Quantidade</label>
+            <input
+              type="number"
+              min={1}
+              max={availableNumbers.length}
+              value={qty}
+              onChange={(e) => setQty(Math.max(1, Number(e.target.value)))}
+              className="w-full px-3 py-2 rounded-lg bg-white border border-zinc-200
+                         dark:bg-zinc-800 dark:border-zinc-700"
+            />
+          </div>
+          <Button onClick={buy}>Reservar</Button>
+        </div>
+        <div className="mt-6">
+          <h3 className="font-semibold mb-2 text-zinc-900 dark:text-white">Participantes</h3>
+          <div className="space-y-2">
+            {buyers.map((b, i) => (
+              <div key={i} className="text-sm text-zinc-800 dark:text-zinc-200">
+                <span className="font-medium">{b.name}:</span> {b.numbers.join(', ')}
+              </div>
+            ))}
+            {buyers.length === 0 && (
+              <div className="text-sm text-zinc-500">Ninguém ainda.</div>
+            )}
+          </div>
+        </div>
+      </Card>
+    </div>
   );
-
-  const userNumbers = (userId: string) =>
-    state.numbers.filter((x) => x.userId === userId && x.status === 'sold').map((x) => x.n);
-
-  const createReservation = (userId: string, userName: string, numbers: number[], amount: number) => {
-    if (!numbers.length) return '';
-    // valida se ainda estão livres
-    const freeSet = new Set(availableNumbers);
-    const allFree = numbers.every((n) => freeSet.has(n));
-    if (!allFree) return '';
-
-    const reservationId = `res_${Date.now()}`;
-
-    setState((prev) => {
-      const nextNumbers = prev.numbers.map((it) =>
-        numbers.includes(it.n)
-          ? { ...it, status: 'pending', reservationId, userId, userName }
-          : it
-      );
-      const nextRes: Reservation = {
-        id: reservationId,
-        userId,
-        userName,
-        numbers: [...numbers].sort((a, b) => a - b),
-        amount,
-        status: 'pending',
-        createdAt: new Date().toISOString(),
-      };
-      return { numbers: nextNumbers, reservations: [nextRes, ...prev.reservations] };
-    });
-
-    return reservationId;
-  };
-
-  const approveReservation = (reservationId: string) => {
-    setState((prev) => {
-      const res = prev.reservations.find((r) => r.id === reservationId);
-      if (!res) return prev;
-      const nextReservations = prev.reservations.map((r) =>
-        r.id === reservationId ? { ...r, status: 'approved' } : r
-      );
-      const nextNumbers = prev.numbers.map((n) =>
-        res.numbers.includes(n.n)
-          ? { ...n, status: 'sold', reservationId, userId: res.userId, userName: res.userName }
-          : n
-      );
-      return { numbers: nextNumbers, reservations: nextReservations };
-    });
-  };
-
-  const rejectReservation = (reservationId: string) => {
-    setState((prev) => {
-      const res = prev.reservations.find((r) => r.id === reservationId);
-      if (!res) return prev;
-      const nextReservations = prev.reservations.map((r) =>
-        r.id === reservationId ? { ...r, status: 'rejected' } : r
-      );
-      const nextNumbers = prev.numbers.map((n) =>
-        res.numbers.includes(n.n)
-          ? { n: n.n, status: 'free' as const } // limpa campos do pending
-          : n
-      );
-      return { numbers: nextNumbers, reservations: nextReservations };
-    });
-  };
-
-  const resetPendingForUser = (userId: string) => {
-    setState((prev) => {
-      const pendingOfUser = prev.reservations.filter(
-        (r) => r.userId === userId && r.status === 'pending'
-      );
-      const pendIds = new Set(pendingOfUser.map((r) => r.id));
-      const nextReservations = prev.reservations.map((r) =>
-        pendIds.has(r.id) ? { ...r, status: 'rejected' } : r
-      );
-      const nextNumbers = prev.numbers.map((n) =>
-        n.status === 'pending' && n.userId === userId ? { n: n.n, status: 'free' } : n
-      );
-      return { numbers: nextNumbers, reservations: nextReservations };
-    });
-  };
-
-  const value: RaffleContextType = {
-    pricePerNumber: PRICE,
-    state,
-    availableNumbers,
-    userNumbers,
-    createReservation,
-    approveReservation,
-    rejectReservation,
-    resetPendingForUser,
-  };
-
-  return <RaffleContext.Provider value={value}>{children}</RaffleContext.Provider>;
 }
 
-export function useRaffle() {
-  const ctx = useContext(RaffleContext);
-  if (!ctx) throw new Error('useRaffle deve ser usado dentro de <RaffleProvider>');
-  return ctx;
+export function Raffle() {
+  return <RaffleInner />;
 }
+export default Raffle;
