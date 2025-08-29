@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { useLinks } from '../contexts/LinksContext';
+import { useRaffle } from '../contexts/RaffleContext';
 import { Card } from './ui/Card';
 import { Button } from './ui/Button';
 import { Modal } from './ui/Modal';
@@ -21,6 +22,10 @@ import {
   X,
   Eye,
   EyeOff,
+  Ticket,
+  Check,
+  AlertCircle,
+  Clock,
 } from 'lucide-react';
 
 type AdminSection =
@@ -30,7 +35,8 @@ type AdminSection =
   | 'books'
   | 'partners'
   | 'messages'
-  | 'links';
+  | 'links'
+  | 'raffle';
 
 /* ================== EXPORTAÇÃO NOMEADA ================== */
 export function AdminPanel() {
@@ -45,6 +51,7 @@ export function AdminPanel() {
     { id: 'partners' as AdminSection, label: 'Parceiros', icon: UserPlus },
     { id: 'messages' as AdminSection, label: 'Mensagens Diárias', icon: MessageSquare },
     { id: 'links' as AdminSection, label: 'Links Extras', icon: Settings },
+    { id: 'raffle' as AdminSection, label: 'Gerenciar Rifa', icon: Ticket },
   ];
 
   const renderContent = () => {
@@ -63,6 +70,8 @@ export function AdminPanel() {
         return <MessageManagement />;
       case 'links':
         return <LinkManagement />;
+      case 'raffle':
+        return <RaffleManagement />;
       default:
         return <AdminDashboard />;
     }
@@ -1134,6 +1143,327 @@ function LinkManagement() {
           />
         </div>
       </Card>
+    </div>
+  );
+}
+
+/* ---------------- RAFFLE MANAGEMENT ---------------- */
+
+function RaffleManagement() {
+  const { state, approveReservation, rejectReservation } = useRaffle();
+  const [selectedReservation, setSelectedReservation] = useState<any>(null);
+
+  const pendingReservations = state.reservations.filter(r => r.status === 'pending');
+  const approvedReservations = state.reservations.filter(r => r.status === 'approved');
+  const rejectedReservations = state.reservations.filter(r => r.status === 'rejected');
+
+  const soldNumbers = state.numbers.filter(n => n.status === 'sold').length;
+  const pendingNumbers = state.numbers.filter(n => n.status === 'pending').length;
+  const availableNumbers = state.numbers.filter(n => n.status === 'free').length;
+
+  const totalRevenue = approvedReservations.reduce((sum, r) => sum + r.amount, 0);
+  const pendingRevenue = pendingReservations.reduce((sum, r) => sum + r.amount, 0);
+
+  const handleApprove = (reservationId: string) => {
+    approveReservation(reservationId);
+    setSelectedReservation(null);
+  };
+
+  const handleReject = (reservationId: string) => {
+    rejectReservation(reservationId);
+    setSelectedReservation(null);
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">Gerenciar Rifa</h1>
+        <div className="text-sm text-zinc-600 dark:text-zinc-400">
+          Total de números: 1000
+        </div>
+      </div>
+
+      {/* Estatísticas da Rifa */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <Card className="flex items-center">
+          <div className="p-3 rounded-lg bg-emerald-50 dark:bg-emerald-500/10">
+            <Check className="h-8 w-8 text-emerald-700 dark:text-emerald-300" />
+          </div>
+          <div className="ml-4">
+            <h3 className="text-2xl font-bold text-zinc-900 dark:text-white">{soldNumbers}</h3>
+            <p className="text-emerald-700 dark:text-emerald-300">Vendidos</p>
+          </div>
+        </Card>
+
+        <Card className="flex items-center">
+          <div className="p-3 rounded-lg bg-amber-50 dark:bg-amber-500/10">
+            <Clock className="h-8 w-8 text-amber-700 dark:text-amber-300" />
+          </div>
+          <div className="ml-4">
+            <h3 className="text-2xl font-bold text-zinc-900 dark:text-white">{pendingNumbers}</h3>
+            <p className="text-amber-700 dark:text-amber-300">Pendentes</p>
+          </div>
+        </Card>
+
+        <Card className="flex items-center">
+          <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-500/10">
+            <Ticket className="h-8 w-8 text-blue-700 dark:text-blue-300" />
+          </div>
+          <div className="ml-4">
+            <h3 className="text-2xl font-bold text-zinc-900 dark:text-white">{availableNumbers}</h3>
+            <p className="text-blue-700 dark:text-blue-300">Disponíveis</p>
+          </div>
+        </Card>
+
+        <Card className="flex items-center">
+          <div className="p-3 rounded-lg bg-green-50 dark:bg-green-500/10">
+            <BarChart3 className="h-8 w-8 text-green-700 dark:text-green-300" />
+          </div>
+          <div className="ml-4">
+            <h3 className="text-2xl font-bold text-zinc-900 dark:text-white">R$ {totalRevenue.toFixed(2)}</h3>
+            <p className="text-green-700 dark:text-green-300">Arrecadado</p>
+          </div>
+        </Card>
+      </div>
+
+      {/* Reservas Pendentes */}
+      {pendingReservations.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold text-zinc-900 dark:text-white flex items-center">
+            <AlertCircle className="mr-2 text-amber-600 dark:text-amber-400" />
+            Reservas Pendentes ({pendingReservations.length})
+          </h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            {pendingReservations.map((reservation) => (
+              <Card key={reservation.id} className="border-amber-200 dark:border-amber-700/40">
+                <div className="space-y-3">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h3 className="font-semibold text-zinc-900 dark:text-white">
+                        {reservation.userName}
+                      </h3>
+                      <p className="text-sm text-zinc-600 dark:text-zinc-400">
+                        {new Date(reservation.createdAt).toLocaleString('pt-BR')}
+                      </p>
+                    </div>
+                    <span className="px-2 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-500/10 dark:text-amber-300 dark:border-amber-700/40">
+                      Pendente
+                    </span>
+                  </div>
+
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-zinc-700 dark:text-zinc-300">Números:</span>
+                      <span className="text-sm font-medium text-zinc-900 dark:text-white">
+                        {reservation.numbers.length} números
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-zinc-700 dark:text-zinc-300">Total:</span>
+                      <span className="text-sm font-bold text-emerald-700 dark:text-emerald-300">
+                        R$ {reservation.amount.toFixed(2).replace('.', ',')}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="text-xs text-zinc-600 dark:text-zinc-400 bg-zinc-50 dark:bg-zinc-800/60 p-2 rounded">
+                    <strong>Números:</strong> {reservation.numbers.join(', ')}
+                  </div>
+
+                  <div className="flex gap-2 pt-2">
+                    <Button
+                      onClick={() => handleApprove(reservation.id)}
+                      variant="primary"
+                      size="sm"
+                      className="flex-1 flex items-center justify-center gap-1"
+                    >
+                      <Check size={14} />
+                      Aprovar
+                    </Button>
+                    <Button
+                      onClick={() => handleReject(reservation.id)}
+                      variant="danger"
+                      size="sm"
+                      className="flex-1 flex items-center justify-center gap-1"
+                    >
+                      <X size={14} />
+                      Rejeitar
+                    </Button>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Histórico de Reservas */}
+      <div className="space-y-4">
+        <h2 className="text-xl font-semibold text-zinc-900 dark:text-white">
+          Histórico de Reservas
+        </h2>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Aprovadas */}
+          <Card>
+            <h3 className="font-semibold text-emerald-700 dark:text-emerald-300 mb-4 flex items-center">
+              <Check className="mr-2" size={18} />
+              Aprovadas ({approvedReservations.length})
+            </h3>
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {approvedReservations.slice(0, 10).map((reservation) => (
+                <div key={reservation.id} className="border-b border-zinc-200 dark:border-zinc-800 pb-2 last:border-b-0">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium text-zinc-900 dark:text-white text-sm">
+                        {reservation.userName}
+                      </p>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                        {reservation.numbers.length} números • R$ {reservation.amount.toFixed(2)}
+                      </p>
+                    </div>
+                    <span className="text-xs text-zinc-500">
+                      {new Date(reservation.createdAt).toLocaleDateString('pt-BR')}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {approvedReservations.length === 0 && (
+                <p className="text-sm text-zinc-500 italic text-center py-4">
+                  Nenhuma reserva aprovada ainda
+                </p>
+              )}
+            </div>
+          </Card>
+
+          {/* Rejeitadas */}
+          <Card>
+            <h3 className="font-semibold text-rose-700 dark:text-rose-300 mb-4 flex items-center">
+              <X className="mr-2" size={18} />
+              Rejeitadas ({rejectedReservations.length})
+            </h3>
+            <div className="space-y-3 max-h-64 overflow-y-auto">
+              {rejectedReservations.slice(0, 10).map((reservation) => (
+                <div key={reservation.id} className="border-b border-zinc-200 dark:border-zinc-800 pb-2 last:border-b-0">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="font-medium text-zinc-900 dark:text-white text-sm">
+                        {reservation.userName}
+                      </p>
+                      <p className="text-xs text-zinc-600 dark:text-zinc-400">
+                        {reservation.numbers.length} números • R$ {reservation.amount.toFixed(2)}
+                      </p>
+                    </div>
+                    <span className="text-xs text-zinc-500">
+                      {new Date(reservation.createdAt).toLocaleDateString('pt-BR')}
+                    </span>
+                  </div>
+                </div>
+              ))}
+              {rejectedReservations.length === 0 && (
+                <p className="text-sm text-zinc-500 italic text-center py-4">
+                  Nenhuma reserva rejeitada
+                </p>
+              )}
+            </div>
+          </Card>
+        </div>
+      </div>
+
+      {/* Resumo Financeiro */}
+      <Card>
+        <h3 className="font-semibold text-zinc-900 dark:text-white mb-4">Resumo Financeiro</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div className="text-center p-4 rounded-lg bg-emerald-50 dark:bg-emerald-500/10">
+            <div className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
+              R$ {totalRevenue.toFixed(2).replace('.', ',')}
+            </div>
+            <div className="text-sm text-emerald-600 dark:text-emerald-400">Confirmado</div>
+          </div>
+          <div className="text-center p-4 rounded-lg bg-amber-50 dark:bg-amber-500/10">
+            <div className="text-2xl font-bold text-amber-700 dark:text-amber-300">
+              R$ {pendingRevenue.toFixed(2).replace('.', ',')}
+            </div>
+            <div className="text-sm text-amber-600 dark:text-amber-400">Pendente</div>
+          </div>
+          <div className="text-center p-4 rounded-lg bg-blue-50 dark:bg-blue-500/10">
+            <div className="text-2xl font-bold text-blue-700 dark:text-blue-300">
+              R$ {(availableNumbers * 2).toFixed(2).replace('.', ',')}
+            </div>
+            <div className="text-sm text-blue-600 dark:text-blue-400">Potencial</div>
+          </div>
+        </div>
+      </Card>
+
+      {/* Modal de Detalhes da Reserva */}
+      <Modal
+        isOpen={!!selectedReservation}
+        onClose={() => setSelectedReservation(null)}
+        title="Detalhes da Reserva"
+        size="lg"
+      >
+        {selectedReservation && (
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Cliente</label>
+                <p className="text-zinc-900 dark:text-white">{selectedReservation.userName}</p>
+              </div>
+              <div>
+                <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Data</label>
+                <p className="text-zinc-900 dark:text-white">
+                  {new Date(selectedReservation.createdAt).toLocaleString('pt-BR')}
+                </p>
+              </div>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-zinc-700 dark:text-zinc-300">Números Selecionados</label>
+              <div className="mt-2 p-3 bg-zinc-50 dark:bg-zinc-800/60 rounded-lg">
+                <div className="flex flex-wrap gap-2">
+                  {selectedReservation.numbers.map((num: number) => (
+                    <span
+                      key={num}
+                      className="px-2 py-1 text-xs rounded bg-emerald-100 text-emerald-800 dark:bg-emerald-500/10 dark:text-emerald-300"
+                    >
+                      {num}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-between items-center p-4 bg-zinc-50 dark:bg-zinc-800/60 rounded-lg">
+              <span className="font-medium text-zinc-900 dark:text-white">Total a Pagar:</span>
+              <span className="text-xl font-bold text-emerald-700 dark:text-emerald-300">
+                R$ {selectedReservation.amount.toFixed(2).replace('.', ',')}
+              </span>
+            </div>
+
+            {selectedReservation.status === 'pending' && (
+              <div className="flex gap-3 pt-4 border-t border-zinc-200 dark:border-zinc-800">
+                <Button
+                  onClick={() => handleApprove(selectedReservation.id)}
+                  variant="primary"
+                  className="flex-1 flex items-center justify-center gap-2"
+                >
+                  <Check size={16} />
+                  Aprovar Pagamento
+                </Button>
+                <Button
+                  onClick={() => handleReject(selectedReservation.id)}
+                  variant="danger"
+                  className="flex-1 flex items-center justify-center gap-2"
+                >
+                  <X size={16} />
+                  Rejeitar
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

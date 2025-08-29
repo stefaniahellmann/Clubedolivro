@@ -11,6 +11,7 @@ type LinksContextType = {
   links: LinksState;
   setLinks: React.Dispatch<React.SetStateAction<LinksState>>;
   updateLink: (key: keyof LinksState, value: string) => void;
+  resetLinks: () => void;
 };
 
 const DEFAULT_LINKS: LinksState = {
