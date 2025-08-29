@@ -15,9 +15,8 @@ import { Navigation } from './components/Navigation';
 import { FloatingThemeToggle } from './components/FloatingThemeToggle';
 import { Profile } from './components/Profile';
 import { Raffle } from './components/Raffle';
-import { RaffleProvider } from './contexts/RaffleContext';
 
-
+ 
 function AppContent() {
   const { user, isAdmin, hydrated } = useAuth();
   const [activeView, setActiveView] = useState('dashboard');
@@ -62,11 +61,9 @@ export default function App() {
     <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 transition-colors">
       <ConfigProvider>
         <LinksProvider>
-          <RaffleProvider>
-            <AuthProvider>
-              <AppContent />
-            </AuthProvider>
-          </RaffleProvider>
+          <AuthProvider>
+            <AppContent />
+          </AuthProvider>
         </LinksProvider>
       </ConfigProvider>
 
@@ -74,5 +71,3 @@ export default function App() {
     </div>
   );
 }
-
-
