@@ -1,7 +1,6 @@
-// src/App.tsx
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
-import { ThemeProvider } from './contexts/ThemeContext';
+import { LinksProvider } from './contexts/LinksContext';
 import { Layout } from './components/Layout';
 import { Login } from './components/Login';
 import { Dashboard } from './components/Dashboard';
@@ -17,13 +16,8 @@ function AppContent() {
   const { user, isAdmin } = useAuth();
   const [activeView, setActiveView] = useState('dashboard');
 
-  if (!user && !isAdmin) {
-    return <Login />;
-  }
-
-  if (isAdmin) {
-    return <AdminPanel />;
-  }
+  if (!user && !isAdmin) return <Login />;
+  if (isAdmin) return <AdminPanel />;
 
   const renderContent = () => {
     switch (activeView) {
@@ -50,19 +44,15 @@ function AppContent() {
   );
 }
 
-function App() {
+export default function App() {
   return (
-    <ThemeProvider>
-      {/* Wrapper com transição suave + cores base claro/escuro */}
-      <div className="min-h-screen theme-smooth bg-zinc-50 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 transition-colors">
-        <AuthProvider>
+    <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 transition-colors">
+      <AuthProvider>
+        <LinksProvider>
           <AppContent />
-          {/* Botão flutuante de tema (dentro do ThemeProvider) */}
-          <FloatingThemeToggle />
-        </AuthProvider>
-      </div>
-    </ThemeProvider>
+        </LinksProvider>
+      </AuthProvider>
+      <FloatingThemeToggle />
+    </div>
   );
 }
-
-export default App;
