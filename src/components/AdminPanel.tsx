@@ -1081,11 +1081,10 @@ function MessageManagement() {
 function LinkManagement() {
   const { links, updateLink, resetLinks } = useLinks();
   const [local, setLocal] = useState({
-    drive: links.drive.url,
-    whatsapp: links.whatsapp.url,
-    telegram: links.telegram.url,
-    refer: links.refer.url,
-    rules: links.rules.url,
+    drive: links.drive,
+    whatsapp: links.whatsapp,
+    telegram: links.telegram,
+    shareUrl: links.shareUrl,
   });
 
   const handleSave = () => {
@@ -1130,15 +1129,8 @@ function LinkManagement() {
           <LinkInput
             title="Indique Amigos"
             hint="Compartilhe o clube com seus amigos"
-            value={local.refer}
-            onChange={(v) => setLocal({ ...local, refer: v })}
-          />
-          <LinkInput
-            title="Regras do Clube"
-            hint="Leia com atenção as regras"
-            value={local.rules}
-            onChange={(v) => setLocal({ ...local, rules: v })}
-            wide
+            value={local.shareUrl}
+            onChange={(v) => setLocal({ ...local, shareUrl: v })}
           />
         </div>
       </Card>
