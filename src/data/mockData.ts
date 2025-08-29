@@ -1,5 +1,30 @@
 import { DailySummary, Book, Partner, DailyMessage, ExtraLink } from '../types';
 
+export const users = [
+  {
+    id: '1',
+    firstName: 'João',
+    lastName: 'Silva',
+    email: 'joao@email.com',
+    phone: '(11) 99999-9999',
+    cpf: '123.456.789-01',
+    expirationDate: '2025-12-31',
+    isActive: true,
+    createdAt: '2024-01-15'
+  },
+  {
+    id: '2',
+    firstName: 'Maria',
+    lastName: 'Santos',
+    email: 'maria@email.com',
+    phone: '(11) 88888-8888',
+    cpf: '987.654.321-09',
+    expirationDate: '2025-06-30',
+    isActive: true,
+    createdAt: '2024-02-20'
+  }
+];
+
 export const dailyMessages: DailyMessage[] = [
   { id: '1', message: 'Bom dia! Que a leitura de hoje traga novas descobertas para sua vida! 📚', isActive: true },
   { id: '2', message: 'Cada página lida é um passo em direção ao conhecimento. Continue sua jornada! ✨', isActive: true },
