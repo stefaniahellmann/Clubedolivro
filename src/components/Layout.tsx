@@ -37,7 +37,19 @@ export function Layout({ children }: LayoutProps) {
     [profile.nickname, user]
   );
 
-  const greeting = getGreeting(); // ex.: "Bom dia"
+  const greeting = getGreeting();
+const isNight = greeting.toLowerCase().startsWith('boa noite');
+
+const chipClasses = isNight
+  ? // NOITE => fundo cinza (inclusive no claro)
+    "text-sm font-medium px-3 py-1.5 rounded-lg border shadow-sm " +
+    "bg-zinc-100 text-zinc-800 border-zinc-200 " +
+    "dark:bg-zinc-800/60 dark:text-zinc-200 dark:border-zinc-700"
+  : // DIA/TARDE => verde pastel no claro, cinza no escuro
+    "text-sm font-medium px-3 py-1.5 rounded-lg border shadow-sm " +
+    "bg-gradient-to-r from-emerald-100 via-emerald-50 to-teal-100 " +
+    "text-emerald-800 border-emerald-200 " +
+    "dark:bg-zinc-800/60 dark:text-zinc-200 dark:border-zinc-700";
 
   return (
     <div className="min-h-screen">
