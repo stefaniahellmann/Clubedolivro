@@ -1,14 +1,41 @@
-import React from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, BookOpen, Settings } from 'lucide-react';
+import { LogOut, BookOpen, Settings, User as UserIcon } from 'lucide-react';
 import { Button } from './ui/Button';
 
 interface LayoutProps {
   children: React.ReactNode;
 }
 
+type ProfileLS = { nickname?: string; photoDataUrl?: string | null };
+
+function getGreeting(): string {
+  const h = new Date().getHours();
+  if (h < 5) return 'Boa noite';
+  if (h < 12) return 'Bom dia';
+  if (h < 18) return 'Boa tarde';
+  return 'Boa noite';
+}
+
 export function Layout({ children }: LayoutProps) {
   const { user, isAdmin, logout } = useAuth();
+
+  // Lê apelido/foto do perfil salvo pelo UserSettings
+  const [profile, setProfile] = useState<ProfileLS>({});
+  useEffect(() => {
+    try {
+      const raw = localStorage.getItem('clube:userProfile');
+      if (raw) setProfile(JSON.parse(raw));
+    } catch {}
+    const onUpd = (e: any) => setProfile(e.detail || {});
+    window.addEventListener('profile:updated', onUpd as any);
+    return () => window.removeEventListener('profile:updated', onUpd as any);
+  }, []);
+
+  const displayName = useMemo(
+    () => (profile.nickname?.trim() || user?.firstName || 'Leitor(a)'),
+    [profile.nickname, user]
+  );
 
   return (
     <div className="min-h-screen">
@@ -22,17 +49,19 @@ export function Layout({ children }: LayoutProps) {
         Pular para conteúdo
       </a>
 
+      {/* HEADER */}
       <header
         className="
           sticky top-0 z-40
-          bg-white dark:bg-zinc-900
+          bg-white/80 dark:bg-zinc-900/80
+          supports-[backdrop-filter]:backdrop-blur-sm
           shadow-lg border-b border-zinc-200 dark:border-zinc-800
         "
         role="banner"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-2">
+            <div className="flex items-center gap-2">
               <BookOpen className="h-8 w-8 text-amber-600 dark:text-amber-500" />
               <h1
                 className="
@@ -46,24 +75,49 @@ export function Layout({ children }: LayoutProps) {
               </h1>
             </div>
 
-            <div className="flex items-center space-x-4">
+            <div className="flex items-center gap-4">
               {user && (
-                <span className="text-sm text-zinc-600 dark:text-zinc-300">
-                  Olá, <span className="text-amber-700 dark:text-amber-400 font-medium">{user.firstName}</span>!
-                </span>
+                <div className="flex items-center gap-2">
+                  {/* Avatar (foto ou iniciais) */}
+                  <div className="w-8 h-8 rounded-full overflow-hidden bg-zinc-200 dark:bg-zinc-700 grid place-items-center">
+                    {profile.photoDataUrl ? (
+                      <img
+                        src={profile.photoDataUrl}
+                        alt="Foto do perfil"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <UserIcon size={18} className="text-zinc-500 dark:text-zinc-300" />
+                    )}
+                  </div>
+
+                  {/* Saudação com pastel no claro */}
+                  <span
+                    className="
+                      text-sm
+                      px-2 py-1 rounded
+                      bg-emerald-50 text-emerald-800 border border-emerald-200
+                      dark:bg-transparent dark:text-zinc-300 dark:border-transparent
+                    "
+                  >
+                    {getGreeting()}, <span className="font-medium">{displayName}</span>!
+                  </span>
+                </div>
               )}
+
               {isAdmin && (
-                <div className="flex items-center space-x-1 text-sm text-amber-700 dark:text-amber-400">
+                <div className="hidden sm:flex items-center gap-1 text-sm text-amber-700 dark:text-amber-400">
                   <Settings size={16} />
                   <span>Admin</span>
                 </div>
               )}
+
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={logout}
                 className="
-                  flex items-center space-x-1
+                  flex items-center gap-1
                   text-zinc-700 hover:text-zinc-900
                   dark:text-zinc-300 dark:hover:text-white
                 "
@@ -78,6 +132,7 @@ export function Layout({ children }: LayoutProps) {
         </div>
       </header>
 
+      {/* MAIN */}
       <main
         id="main"
         className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8"
