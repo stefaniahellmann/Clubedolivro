@@ -10,19 +10,16 @@ import { FreeMaterials } from './components/FreeMaterials';
 import { AdminPanel } from './components/AdminPanel';
 import { Navigation } from './components/Navigation';
 import { FloatingThemeToggle } from './components/FloatingThemeToggle';
-import { LinksProvider } from './contexts/LinksContext';
+import { ConfigProvider } from './contexts/ConfigContext';
+import { Profile } from './components/Profile';
+import { Raffle } from './components/Raffle';
 
 function AppContent() {
   const { user, isAdmin } = useAuth();
   const [activeView, setActiveView] = useState('dashboard');
 
-  if (!user && !isAdmin) {
-    return <Login />;
-  }
-
-  if (isAdmin) {
-    return <AdminPanel />;
-  }
+  if (!user && !isAdmin) return <Login />;
+  if (isAdmin) return <AdminPanel />;
 
   const renderContent = () => {
     switch (activeView) {
@@ -36,6 +33,10 @@ function AppContent() {
         return <Partners />;
       case 'materials':
         return <FreeMaterials />;
+      case 'raffle':
+        return <Raffle />;
+      case 'profile':
+        return <Profile />;
       default:
         return <Dashboard />;
     }
@@ -49,18 +50,15 @@ function AppContent() {
   );
 }
 
-function App() {
+export default function App() {
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 transition-colors">
-      <LinksProvider>
+      <ConfigProvider>
         <AuthProvider>
           <AppContent />
         </AuthProvider>
-      </LinksProvider>
-
+      </ConfigProvider>
       <FloatingThemeToggle />
     </div>
   );
 }
-
-export default App;
