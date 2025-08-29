@@ -86,6 +86,18 @@ function RaffleManagement() {
     return new Date(isoString).toLocaleString('pt-BR');
   };
 
+  const handleSaveLinks = () => {
+    Object.entries(tempLinks).forEach(([key, value]) => {
+      updateLink(key as keyof typeof links, value);
+    });
+    setLinksSaved(true);
+    setTimeout(() => setLinksSaved(false), 2000);
+  };
+
+  const handleLinkChange = (key: keyof typeof links, value: string) => {
+    setTempLinks(prev => ({ ...prev, [key]: value }));
+  };
+
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -403,6 +415,18 @@ export function AdminPanel() {
 
   const formatDate = (isoString: string) => {
     return new Date(isoString).toLocaleString('pt-BR');
+  };
+
+  const handleSaveLinks = () => {
+    Object.entries(tempLinks).forEach(([key, value]) => {
+      updateLink(key as keyof typeof links, value);
+    });
+    setLinksSaved(true);
+    setTimeout(() => setLinksSaved(false), 2000);
+  };
+
+  const handleLinkChange = (key: keyof typeof links, value: string) => {
+    setTempLinks(prev => ({ ...prev, [key]: value }));
   };
 
   return (
