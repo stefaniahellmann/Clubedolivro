@@ -1,4 +1,3 @@
-// src/components/Navigation.tsx
 import React, { useCallback } from 'react';
 import { Button } from './ui/Button';
 import { Home, Calendar, BookOpen, Users, FileText } from 'lucide-react';
@@ -43,11 +42,33 @@ export function Navigation({ activeView, onViewChange }: NavigationProps) {
       <div
         role="tablist"
         aria-orientation="horizontal"
-        className="flex gap-3 md:gap-4 overflow-x-auto py-5"
+        // Centralizado e com respiro. Faz wrap em telas pequenas.
+        className="flex justify-center flex-wrap gap-3 md:gap-4 py-5"
         onKeyDown={handleKey}
       >
         {navItems.map((item) => {
           const isActive = activeView === item.id;
+
+          // estados de cor:
+          // - DEFAULT claro: chip cinza claro (sem verde); hover -> verde pastel
+          // - DEFAULT escuro: chip cinza médio; hover -> verde translúcido
+          // - ATIVO claro/escuro: verde pastel
+          const base =
+            'px-5 md:px-6 rounded-xl flex items-center gap-3 whitespace-nowrap transition-all duration-200 border';
+
+          const neutralLight =
+            'bg-white text-zinc-700 border-zinc-200 hover:bg-emerald-50 hover:text-emerald-700 hover:border-emerald-200';
+
+          const neutralDark =
+            'dark:bg-zinc-800/70 dark:text-zinc-300 dark:border-zinc-700 ' +
+            'dark:hover:bg-emerald-500/10 dark:hover:text-emerald-300 dark:hover:border-emerald-700/40';
+
+          const activeLight =
+            'bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm';
+
+          const activeDark =
+            'dark:bg-emerald-500/15 dark:text-emerald-300 dark:border-emerald-700/40';
+
           return (
             <Button
               key={item.id}
@@ -55,28 +76,14 @@ export function Navigation({ activeView, onViewChange }: NavigationProps) {
               role="tab"
               aria-selected={isActive}
               aria-current={isActive ? 'page' : undefined}
-              // botões maiores = mais confortáveis
+              // usamos "ghost" pra não forçar o verde do seu Button primário
+              variant="ghost"
               size="md"
               className={[
-                // espaçamento interno extra e cantos mais suaves
-                'px-5 md:px-6 rounded-xl',
-                'flex items-center gap-3 whitespace-nowrap transition-all duration-200',
+                base,
                 isActive
-                  ? [
-                      // CLARO (pastéis)
-                      'bg-emerald-50 text-emerald-700 border border-emerald-200',
-                      'hover:bg-emerald-100',
-                      // ESCURO
-                      'dark:bg-emerald-500/10 dark:text-emerald-300 dark:border-emerald-700/40',
-                      'dark:hover:bg-emerald-500/15',
-                      'shadow-sm',
-                    ].join(' ')
-                  : [
-                      // CLARO
-                      'text-zinc-700 hover:text-zinc-900 hover:bg-zinc-100',
-                      // ESCURO
-                      'dark:text-zinc-300 dark:hover:text-white dark:hover:bg-zinc-800',
-                    ].join(' '),
+                  ? [activeLight, activeDark].join(' ')
+                  : [neutralLight, neutralDark].join(' '),
               ].join(' ')}
             >
               <item.icon size={18} />
