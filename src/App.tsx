@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
+import { ConfigProvider } from './contexts/ConfigContext';
+import { LinksProvider } from './contexts/LinksContext';
+
 import { Layout } from './components/Layout';
 import { Login } from './components/Login';
 import { Dashboard } from './components/Dashboard';
@@ -10,14 +13,15 @@ import { FreeMaterials } from './components/FreeMaterials';
 import { AdminPanel } from './components/AdminPanel';
 import { Navigation } from './components/Navigation';
 import { FloatingThemeToggle } from './components/FloatingThemeToggle';
-import { ConfigProvider } from './contexts/ConfigContext';
-import { LinksProvider } from './contexts/LinksContext'; // <-- ADICIONADO
 import { Profile } from './components/Profile';
 import { Raffle } from './components/Raffle';
 
 function AppContent() {
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, hydrated } = useAuth();
   const [activeView, setActiveView] = useState('dashboard');
+
+  // evita "piscar" login antes de hidratar
+  if (!hydrated) return null;
 
   if (!user && !isAdmin) return <Login />;
   if (isAdmin) return <AdminPanel />;
@@ -54,14 +58,13 @@ function AppContent() {
 export default function App() {
   return (
     <div className="min-h-screen bg-zinc-50 text-zinc-900 dark:bg-zinc-900 dark:text-zinc-100 transition-colors">
-      {/* O LinksProvider precisa envolver tudo que usa useLinks (Dashboard, Admin, etc) */}
-      <LinksProvider>
-        <ConfigProvider>
+      <ConfigProvider>
+        <LinksProvider>
           <AuthProvider>
             <AppContent />
           </AuthProvider>
-        </ConfigProvider>
-      </LinksProvider>
+        </LinksProvider>
+      </ConfigProvider>
 
       <FloatingThemeToggle />
     </div>
