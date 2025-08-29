@@ -1,3 +1,4 @@
+// src/components/Navigation.tsx
 import React, { useCallback } from 'react';
 import { Button } from './ui/Button';
 import { Home, Calendar, BookOpen, Users, FileText } from 'lucide-react';
@@ -37,12 +38,12 @@ export function Navigation({ activeView, onViewChange }: NavigationProps) {
   return (
     <nav
       aria-label="Seções principais"
-      className="bar mb-8 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8"
+      className="bar mb-10 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8"
     >
       <div
         role="tablist"
         aria-orientation="horizontal"
-        className="flex gap-1 overflow-x-auto py-4"
+        className="flex gap-3 md:gap-4 overflow-x-auto py-5"
         onKeyDown={handleKey}
       >
         {navItems.map((item) => {
@@ -54,10 +55,12 @@ export function Navigation({ activeView, onViewChange }: NavigationProps) {
               role="tab"
               aria-selected={isActive}
               aria-current={isActive ? 'page' : undefined}
-              variant={isActive ? 'primary' : 'ghost'}
-              size="sm"
+              // botões maiores = mais confortáveis
+              size="md"
               className={[
-                'flex items-center gap-2 whitespace-nowrap transition-all duration-200',
+                // espaçamento interno extra e cantos mais suaves
+                'px-5 md:px-6 rounded-xl',
+                'flex items-center gap-3 whitespace-nowrap transition-all duration-200',
                 isActive
                   ? [
                       // CLARO (pastéis)
@@ -76,8 +79,8 @@ export function Navigation({ activeView, onViewChange }: NavigationProps) {
                     ].join(' '),
               ].join(' ')}
             >
-              <item.icon size={16} />
-              <span>{item.label}</span>
+              <item.icon size={18} />
+              <span className="text-sm md:text-base">{item.label}</span>
             </Button>
           );
         })}
