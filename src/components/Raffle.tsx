@@ -120,7 +120,7 @@ Chave PIX: ${PIX_KEY}
       {/* GRID 1..1000 */}
       <Card className="p-3">
         <div className="grid grid-cols-5 sm:grid-cols-10 md:grid-cols-15 lg:grid-cols-20 xl:grid-cols-25 gap-2">
-          {Array.from({ length: 1000 }, (_, i) => i + 1).map((n) => {
+          {Array.from({ length: 500 }, (_, i) => i + 1).map((n) => {
             const info = statusMap.get(n);
             const st = info?.s ?? 'free';
             const isSel = selected.includes(n);
